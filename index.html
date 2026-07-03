@@ -54,7 +54,9 @@
   #log{position:absolute;right:10px;top:66px;width:300px;max-height:42vh;z-index:15;overflow-y:auto;
     background:rgba(239,226,189,.93);border:2px solid var(--ink);border-radius:3px;padding:8px 10px;
     font-size:12.5px;line-height:1.45;box-shadow:0 4px 16px rgba(0,0,0,.4)}
-  #log h4{font-size:13px;border-bottom:1px solid var(--ink);margin-bottom:4px;letter-spacing:1px}
+  #log h4{font-size:13px;border-bottom:1px solid var(--ink);margin-bottom:4px;letter-spacing:1px;cursor:pointer}
+  #log.collapsed #log-entries{display:none}
+  #log.collapsed h4{border-bottom:none;margin-bottom:0}
   #log .ent{margin-bottom:3px;border-bottom:1px dotted rgba(43,35,23,.25);padding-bottom:2px}
   #log .t{opacity:.55;font-variant-numeric:tabular-nums;margin-right:4px;font-size:11px}
   #log .grey{color:var(--grey-dark);font-weight:700} #log .blue{color:var(--blue-dark);font-weight:700}
@@ -137,7 +139,7 @@
     </div>
   </div>
 
-  <div id="log"><h4>UMPIRE'S CLIPBOARD</h4><div id="log-entries"></div></div>
+  <div id="log"><h4 id="log-head" title="click to collapse">UMPIRE'S CLIPBOARD ▾</h4><div id="log-entries"></div></div>
 
   <div id="botbar">
     <div id="sel-info">No men selected<div id="sel-sub">Drag on the map to select your troops.</div></div>
@@ -162,6 +164,7 @@ const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
 
 /* ---------------- config ---------------- */
 const CFG = {
+  version: "1.1.0",
   worldW: 1600, worldH: 1200,
   armySize: 40,            // active players per army (announced by the Director)
   plugStrength: 8,         // defenders needed to plug a gate
@@ -236,7 +239,7 @@ const TOWN_POLY=(function(){
 })();
 const CENTER={x:790,y:600,r:52};   // Center of Town — out of bounds for defenders
 const CAMPSITE={x:170,y:1055};     // "To the campsite" — Grey rally when attacking
-const RALLY2={x:1440,y:180};       // far corner rally used by the AI sometimes
+const RALLY2={x:1200,y:1080};      // Blue muster, southeast corner (clear of the HUD)
 
 // terrain decor & effects
 const SWAMP={x:1355,y:735,rx:180,ry:150};
@@ -892,7 +895,11 @@ function startQuarter(){
   const atk=ARMIES[G.attacker],def=ARMIES[other(G.attacker)];
   log("ump",`— Day ${G.day}, ${["1st","2nd","3rd","4th"][G.quarter-1]} Quarter. ${atk.name} attacks; ${def.name} defends York's Crossing. —`);
   log("ump",`The Director sets active players at ${CFG.armySize} and plugged-gate strength at ${CFG.plugStrength}.`);
-  banner(`${atk.name} ATTACKS`,`${def.name} defends the six gates of York's Crossing`,3.2);
+  const playerAtk=G.playerArmy===G.attacker;
+  if(playerAtk&&!G.autotest)G.selection=armyMen(G.playerArmy).slice();
+  banner(`${atk.name} ATTACKS`,playerAtk?
+    `Your army musters at the ${G.attacker==="G"?"southwest":"southeast"} corner — it is already selected; right-click a gate to move on it`:
+    `${def.name} defends the six gates of York's Crossing`,3.6);
   if(G.playerArmy===G.attacker)log(G.playerArmy==="G"?"grey":"blue",`${atk.general}: “${atk.cry}”`);
   ui.hudDirty=true;ui.rebuildButtons();
 }
@@ -1263,6 +1270,9 @@ const ui={
     this.resize();
     bindInput(this.canvas);
     this.el("btn-help").onclick=()=>this.showHelp();
+    this.el("log-head").onclick=()=>{
+      const col=this.el("log").classList.toggle("collapsed");
+      this.el("log-head").textContent=col?"UMPIRE'S CLIPBOARD ▸":"UMPIRE'S CLIPBOARD ▾"};
     this.el("btn-mute").onclick=()=>{SND.setMuted(!SND.muted);this.el("btn-mute").classList.toggle("on",SND.muted);
       this.el("btn-mute").textContent=SND.muted?"♪̸":"♪"};
     this.el("btn-pause").onclick=()=>{if(!G)return;G.paused=!G.paused;this.el("btn-pause").classList.toggle("on",G.paused)};
@@ -1322,13 +1332,17 @@ const ui={
     const mk=(label,key,fn,arm)=>{
       const b=document.createElement("button");b.className="act-btn";b.dataset.arm=arm||"";
       b.innerHTML=`${label} <span class="key-hint">${key}</span>`;b.onclick=()=>{SND.poke();fn(b)};box.appendChild(b);return b};
+    const selAll=()=>{G.selection=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead");
+      this.syncSelInfo();setTip("Whole army selected.")};
     if(G.playerArmy===G.attacker){
+      mk("☰ Select army","E",selAll);
       mk("⚔ Charge a gate","A",()=>armOrder("charge"),"charge");
       mk("📯 Post callers","C",()=>armOrder("callers"),"callers");
       mk("↧ Move","M",()=>armOrder("move"),"move");
       mk("↩ Fall back","F",()=>{
         const s=commandable();if(s.length)orderMove(s,{x:G.rally.x,y:G.rally.y},{});setTip("Falling back to the rally point.")});
     }else{
+      mk("☰ Select army","E",selAll);
       mk("⚑ Send to gate","G",()=>armOrder("garrison"),"garrison");
       mk("🏃 Sprint to gate","S",()=>armOrder("sprint"),"sprint");
       mk("🔒 Lockdown","L",()=>doLockdown());
@@ -1634,6 +1648,7 @@ function onKey(e){
     }
     return;
   }
+  if(k==="e"){G.selection=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead");ui.syncSelInfo();setTip("Whole army selected.")}
   const atk=G.playerArmy===G.attacker;
   if(atk&&k==="a")armOrder("charge");
   if(atk&&k==="c")armOrder("callers");
@@ -1949,8 +1964,9 @@ function render(dt){
     if(!own&&!enemyVisible(m))continue;
     const A=ARMIES[m.army];
     const sel=own&&G.selection.includes(m);
-    let w=10,h=6;
-    if(m.plugKneel){w=8;h=8}
+    const uS=clamp(0.85/v.scale,1,1.8);
+    let w=10*uS,h=6*uS;
+    if(m.plugKneel){w=8*uS;h=8*uS}
     c.globalAlpha=(m.state==="centerdead")?0.4:(m.state==="tempdead"?0.65:1);
     if(sel){c.strokeStyle="#b98a2f";c.lineWidth=2;c.strokeRect(m.x-w/2-2,m.y-h/2-2,w+4,h+4)}
     c.fillStyle=A.color;c.fillRect(m.x-w/2,m.y-h/2,w,h);
@@ -1984,10 +2000,21 @@ function render(dt){
       c.fillText(p.state==="form"?"READY—READY—":"ONE, TWO, STEP!",pc.x,pc.y+18);
     }
   }
-  // rally marker (attacking)
+  // rally marker & muster beacon (attacking)
   if(viewerIsAtk&&G.rally){
     c.font=serifFont(11,true);c.fillStyle="#4a3c26";c.textAlign="center";
-    c.fillText("⚑ rally / war wagon",G.rally.x,G.rally.y-28);
+    c.fillText("⚑ rally / war wagon",G.rally.x,G.rally.y-38);
+    if(G.phase==="play"&&G.tPlay<16){
+      const r=26+((now*44)%50);
+      c.strokeStyle="#b98a2f";c.lineWidth=3;
+      c.globalAlpha=Math.max(0,1-(r-26)/50);
+      c.beginPath();c.arc(G.rally.x,G.rally.y,r,0,7);c.stroke();
+      c.globalAlpha=1;
+      c.fillStyle="#8a2b1d";c.font=serifFont(16,true);
+      c.fillText("YOUR ARMY MUSTERS HERE",G.rally.x,G.rally.y-58);
+      c.font=serifFont(12,true);
+      c.fillText("drag to select • right-click a gate to charge it",G.rally.x,G.rally.y+58);
+    }
   }
   // drag rectangle
   if(dragStart&&dragCur){
