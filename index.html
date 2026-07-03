@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The War Game — York's Crossing • Pine Island Camp</title>
+<style>
+  :root{
+    --parch:#d8c495; --parch-dark:#c9b27e; --ink:#2b2317; --ink-soft:#4a3c26;
+    --grey:#7d7d76; --grey-dark:#55554f; --blue:#33559c; --blue-dark:#24407a;
+    --gold:#b98a2f; --red:#a03325; --green:#2f4a28;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+  html,body{width:100%;height:100%;overflow:hidden;background:#1d1812}
+  body{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;color:var(--ink)}
+  .script{font-family:"Snell Roundhand","Apple Chancery","Segoe Script","Brush Script MT",cursive}
+  #wrap{position:fixed;inset:0;display:flex;flex-direction:column}
+  canvas#game{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+
+  /* ---------- top bar ---------- */
+  #topbar{position:absolute;top:0;left:0;right:0;height:58px;z-index:20;display:flex;align-items:stretch;
+    background:linear-gradient(#efe2bd,#dcc794 70%,#c9b27e);border-bottom:3px double var(--ink);
+    box-shadow:0 3px 14px rgba(0,0,0,.45);font-size:15px}
+  .tb-cell{display:flex;align-items:center;gap:8px;padding:0 14px;border-right:1px solid rgba(43,35,23,.35);white-space:nowrap}
+  .tb-flex{flex:1;justify-content:center;border-right:none}
+  .army-chip{display:flex;align-items:center;gap:7px;font-weight:700;letter-spacing:.5px}
+  .pennant{width:30px;height:19px;clip-path:polygon(0 0,100% 0,78% 50%,100% 100%,0 100%);border:1px solid var(--ink);
+    display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-family:Georgia,serif}
+  .pennant.g{background:var(--grey-dark)} .pennant.b{background:var(--blue-dark)}
+  .bigscore{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;text-align:center}
+  #q-label{font-weight:700} #phase-label{font-style:italic;color:var(--ink-soft)}
+  #clock{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px}
+  .tb-btn{cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:4px;padding:4px 10px;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink)}
+  .tb-btn:hover{background:#f7ecc9}
+  .tb-btn.on{background:var(--ink);color:#efe2bd}
+  #speed-ctl{display:flex;gap:4px}
+
+  /* ---------- bottom bar ---------- */
+  #botbar{position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:10px;
+    padding:8px 14px;background:linear-gradient(#dcc794,#c9b27e);border-top:3px double var(--ink);
+    box-shadow:0 -3px 14px rgba(0,0,0,.45);min-height:58px;flex-wrap:wrap}
+  #sel-info{font-size:14px;font-weight:700;min-width:210px}
+  #sel-sub{font-size:12px;font-weight:400;font-style:italic;color:var(--ink-soft)}
+  .act-btn{cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:5px;padding:7px 13px;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 2px 0 rgba(43,35,23,.5)}
+  .act-btn:hover{background:#f7ecc9} .act-btn:active{transform:translateY(1px);box-shadow:none}
+  .act-btn.armed{background:var(--gold);color:#fff}
+  .act-btn:disabled{opacity:.4;cursor:default}
+  .key-hint{font-size:10px;opacity:.65;font-weight:400}
+  #tipline{flex-basis:100%;font-size:12.5px;font-style:italic;color:var(--ink-soft);padding-top:2px}
+
+  /* ---------- umpire log ---------- */
+  #log{position:absolute;right:10px;top:66px;width:300px;max-height:42vh;z-index:15;overflow-y:auto;
+    background:rgba(239,226,189,.93);border:2px solid var(--ink);border-radius:3px;padding:8px 10px;
+    font-size:12.5px;line-height:1.45;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+  #log h4{font-size:13px;border-bottom:1px solid var(--ink);margin-bottom:4px;letter-spacing:1px}
+  #log .ent{margin-bottom:3px;border-bottom:1px dotted rgba(43,35,23,.25);padding-bottom:2px}
+  #log .t{opacity:.55;font-variant-numeric:tabular-nums;margin-right:4px;font-size:11px}
+  #log .grey{color:var(--grey-dark);font-weight:700} #log .blue{color:var(--blue-dark);font-weight:700}
+  #log .ump{color:var(--red);font-weight:700} #log .flav{font-style:italic;opacity:.85}
+  #log-toggle{position:absolute;right:10px;top:66px;z-index:16}
+
+  /* ---------- banners ---------- */
+  #banner{position:absolute;left:50%;top:16%;transform:translateX(-50%);z-index:30;pointer-events:none;
+    text-align:center;transition:opacity .35s;opacity:0}
+  #banner.show{opacity:1}
+  #banner .b-main{font-size:34px;font-weight:700;color:#f4e9c8;background:rgba(43,35,23,.88);
+    padding:10px 34px;border:2px solid #f4e9c8;border-radius:4px;letter-spacing:1px;
+    box-shadow:0 6px 24px rgba(0,0,0,.5)}
+  #banner .b-sub{font-size:17px;margin-top:6px;color:#f4e9c8;background:rgba(43,35,23,.75);
+    display:inline-block;padding:4px 16px;border-radius:3px}
+
+  /* ---------- overlay screens ---------- */
+  #overlay{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
+    background:rgba(20,16,10,.72)}
+  #overlay.hidden{display:none}
+  .sheet{background:var(--parch);border:4px double var(--ink);border-radius:6px;max-width:760px;width:92%;
+    max-height:92vh;overflow-y:auto;padding:30px 40px;box-shadow:0 14px 60px rgba(0,0,0,.7);
+    background-image:radial-gradient(ellipse at 30% 20%,rgba(255,250,225,.55),transparent 60%),
+      radial-gradient(ellipse at 80% 90%,rgba(120,90,40,.18),transparent 55%)}
+  .sheet h1{font-size:44px;text-align:center;letter-spacing:2px;margin-bottom:2px}
+  .sheet h2.script{font-size:30px;text-align:center;font-weight:400;margin-bottom:10px;color:var(--ink-soft)}
+  .sheet .rule-line{border:none;border-top:2px solid var(--ink);margin:12px auto;width:60%}
+  .sheet p{font-size:15.5px;line-height:1.55;margin-bottom:10px}
+  .sheet .fine{font-size:13px;font-style:italic;color:var(--ink-soft)}
+  .pick-row{display:flex;gap:18px;justify-content:center;margin:18px 0}
+  .army-card{flex:1;max-width:280px;border:2.5px solid var(--ink);border-radius:6px;padding:16px;cursor:pointer;
+    text-align:center;transition:transform .12s, box-shadow .12s;background:rgba(255,250,230,.35)}
+  .army-card:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.35)}
+  .army-card.sel{outline:4px solid var(--gold);background:rgba(255,246,205,.75)}
+  .army-card h3{font-size:24px;letter-spacing:1px}
+  .army-card .gen{font-size:14px;font-style:italic;margin:4px 0 8px}
+  .army-card .desc{font-size:12.5px;line-height:1.45;color:var(--ink-soft)}
+  .flagbox{width:64px;height:40px;margin:0 auto 8px;border:2px solid var(--ink);display:flex;align-items:center;
+    justify-content:center;color:#fff;font-weight:700;font-size:15px;font-family:Georgia,serif}
+  .diff-row{display:flex;gap:10px;justify-content:center;margin:6px 0 16px}
+  .diff-btn{border:2px solid var(--ink);background:rgba(255,250,230,.4);border-radius:5px;padding:8px 16px;
+    cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--ink)}
+  .diff-btn.sel{background:var(--ink);color:var(--parch)}
+  .go-btn{display:block;margin:14px auto 0;padding:13px 44px;font-size:21px;font-weight:700;letter-spacing:2px;
+    background:var(--ink);color:var(--parch);border:2px solid var(--ink);border-radius:6px;cursor:pointer;
+    font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.45)}
+  .go-btn:hover{background:#453a26}
+  .go-btn:active{transform:translateY(2px);box-shadow:none}
+  .score-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+  .score-table th,.score-table td{border:1px solid var(--ink);padding:5px 10px;text-align:center}
+  .score-table th{background:rgba(43,35,23,.12)}
+  .quote-block{font-style:italic;text-align:center;font-size:15px;margin:14px 20px;color:var(--ink-soft)}
+  .quote-attr{font-size:12.5px;text-align:right;margin-right:40px;color:var(--ink-soft)}
+  #help-body h3{margin:10px 0 4px;font-size:17px;border-bottom:1px solid rgba(43,35,23,.4)}
+  #help-body p,#help-body li{font-size:14px;line-height:1.5}
+  #help-body ul{margin-left:20px;margin-bottom:8px}
+  kbd{border:1px solid var(--ink);border-radius:3px;padding:0 5px;font-size:12px;background:rgba(255,250,230,.6);font-family:inherit}
+  .close-x{float:right;cursor:pointer;font-size:22px;font-weight:700;padding:0 6px;border:none;background:none;color:var(--ink)}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+
+  <div id="topbar">
+    <div class="tb-cell army-chip"><span class="pennant g">PGA</span><span>GREY</span><span class="bigscore" id="score-g">0</span></div>
+    <div class="tb-cell army-chip"><span class="bigscore" id="score-b">0</span><span>BLUE</span><span class="pennant b">PBA</span></div>
+    <div class="tb-cell tb-flex" style="flex-direction:column;justify-content:center;gap:0">
+      <div id="q-label">Day 1 — 1st Quarter</div>
+      <div id="phase-label">Declaration of War</div>
+    </div>
+    <div class="tb-cell"><span id="clock">4:00</span></div>
+    <div class="tb-cell" id="speed-ctl">
+      <button class="tb-btn on" data-spd="1">1×</button><button class="tb-btn" data-spd="2">2×</button><button class="tb-btn" data-spd="4">4×</button>
+    </div>
+    <div class="tb-cell">
+      <button class="tb-btn" id="btn-pause">❙❙</button>
+      <button class="tb-btn" id="btn-mute">♪</button>
+      <button class="tb-btn" id="btn-help">Rules</button>
+    </div>
+  </div>
+
+  <div id="log"><h4>UMPIRE'S CLIPBOARD</h4><div id="log-entries"></div></div>
+
+  <div id="botbar">
+    <div id="sel-info">No men selected<div id="sel-sub">Drag on the map to select your troops.</div></div>
+    <span id="act-buttons"></span>
+    <div id="tipline"></div>
+  </div>
+
+  <div id="banner"><div class="b-main" id="banner-main"></div><br><div class="b-sub" id="banner-sub"></div></div>
+
+  <div id="overlay"><div class="sheet" id="overlay-sheet"></div></div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================================
+   THE WAR GAME — York's Crossing
+   A video game of the Pine Island Camp War Game (est. 1912),
+   built on the 2018 Revision of the rules and one grey Ford pickup.
+   ========================================================================= */
+
+const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
+
+/* ---------------- config ---------------- */
+const CFG = {
+  worldW: 1600, worldH: 1200,
+  armySize: 40,            // active players per army (announced by the Director)
+  plugStrength: 8,         // defenders needed to plug a gate
+  quarterLen: 240,         // seconds of play per quarter at 1x
+  attackersOutAt: 0, scoutsOutAt: 12, playOnAt: 24,
+  baseSpeed: 62,           // px/sec walking
+  sprintMult: 1.5, sprintTime: 6.5, sprintRegen: 14,
+  roadMult: 1.28, forestMult: 0.62, swampMult: 0.34, streamMult: 0.45,
+  sightBase: 135,          // defender sighting radius
+  sightForestTargetMult: 0.72,
+  attackerSight: 150,
+  ghostFade: 11,           // seconds a sighting marker lingers
+  gateCooldown: 9,         // seconds play is off at a gate after a whistle
+  whistleFreeze: 1.7,
+  chargeFormTime: 1.3,
+  rfaDwellForCall: 1.15,   // how long defenders wait before calling a play
+  maxScoreGame: 3, maxScoreFirstPeriod: 2,
+};
+
+/* ---------------- tiny utils ---------------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const mapRng = mulberry32(19120912);
+const rnd = ()=>Math.random();
+const rndi = (a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick = arr=>arr[Math.floor(Math.random()*arr.length)];
+const clamp = (v,a,b)=>v<a?a:(v>b?b:v);
+const dist = (a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const lerp = (a,b,t)=>a+(b-a)*t;
+function ptOnSeg(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,L2=dx*dx+dy*dy;if(!L2)return{x:a.x,y:a.y};
+  const t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/L2,0,1);return{x:a.x+dx*t,y:a.y+dy*t}}
+function distToPoly(p,pts){let m=1e9;for(let i=0;i<pts.length-1;i++){const q=ptOnSeg(p,pts[i],pts[i+1]);m=Math.min(m,dist(p,q))}return m}
+function pointInPoly(p,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+  const xi=poly[i].x,yi=poly[i].y,xj=poly[j].x,yj=poly[j].y;
+  if(((yi>p.y)!==(yj>p.y))&&(p.x<(xj-xi)*(p.y-yi)/(yj-yi)+xi))inside=!inside}return inside}
+function segsIntersect(a,b,c,d){function ccw(p,q,r){return(r.y-p.y)*(q.x-p.x)>(q.y-p.y)*(r.x-p.x)}
+  return ccw(a,c,d)!==ccw(b,c,d)&&ccw(a,b,c)!==ccw(a,b,d)}
+function segCrossesPoly(a,b,poly){for(let i=0;i<poly.length;i++){const c=poly[i],d=poly[(i+1)%poly.length];
+  if(segsIntersect(a,b,c,d))return true}return false}
+const fmtClock=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+
+/* ---------------- map data: York's Crossing ---------------- */
+/* Gates: pos on the town line, dir = outward unit vector. Blue flag areas
+   omitted at NW and SE, per Rule 20 of the 2018 Revision. */
+const GATES=[
+  {id:"N", label:"N", x:760, y:300, dx:0.14, dy:-0.99, hasBlue:true},
+  {id:"NW",label:"NW",x:545, y:390, dx:-0.71,dy:-0.71, hasBlue:false},
+  {id:"W", label:"W", x:505, y:640, dx:-0.97,dy:0.26,  hasBlue:true},
+  {id:"S", label:"S", x:755, y:880, dx:-0.08,dy:1.0,   hasBlue:true},
+  {id:"SE",label:"SE",x:1005,y:815, dx:0.75, dy:0.66,  hasBlue:false},
+  {id:"E", label:"E", x:1075,y:430, dx:0.90, dy:-0.44, hasBlue:true},
+];
+GATES.forEach((g,i)=>{
+  g.idx=i;
+  g.pos={x:g.x,y:g.y};
+  const d={x:g.dx,y:g.dy};
+  g.gateIn ={x:g.x-d.x*26,y:g.y-d.y*26};              // just inside town
+  g.rfaPt  ={x:g.x+d.x*62, y:g.y+d.y*62};             // middle of red flag area
+  g.redFlag={x:g.x+d.x*95, y:g.y+d.y*95};
+  g.bfaPt  ={x:g.x+d.x*140,y:g.y+d.y*140};            // middle of blue flag area
+  g.blueFlag={x:g.x+d.x*185,y:g.y+d.y*185};
+  g.roadEnd={x:g.x+d.x*265,y:g.y+d.y*265};
+  g.perp={x:-d.y,y:d.x};
+});
+const TOWN_POLY=(function(){
+  // organic loop through the six gates (gates sit on the line)
+  const raw=[
+    {x:760,y:300},{x:930,y:330},{x:1075,y:430},{x:1115,y:560},{x:1100,y:700},
+    {x:1005,y:815},{x:880,y:875},{x:755,y:880},{x:640,y:845},{x:555,y:760},
+    {x:505,y:640},{x:505,y:510},{x:545,y:390},{x:640,y:325}
+  ];
+  return raw;
+})();
+const CENTER={x:790,y:600,r:52};   // Center of Town — out of bounds for defenders
+const CAMPSITE={x:170,y:1055};     // "To the campsite" — Grey rally when attacking
+const RALLY2={x:1440,y:180};       // far corner rally used by the AI sometimes
+
+// terrain decor & effects
+const SWAMP={x:1355,y:735,rx:180,ry:150};
+const STREAMS=[
+  [{x:1150,y:60},{x:1190,y:180},{x:1165,y:300},{x:1230,y:420},{x:1265,y:540},{x:1315,y:620}],
+  [{x:285,y:430},{x:305,y:560},{x:280,y:700},{x:320,y:840},{x:300,y:980}],
+];
+const HIGHWAY=[{x:60,y:700},{x:230,y:800},{x:420,y:930},{x:640,y:1060},{x:900,y:1150}];
+const SHOWERS={x:262,y:610};
+const FALLENTREE={x:625,y:452};
+
+// forest patches: {x,y,rx,ry} ellipse clusters (movement & concealment)
+const FORESTS=(function(){
+  const F=[]; const R=mapRng;
+  const spots=[
+    [300,180,150,100],[560,150,120,80],[980,140,170,95],[1330,240,150,110],
+    [130,420,110,140],[420,300,90,70],[1240,470,110,90],[1460,520,110,120],
+    [120,760,100,110],[350,700,80,60],[240,940,130,90],[520,1010,140,90],
+    [820,1060,150,80],[1120,960,140,100],[1420,1020,130,90],[1080,660,70,50],
+    [660,180,80,55],[900,960,90,60],[1230,120,90,60],[60,180,80,90],
+    // inside town — the map shows wooded ground within the line, too
+    [700,470,80,55],[900,520,75,50],[640,700,70,50],[900,720,80,45],[770,390,60,40],
+  ];
+  for(const s of spots)F.push({x:s[0],y:s[1],rx:s[2],ry:s[3],seed:R()*1e6});
+  return F;
+})();
+function inForest(p){for(const f of FORESTS){const dx=(p.x-f.x)/f.rx,dy=(p.y-f.y)/f.ry;if(dx*dx+dy*dy<1)return true}return false}
+function inSwamp(p){const dx=(p.x-SWAMP.x)/SWAMP.rx,dy=(p.y-SWAMP.y)/SWAMP.ry;return dx*dx+dy*dy<1}
+function nearStream(p){for(const s of STREAMS)if(distToPoly(p,s)<14)return true;return false}
+function onRoad(p){
+  for(const g of GATES){const q=ptOnSeg(p,g.pos,g.roadEnd);if(dist(p,q)<15)return true}
+  if(distToPoly(p,HIGHWAY)<16)return true;
+  return false;
+}
+function terrainMult(p){
+  if(onRoad(p))return CFG.roadMult;
+  if(inSwamp(p))return CFG.swampMult;
+  if(nearStream(p))return CFG.streamMult;
+  if(inForest(p))return CFG.forestMult;
+  return 1;
+}
+
+/* gate geometry helpers */
+function gateRect(g){ // returns polygon of the gate rectangle (4 white flags)
+  const w=30,h=20,c=g.pos,d={x:g.dx,y:g.dy},p=g.perp;
+  return [
+    {x:c.x+p.x*w-d.x*h/2, y:c.y+p.y*w-d.y*h/2},
+    {x:c.x-p.x*w-d.x*h/2, y:c.y-p.y*w-d.y*h/2},
+    {x:c.x-p.x*w+d.x*h/2, y:c.y-p.y*w+d.y*h/2},
+    {x:c.x+p.x*w+d.x*h/2, y:c.y+p.y*w+d.y*h/2},
+  ];
+}
+function inGate(p,g){return dist(p,g.pos)<30}
+function inRFA(p,g){ // red flag area: between gate front and red flags
+  const t=(p.x-g.x)*g.dx+(p.y-g.y)*g.dy;      // distance along outward axis
+  const s=Math.abs((p.x-g.x)*g.perp.x+(p.y-g.y)*g.perp.y);
+  return t>8&&t<95&&s<34;
+}
+function inBFA(p,g){ if(!g.hasBlue)return false;
+  const t=(p.x-g.x)*g.dx+(p.y-g.y)*g.dy;
+  const s=Math.abs((p.x-g.x)*g.perp.x+(p.y-g.y)*g.perp.y);
+  return t>=95&&t<185&&s<36;
+}
+
+/* ---------------- waypoint graph for pathfinding ---------------- */
+const NAV=(function(){
+  const nodes=[],edges=[];
+  function add(x,y,tag){nodes.push({x,y,tag,adj:[]});return nodes.length-1}
+  // interior nodes: just inside each gate + a ring that skirts the Center of Town
+  const innerIdx={};
+  GATES.forEach(g=>{innerIdx[g.id]=add(g.gateIn.x,g.gateIn.y,"in-"+g.id)});
+  const ringIdx=[];
+  GATES.forEach((g,i)=>{
+    const n=GATES[(i+1)%GATES.length];
+    let mx=(g.gateIn.x+n.gateIn.x)/2, my=(g.gateIn.y+n.gateIn.y)/2;
+    // push ring midpoints away from Center of Town
+    const d=Math.hypot(mx-CENTER.x,my-CENTER.y)||1;
+    const need=CENTER.r+45;
+    if(d<need){mx=CENTER.x+(mx-CENTER.x)/d*need;my=CENTER.y+(my-CENTER.y)/d*need}
+    ringIdx.push(add(mx,my,"ring"));
+  });
+  // outside nodes per gate: rfa, bfa, road end
+  const outIdx={};
+  GATES.forEach(g=>{
+    outIdx[g.id]={
+      rfa:add(g.rfaPt.x,g.rfaPt.y,"rfa-"+g.id),
+      bfa:add(g.bfaPt.x,g.bfaPt.y,"bfa-"+g.id),
+      end:add(g.roadEnd.x,g.roadEnd.y,"end-"+g.id),
+    };
+  });
+  // woods lattice outside town
+  const lattice=[];
+  for(let x=80;x<CFG.worldW;x+=155){
+    for(let y=80;y<CFG.worldH;y+=150){
+      const p={x:x+((x*7+y*13)%53)-26,y:y+((x*11+y*5)%47)-23};
+      if(pointInPoly(p,TOWN_POLY))continue;
+      if(distToPoly(p,TOWN_POLY.concat([TOWN_POLY[0]]))<42)continue;
+      lattice.push(add(p.x,p.y,"w"));
+    }
+  }
+  add(CAMPSITE.x,CAMPSITE.y,"campsite");lattice.push(nodes.length-1);
+  add(RALLY2.x,RALLY2.y,"rally2");lattice.push(nodes.length-1);
+  function connect(i,j){
+    if(i===j)return;
+    const a=nodes[i],b=nodes[j];
+    nodes[i].adj.push(j);nodes[j].adj.push(i);
+  }
+  // interior connections: gate-in <-> neighbouring ring nodes
+  GATES.forEach((g,i)=>{
+    connect(innerIdx[g.id],ringIdx[i]);
+    connect(innerIdx[g.id],ringIdx[(i+GATES.length-1)%GATES.length]);
+  });
+  for(let i=0;i<ringIdx.length;i++)connect(ringIdx[i],ringIdx[(i+1)%ringIdx.length]);
+  // road chains: gate-in <-> rfa <-> bfa <-> end
+  GATES.forEach(g=>{
+    const o=outIdx[g.id];
+    connect(innerIdx[g.id],o.rfa);connect(o.rfa,o.bfa);connect(o.bfa,o.end);
+  });
+  // lattice: connect neighbours when the segment stays outside town
+  for(let i=0;i<lattice.length;i++)for(let j=i+1;j<lattice.length;j++){
+    const a=nodes[lattice[i]],b=nodes[lattice[j]];
+    const d=dist(a,b);
+    if(d<235&&!segCrossesPoly(a,b,TOWN_POLY))connect(lattice[i],lattice[j]);
+  }
+  // road ends join the woods
+  GATES.forEach(g=>{
+    const e=outIdx[g.id].end,en=nodes[e];
+    let best=[],ds=[];
+    for(const li of lattice){const d=dist(en,nodes[li]);
+      if(d<300&&!segCrossesPoly(en,nodes[li],TOWN_POLY)){best.push(li);ds.push(d)}}
+    best.map((li,k)=>[ds[k],li]).sort((a,b)=>a[0]-b[0]).slice(0,4).forEach(([,li])=>connect(e,li));
+  });
+  function nearestNode(p,filter){
+    let bi=-1,bd=1e9;
+    for(let i=0;i<nodes.length;i++){
+      if(filter&&!filter(nodes[i],i))continue;
+      const d=dist(p,nodes[i]);if(d<bd){bd=d;bi=i}
+    }return bi;
+  }
+  const routeCache=new Map();
+  function route(from,to,side){ // side: 'A' attackers avoid town interior; 'D' defenders avoid Center
+    const okNode=n=>{
+      if(side==="A"&&(n.tag.startsWith("in-")||n.tag==="ring"))return false;
+      return true;
+    };
+    const s=nearestNode(from,(n)=>okNode(n)), t=nearestNode(to,(n)=>okNode(n));
+    if(s<0||t<0)return [to];
+    const ck=s+":"+t+":"+side;
+    if(routeCache.has(ck)){
+      const path=routeCache.get(ck).slice();
+      path.push({x:to.x,y:to.y});
+      if(path.length>1&&dist(from,path[1])<dist(from,path[0]))path.shift();
+      return path;
+    }
+    // Dijkstra
+    const N=nodes.length,distA=new Float64Array(N).fill(1e15),prev=new Int32Array(N).fill(-1),done=new Uint8Array(N);
+    distA[s]=0;
+    for(;;){
+      let u=-1,ud=1e15;
+      for(let i=0;i<N;i++)if(!done[i]&&distA[i]<ud){ud=distA[i];u=i}
+      if(u<0||u===t)break;
+      done[u]=1;
+      for(const v of nodes[u].adj){
+        if(done[v]||!okNode(nodes[v]))continue;
+        const w=dist(nodes[u],nodes[v]);
+        if(distA[u]+w<distA[v]){distA[v]=distA[u]+w;prev[v]=u}
+      }
+    }
+    if(distA[t]>=1e15)return [to];
+    const base=[];let c=t;
+    while(c!==-1){base.push({x:nodes[c].x,y:nodes[c].y});c=prev[c]}
+    base.reverse();
+    if(routeCache.size>400)routeCache.clear();
+    routeCache.set(ck,base);
+    const path=base.slice();path.push({x:to.x,y:to.y});
+    // trim silly first hop
+    if(path.length>1&&dist(from,path[1])<dist(from,path[0]))path.shift();
+    return path;
+  }
+  return {nodes,route,nearestNode};
+})();
+
+/* ---------------- audio (all synthesized) ---------------- */
+const SND=(function(){
+  let ctx=null,muted=false,sirenNodes=null,bellTimer=0;
+  function ac(){if(HEADLESS)return null;
+    if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+    if(!ctx||typeof ctx.createOscillator!=="function")return null;
+    return ctx}
+  function env(g,t0,a,d,peak){g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(peak,t0+a);g.gain.exponentialRampToValueAtTime(0.0001,t0+a+d)}
+  function whistle(double){const c=ac();if(!c||muted)return;
+    for(let k=0;k<(double?2:1);k++){
+      const t=c.currentTime+k*0.28,o=c.createOscillator(),g=c.createGain(),o2=c.createOscillator();
+      o.type="square";o.frequency.value=2350;o2.type="square";o2.frequency.value=2410;
+      const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=38;lg.gain.value=240;
+      lfo.connect(lg);lg.connect(o.frequency);
+      o.connect(g);o2.connect(g);g.connect(c.destination);
+      env(g,t,0.01,0.22,0.09);o.start(t);o2.start(t);lfo.start(t);
+      o.stop(t+0.3);o2.stop(t+0.3);lfo.stop(t+0.3);
+    }}
+  function bell(){const c=ac();if(!c||muted)return;const t=c.currentTime;
+    [523,659,784].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();
+      o.frequency.value=f*(1+i*0.002);o.type="sine";o.connect(g);g.connect(c.destination);
+      env(g,t,0.005,1.1,0.10/(i+1));o.start(t);o.stop(t+1.2)})}
+  function drum(){const c=ac();if(!c||muted)return;const t=c.currentTime;
+    const buf=c.createBuffer(1,c.sampleRate*0.12,c.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+    const s=c.createBufferSource(),g=c.createGain(),f=c.createBiquadFilter();
+    f.type="lowpass";f.frequency.value=300;s.buffer=buf;s.connect(f);f.connect(g);g.connect(c.destination);
+    g.gain.value=0.5;s.start(t)}
+  function horn(){const c=ac();if(!c||muted)return;const t=c.currentTime;
+    const o=c.createOscillator(),g=c.createGain();o.type="sawtooth";o.frequency.value=233;
+    o.connect(g);g.connect(c.destination);env(g,t,0.06,0.8,0.06);o.start(t);o.stop(t+0.95)}
+  function cheer(){const c=ac();if(!c||muted)return;const t=c.currentTime;
+    const buf=c.createBuffer(1,c.sampleRate*1.4,c.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++){const x=i/d.length;d[i]=(Math.random()*2-1)*Math.sin(Math.PI*x)*0.7}
+    const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+    f.type="bandpass";f.frequency.value=1100;f.Q.value=0.6;
+    s.buffer=buf;s.connect(f);f.connect(g);g.connect(c.destination);g.gain.value=0.35;s.start(t)}
+  function siren(on){const c=ac();if(!c)return;
+    if(sirenNodes){try{sirenNodes.o.stop()}catch(e){};sirenNodes=null}
+    if(on&&!muted){const o=c.createOscillator(),g=c.createGain(),l=c.createOscillator(),lg=c.createGain();
+      o.type="sawtooth";o.frequency.value=520;l.frequency.value=0.35;lg.gain.value=180;
+      l.connect(lg);lg.connect(o.frequency);o.connect(g);g.connect(c.destination);
+      g.gain.value=0.018;o.start();l.start();sirenNodes={o,l,g}}}
+  return {whistle,bell,drum,horn,cheer,siren,
+    setMuted(m){muted=m;if(m)siren(false)},get muted(){return muted},poke(){ac()}};
+})();
+
+/* ---------------- game state ---------------- */
+const ARMIES={
+  G:{key:"G",name:"GREY",adj:"Grey",color:"#6f6f68",dark:"#4b4b45",general:"Gen. Treat",
+     flag:"PGA",callerNoise:"an air-raid siren cranks up",wagon:"a grey Ford pickup — WARWGN",
+     cry:"We're going to stink those Blues into the woods!"},
+  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3b5ea8",dark:"#27437e",general:"Gen. Swan",
+     flag:"PBA",callerNoise:"a chorus of blue vuvuzelas drones",wagon:"the Blue war wagon, brass bell clanging",
+     cry:"And they will know our name are the Blues when we lay our vengeance upon them!"},
+};
+const other=a=>a==="G"?"B":"G";
+
+let G=null; // the whole game state
+
+function newMatch(opts){
+  const playerArmy=opts.playerArmy||"G";
+  const firstAttacker=opts.firstAttacker||(rnd()<0.5?"G":"B");
+  G={
+    playerArmy, difficulty:opts.difficulty||1, autotest:!!opts.autotest,
+    day:1, quarter:1, attacker:firstAttacker, firstAttackerOfMatch:firstAttacker,
+    phase:"prequarter",   // prequarter | play | interquarter | final
+    clock:CFG.quarterLen, tPlay:0, playLive:false, scoutsOut:false,
+    score:{G:0,B:0}, qScores:[], // per quarter {q,day,attacker,G,B,notes}
+    men:[], parties:[], nextPartyId:1,
+    gates:GATES.map(g=>({def:0,inGate:0,plugged:false,cooldown:0,lastSeenByAtk:-999,seenCount:0,
+      noise:0,fxT:0})),
+    ghosts:[], // enemy sighting markers for the viewing side
+    log:[], banners:[], whistles:[], freeze:null,
+    selection:[], armedOrder:null, hoverGate:-1,
+    speed:1, paused:false, over:false,
+    aiD:{think:0,plan:null,lastRedeploy:0}, aiA:{think:0,stage:"gather",stageT:0,targets:[],callers:[]},
+    flavorT:18+rnd()*14, endEarlyT:0,
+    stats:{plays:0,repulses:0,challenges:0,scoresByMan:{}},
+  };
+  // build the men
+  let id=0;
+  for(const a of ["G","B"]){
+    for(let i=0;i<CFG.armySize;i++){
+      G.men.push({
+        id:id++,army:a,x:0,y:0,path:null,pathI:0,speedJit:0.92+rnd()*0.16,
+        state:"idle", // idle|move|gate|tempdead|centerdead|frozen
+        partyId:0,caller:false,plugKneel:false,
+        scoreGame:0,scoreFirst:0,deadUntilPt:null,deadTimer:0,
+        stamina:CFG.sprintTime,sprint:false,gateIdx:-1,homeGate:-1,
+        fx:0,fy:0, // formation offset
+      });
+    }
+  }
+  G.menG=G.men.filter(m=>m.army==="G");
+  G.menB=G.men.filter(m=>m.army==="B");
+  placeArmiesForQuarter();
+  return G;
+}
+
+function armyMen(a){return a==="G"?G.menG:G.menB}
+function attackerMen(){return armyMen(G.attacker)}
+function defenderMen(){return armyMen(other(G.attacker))}
+function isFirstAttackPeriod(army){ // that army's first attacking quarter = quarter 1 or 2 of day 1
+  return G.day===1&&G.attacker===army&&(G.quarter===1||G.quarter===2);
+}
+function eligibleToScore(m){
+  if(m.scoreGame>=CFG.maxScoreGame)return false;
+  if(isFirstAttackPeriod(m.army)&&m.scoreFirst>=CFG.maxScoreFirstPeriod)return false;
+  return true;
+}
+
+function placeArmiesForQuarter(){
+  const atk=G.attacker,def=other(atk);
+  // attackers muster at the campsite corner; defenders at the Center of Town edge
+  const rally=(atk==="G")?CAMPSITE:{x:RALLY2.x,y:RALLY2.y};
+  G.rally=rally;
+  armyMen(atk).forEach((m,i)=>{
+    m.x=rally.x+(i%8)*13-52+rnd()*6;m.y=rally.y+Math.floor(i/8)*13-26+rnd()*6;
+    m.state="idle";m.path=null;m.partyId=0;m.caller=false;m.gateIdx=-1;m.homeGate=-1;
+    m.plugKneel=false;m.deadUntilPt=null;m.stamina=CFG.sprintTime;m.scout=false;
+  });
+  // defenders: pre-assigned garrisons of 6-7 (they deploy at "scouts out")
+  const dm=armyMen(def);
+  dm.forEach((m,i)=>{
+    const gi=i%6;
+    m.homeGate=gi;m.gateIdx=-1;m.partyId=0;m.caller=false;m.plugKneel=false;
+    m.state="idle";m.path=null;m.deadUntilPt=null;m.stamina=CFG.sprintTime;m.scout=false;
+    m.x=CENTER.x+Math.cos(i*0.7)*(CENTER.r+30+(i%3)*14);
+    m.y=CENTER.y+Math.sin(i*0.7)*(CENTER.r+30+(i%3)*14);
+  });
+  G.gates.forEach(gs=>{gs.cooldown=0;gs.plugged=false;gs.noise=0;gs.seenCount=0;gs.lastSeenByAtk=-999;gs.atkAbortT=null;gs.clashT=0});
+  G.ghosts=[];G.parties=[];G.selection=[];G.armedOrder=null;
+  G.clock=CFG.quarterLen;G.tPlay=0;G.playLive=false;G.scoutsOut=false;G.freeze=null;
+  G.aiD={think:0,plan:null,lastRedeploy:0};
+  G.aiA={think:1.5,stage:"gather",stageT:0,targets:[],callers:[]};
+  G.endEarlyT=0;
+}
+
+/* ---------------- logging & banners ---------------- */
+function log(kind,msg){
+  G.log.push({t:CFG.quarterLen-G.clock,kind,msg,q:G.quarter});
+  if(G.log.length>200)G.log.shift();
+  ui.logDirty=true;
+}
+function banner(main,sub,dur){
+  G.banners.push({main,sub:sub||"",dur:dur||2.6});
+  if(G.banners.length>8)G.banners.shift();
+}
+
+/* ---------------- parties ---------------- */
+function makeParty(men,role){
+  if(!men.length)return null;
+  const p={id:G.nextPartyId++,army:men[0].army,men:[...men],role:role||"move",
+    state:"idle",targetGate:-1,formT:0,anchor:null,chargeStep:0};
+  for(const m of men){leaveParty(m);m.partyId=p.id}
+  assignFormation(p);
+  G.parties.push(p);
+  return p;
+}
+function getParty(id){return G.parties.find(p=>p.id===id)}
+function leaveParty(m){
+  if(!m.partyId)return;
+  const p=getParty(m.partyId);
+  if(p){p.men=p.men.filter(x=>x!==m);if(!p.men.length)G.parties=G.parties.filter(x=>x!==p)}
+  m.partyId=0;
+}
+function assignFormation(p){
+  const n=p.men.length,cols=Math.ceil(Math.sqrt(n));
+  p.men.forEach((m,i)=>{m.fx=((i%cols)-(cols-1)/2)*13;m.fy=(Math.floor(i/cols)-(Math.ceil(n/cols)-1)/2)*12});
+}
+function partyCenter(p){let x=0,y=0;for(const m of p.men){x+=m.x;y+=m.y}return{x:x/p.men.length,y:y/p.men.length}}
+
+/* ---------------- orders ---------------- */
+function orderMove(men,target,opts){
+  opts=opts||{};
+  if(!men.length)return;
+  const p=makeParty(men,opts.role||"move");
+  const side=(men[0].army===G.attacker)?"A":"D";
+  const c=partyCenter(p);
+  const path=NAV.route(c,target,side);
+  p.state="moving";p.anchor=target;
+  for(const m of p.men){
+    if(m.state==="tempdead"||m.state==="centerdead")continue;
+    m.path=path.map(q=>({x:q.x,y:q.y}));m.pathI=0;m.state="move";
+    m.sprint=!!opts.sprint;m.gateIdx=-1;m.plugKneel=false;m.caller=false;
+  }
+  if(opts.role==="callers")for(const m of p.men)m.caller=true;
+  return p;
+}
+function orderGarrison(men,gateIdx,opts){ // defenders man a gate
+  const g=GATES[gateIdx];
+  const p=orderMove(men,g.gateIn,opts);
+  if(!p)return;
+  p.role="garrison";p.targetGate=gateIdx;
+  for(const m of p.men)m.homeGate=gateIdx;
+  return p;
+}
+function orderCharge(men,gateIdx){ // attackers make a scoring attempt
+  const g=GATES[gateIdx];
+  const stage=g.hasBlue?g.bfaPt:{x:g.x+g.dx*120,y:g.y+g.dy*120};
+  const p=orderMove(men,{x:stage.x,y:stage.y},{role:"charge"});
+  if(!p)return;
+  p.role="charge";p.targetGate=gateIdx;p.state="approach";
+  return p;
+}
+function orderCallers(men,gateIdx){
+  const g=GATES[gateIdx];
+  const spot={x:g.x+g.dx*205+g.perp.x*46,y:g.y+g.dy*205+g.perp.y*46};
+  const p=orderMove(men,spot,{role:"callers"});
+  if(p){p.role="callers";p.targetGate=gateIdx}
+  return p;
+}
+
+/* ---------------- movement ---------------- */
+function moveMan(m,dt){
+  if(!m.path||m.pathI>=m.path.length){m.state=m.state==="move"?"idle":m.state;m.path=null;return}
+  const tgt=m.path[m.pathI],goal={x:tgt.x+m.fx,y:tgt.y+m.fy};
+  const last=m.pathI===m.path.length-1;
+  const aim=last?goal:tgt;
+  const d=dist(m,aim);
+  if(d<(last?4:16)){m.pathI++;if(m.pathI>=m.path.length){m.path=null;if(m.state==="move")m.state="idle";arriveMan(m)}return}
+  m._tc=(m._tc||0)-dt;
+  if(m._tc<=0||m._terr==null){m._terr=terrainMult(m);m._tc=0.35}
+  let sp=CFG.baseSpeed*m.speedJit*m._terr;
+  if(m.sprint&&m.stamina>0){sp*=CFG.sprintMult;m.stamina-=dt}
+  else m.stamina=Math.min(CFG.sprintTime,m.stamina+dt*(CFG.sprintTime/CFG.sprintRegen));
+  if(m.state==="tempdead")sp*=0.85;
+  m.x+=(aim.x-m.x)/d*sp*dt;m.y+=(aim.y-m.y)/d*sp*dt;
+}
+function arriveMan(m){
+  if(m.state==="tempdead"){ // reached the blue flags — alive again shortly
+    m.deadTimer=2.5;return;
+  }
+  const p=getParty(m.partyId);
+  if(p&&p.role==="garrison"&&p.targetGate>=0){m.gateIdx=p.targetGate}
+}
+
+/* ---------------- sighting & fog ---------------- */
+function updateSighting(dt){
+  const atk=G.attacker,def=other(atk);
+  const now=CFG.quarterLen-G.clock;
+  // group attackers by party for ghost markers
+  const seenParties=new Map();
+  // precompute each attacker's detectability radius once (terrain-dependent)
+  const atkPre=[];
+  for(const am of armyMen(atk)){
+    if(am.state==="centerdead"||am.state==="tempdead")continue;
+    let r=CFG.sightBase;
+    if(inForest(am))r*=CFG.sightForestTargetMult;
+    if(onRoad(am))r*=1.35;
+    atkPre.push([am,r]);
+  }
+  for(const dm of armyMen(def)){
+    if(dm.state==="centerdead")continue;
+    for(const[am,r]of atkPre){
+      if(dist(dm,am)<r){
+        const key=am.partyId||("solo"+am.id);
+        if(!seenParties.has(key))seenParties.set(key,{n:0,x:0,y:0});
+        const s=seenParties.get(key);s.n++;s.x+=am.x;s.y+=am.y;
+      }
+    }
+  }
+  // defenders sight attacker parties -> ghosts (for whichever side is viewing)
+  for(const[key,s]of seenParties){
+    const gx=s.x/s.n,gy=s.y/s.n;
+    let gh=G.ghosts.find(h=>h.key===key&&h.side===def);
+    if(!gh){gh={key,side:def,x:gx,y:gy,n:s.n,t:now};G.ghosts.push(gh);
+      // "Party sighted!" callout for nearby gate
+      let ng=-1,nd=1e9;GATES.forEach((g,i)=>{const d=dist({x:gx,y:gy},g.pos);if(d<nd){nd=d;ng=i}});
+      if(nd<330){
+        G.gates[ng].seenCount=s.n;G.gates[ng].lastSeen=now;
+        if((def===G.playerArmy)&&!G.autotest)log(def==="G"?"grey":"blue",
+          `Scout at ${GATES[ng].id} Gate: “Party sighted — ${s.n} ${s.n===1?"man":"men"}!”`);
+      }
+    }else{gh.x=gx;gh.y=gy;gh.n=s.n;gh.t=now}
+  }
+  // attackers sight gate garrisons
+  for(const g of GATES){
+    const near=armyMen(atk).some(m=>m.state!=="centerdead"&&dist(m,g.pos)<CFG.attackerSight+40);
+    if(near){
+      const gs=G.gates[g.idx];
+      gs.lastSeenByAtk=now;
+      gs.atkSeenDef=menInGateArea(g.idx).length;
+      gs.atkSeenPlug=gs.plugged;
+    }
+  }
+  G.ghosts=G.ghosts.filter(h=>now-h.t<CFG.ghostFade);
+}
+function menInGateArea(gi){ // defenders in/at the gate (the gate holds up to plugStrength)
+  const g=GATES[gi],def=other(G.attacker);
+  return armyMen(def).filter(m=>m.state!=="centerdead"&&m.state!=="tempdead"&&dist(m,g.pos)<46);
+}
+function defendersInGate(gi){
+  const list=menInGateArea(gi);
+  return Math.min(list.length,CFG.plugStrength+4); // extras crowd behind
+}
+
+/* ---------------- the whistle: play resolution ---------------- */
+/* Implements Rules 17-27 & 31 of the 2018 Revision (auto-umpired). */
+function resolvePlay(gi,chargeParty,trigger){
+  const g=GATES[gi],gs=G.gates[gi];
+  if(gs.cooldown>0)return;
+  const atk=G.attacker,def=other(atk);
+  const A=chargeParty?chargeParty.men.filter(m=>m.state!=="tempdead"&&m.state!=="centerdead"):[];
+  const defList=menInGateArea(gi);
+  const D=Math.min(defList.length,CFG.plugStrength); // a plugged gate is "deemed to contain" plug strength
+  const plugged=defList.length>=CFG.plugStrength;
+  gs.cooldown=CFG.gateCooldown;
+  G.stats.plays++;
+  G.freeze={gate:gi,t:CFG.whistleFreeze};
+  SND.whistle(true);
+  let ruling="",pts=0,ptsArmy=null,kind="";
+
+  if(trigger==="enter"){ // attackers stepped into the gate
+    const entrants=A.filter(eligibleToScore);
+    const nIn=A.length;
+    if(plugged){
+      kind="repulse";
+      ruling=`${nIn} ${ARMIES[atk].adj} attackers step against a PLUGGED gate — repulsed!`;
+      repulseParty(chargeParty,g);
+      G.stats.repulses++;
+    }else if(nIn>D){
+      // Rule 17: all attackers who properly entered may score (eligible men)
+      kind="score";pts=entrants.length;ptsArmy=atk;
+      for(const m of entrants)creditScore(m,g);
+      const inel=nIn-entrants.length;
+      ruling=`${pts} scoring point${pts===1?"":"s"}, ${ARMIES[atk].name}!`+
+        (D>0?` (${nIn} attackers vs ${D} defenders in the gate)`:" — defenders never entered the gate")+
+        (inel>0?` — ${inel} huddled, already at their limit`:"");
+      clearChargedParty(chargeParty,g,false);
+      SND.cheer();
+    }else if(nIn===D){
+      kind="repulse";
+      ruling=`Equal numbers in the gate at ${g.id} — REPULSE! The ${ARMIES[atk].adj} party is dead until past the red flags.`;
+      repulseParty(chargeParty,g);
+      G.stats.repulses++;
+    }else{
+      kind="challenge";pts=D-nIn;ptsArmy=def;
+      ruling=`Challenge, ${ARMIES[def].name}: ${D} defenders against ${nIn} attackers — ${pts} point${pts===1?"":"s"}.`;
+      clearChargedParty(chargeParty,g,true);
+      G.stats.challenges++;
+    }
+  }else if(trigger==="rfa"){ // defenders call the play with attackers in the red flag area
+    const nIn=A.length;
+    if(plugged||D===nIn){
+      kind="repulse";
+      ruling=plugged?
+        `The ${g.id} Gate is plugged — the ${ARMIES[atk].adj} party of ${nIn} is repulsed!`:
+        `${D} in the gate, ${nIn} on the road — a repulse at ${g.id}!`;
+      repulseParty(chargeParty,g);
+      G.stats.repulses++;
+    }else if(D>nIn){
+      kind="challenge";pts=D-nIn;ptsArmy=def;
+      ruling=`Challenge, ${ARMIES[def].name}: caught ${nIn} in the red flag area against ${D} — ${pts} point${pts===1?"":"s"}.`;
+      clearChargedParty(chargeParty,g,true);
+      G.stats.challenges++;
+    }else{ // defenders miscounted; no play
+      kind="noplay";ruling=`No play at ${g.id} Gate.`;
+    }
+  }else if(trigger==="bfa"){ // ambush challenge in the blue flag area (3x points)
+    const defParty=trigger&&G.bfaClash?G.bfaClash:null;
+    // computed by caller: {defN, atkN}
+    const {defN,atkN}=G.bfaClash;
+    if(defN>atkN){kind="challenge";pts=(defN-atkN)*3;ptsArmy=def;
+      ruling=`Challenge in the BLUE FLAG AREA at ${g.id} — three times the difference: ${pts} points, ${ARMIES[def].name}!`;
+      clearChargedParty(chargeParty,g,true);
+    }else if(atkN>defN){kind="challenge";pts=(atkN-defN)*3;ptsArmy=atk;
+      ruling=`Challenge in the BLUE FLAG AREA at ${g.id} — squadron caught on the road: ${pts} points, ${ARMIES[atk].name}!`;
+    }else{kind="noplay";ruling=`No play at ${g.id} Gate.`}
+    G.bfaClash=null;
+    G.stats.challenges++;
+  }
+
+  if(pts&&ptsArmy){G.score[ptsArmy]+=pts}
+  log("ump",`⟟ Play off at ${g.id} Gate — ${ruling}`);
+  banner(kind==="score"?`${pts} POINT${pts===1?"":"S"} — ${ARMIES[ptsArmy].name}!`:
+         kind==="repulse"?`REPULSE AT ${g.id} GATE`:
+         kind==="challenge"?`CHALLENGE — ${pts} PTS ${ARMIES[ptsArmy].name}`:
+         "NO PLAY",
+         `Umpire: “${ruling}”`,2.9);
+  gs.fxT=1.2;
+  ui.hudDirty=true;
+}
+function creditScore(m,g){
+  m.scoreGame++;if(isFirstAttackPeriod(m.army))m.scoreFirst++;
+  G.stats.scoresByMan[m.id]=(G.stats.scoresByMan[m.id]||0)+1;
+  // Rule 31 d/e: where does the scorer go?
+  const toCenter=(G.day===1&&m.scoreGame>=2)||(G.day===2&&m.scoreGame>=3);
+  leaveParty(m);
+  if(toCenter){
+    m.state="centerdead";
+    m.path=[{x:CENTER.x+rnd()*40-20,y:CENTER.y+rnd()*30-15}];m.pathI=0;
+    // dead for the rest of the attack period; walks with hands on head
+  }else{
+    m.state="tempdead";
+    const out=g.hasBlue?g.blueFlag:g.roadEnd;
+    m.path=[{x:out.x+g.perp.x*(rnd()*50-25)+g.dx*20,y:out.y+g.perp.y*(rnd()*50-25)+g.dy*20}];m.pathI=0;
+    m.deadTimer=0;
+  }
+}
+function repulseParty(p,g){
+  if(!p)return;
+  for(const m of p.men){
+    if(m.state==="centerdead")continue;
+    m.state="tempdead";
+    const back={x:g.redFlag.x+g.dx*45+g.perp.x*(rnd()*70-35),y:g.redFlag.y+g.dy*45+g.perp.y*(rnd()*70-35)};
+    m.path=[back];m.pathI=0;m.deadTimer=0;
+  }
+  p.state="done";p.role="move";p.targetGate=-1;
+}
+function clearChargedParty(p,g,challenged){
+  if(!p)return;
+  for(const m of p.men){
+    if(m.state==="tempdead"||m.state==="centerdead")continue;
+    const back={x:g.roadEnd.x+g.perp.x*(rnd()*80-40)+g.dx*30,y:g.roadEnd.y+g.perp.y*(rnd()*80-40)+g.dy*30};
+    m.path=[back];m.pathI=0;m.state="move";
+  }
+  p.state="done";p.role="move";p.targetGate=-1;
+}
+
+/* ---------------- charge state machine ---------------- */
+function updateCharges(dt){
+  const now=CFG.quarterLen-G.clock;
+  for(const p of G.parties.slice()){
+    if(p.role!=="charge"||p.targetGate<0)continue;
+    const g=GATES[p.targetGate],gs=G.gates[p.targetGate];
+    const alive=p.men.filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
+    if(!alive.length){p.role="move";continue}
+    const c=partyCenter(p);
+    if(p.state==="approach"){
+      // arrived at staging (bfa or woods edge)?
+      const stage=g.hasBlue?g.bfaPt:{x:g.x+g.dx*120,y:g.y+g.dy*120};
+      if(dist(c,stage)<38&&alive.every(m=>!m.path||m.pathI>=m.path.length-1)){
+        p.state="form";p.formT=CFG.chargeFormTime;
+        if(p.army===G.playerArmy&&!G.autotest)log(p.army==="G"?"grey":"blue",
+          `Party of ${alive.length} forms at the ${g.id} road: “Ready, ready — one, two, STEP!”`);
+      }
+    }else if(p.state==="form"){
+      p.formT-=dt;
+      if(p.formT<=0){
+        if(gs.cooldown>0){p.state="wait"}
+        else{
+          p.state="step";p.rfaEnter=-1;
+          for(const m of alive){m.path=[{x:g.rfaPt.x,y:g.rfaPt.y},{x:g.pos.x,y:g.pos.y}];m.pathI=0;m.state="move";m.sprint=false}
+        }
+      }
+    }else if(p.state==="wait"){
+      if(gs.cooldown<=0){p.state="form";p.formT=0.6}
+    }else if(p.state==="step"){
+      const inR=alive.filter(m=>inRFA(m,g)).length;
+      const inG=alive.filter(m=>inGate(m,g)).length;
+      if(inR>0&&p.rfaEnter<0)p.rfaEnter=now;
+      // defenders may call the play once the party has dwelt in the RFA
+      if(p.rfaEnter>0&&now-p.rfaEnter>CFG.rfaDwellForCall&&inG===0){
+        const D=defendersInGate(p.targetGate);
+        const plugged=menInGateArea(p.targetGate).length>=CFG.plugStrength;
+        if(plugged||D>=alive.length){resolvePlay(p.targetGate,p,"rfa");continue}
+      }
+      if(inG>=alive.length*0.85&&inG>0){ // the party has stepped in together
+        resolvePlay(p.targetGate,p,"enter");
+      }
+    }
+  }
+}
+
+/* ---------------- quarter & match flow ---------------- */
+function startQuarter(){
+  G.phase="play";
+  placeArmiesForQuarter();
+  const atk=ARMIES[G.attacker],def=ARMIES[other(G.attacker)];
+  log("ump",`— Day ${G.day}, ${["1st","2nd","3rd","4th"][G.quarter-1]} Quarter. ${atk.name} attacks; ${def.name} defends York's Crossing. —`);
+  log("ump",`The Director sets active players at ${CFG.armySize} and plugged-gate strength at ${CFG.plugStrength}.`);
+  banner(`${atk.name} ATTACKS`,`${def.name} defends the six gates of York's Crossing`,3.2);
+  if(G.playerArmy===G.attacker)log(G.playerArmy==="G"?"grey":"blue",`${atk.general}: “${atk.cry}”`);
+  ui.hudDirty=true;ui.rebuildButtons();
+}
+function updatePhase(dt){
+  const t=G.tPlay;
+  if(!G.scoutsOut&&t>=CFG.scoutsOutAt){
+    G.scoutsOut=true;SND.whistle(false);
+    banner("SCOUTS OUT","Defenders man the gates",2.2);
+    log("ump","Whistle: “Scouts out!” The defense takes the field.");
+  }
+  if(!G.playLive&&t>=CFG.playOnAt){
+    G.playLive=true;SND.whistle(true);
+    banner("PLAY IS ON","Scoring is live at every gate",2.4);
+    log("ump","Whistle: play is on at all six gates.");
+  }
+}
+function endQuarter(){
+  const qrec={day:G.day,q:G.quarter,attacker:G.attacker,
+    G:G.score.G-(G.qScores.reduce((s,r)=>s+r.G,0)),
+    B:G.score.B-(G.qScores.reduce((s,r)=>s+r.B,0))};
+  G.qScores.push(qrec);
+  SND.whistle(true);SND.siren(false);
+  log("ump",`Final whistle of the quarter. Score so far — GREY ${G.score.G}, BLUE ${G.score.B}.`);
+  if(G.quarter>=4){G.phase="final";G.over=true;ui.showFinal()}
+  else{
+    G.quarter++;
+    if(G.quarter===3)G.day=2;
+    // alternate: the first attacker attacks in Q1 & Q3? No — sides swap each quarter,
+    // and on day 2 the order flips so each army attacks twice, defends twice.
+    const seq={1:G.firstAttackerOfMatch,2:other(G.firstAttackerOfMatch),
+               3:other(G.firstAttackerOfMatch),4:G.firstAttackerOfMatch};
+    G.attacker=seq[G.quarter];
+    G.phase="interquarter";ui.showInterquarter();
+  }
+}
+function maybeEndEarly(dt){
+  // if the attack cannot possibly score again, wind the quarter down
+  const alive=attackerMen().filter(m=>m.state!=="centerdead");
+  const anyEligible=alive.some(eligibleToScore);
+  if(!anyEligible){
+    G.endEarlyT+=dt;
+    if(G.endEarlyT>4){
+      log("ump","The attack is spent — every man has scored his limit. The umpires call the quarter.");
+      G.clock=Math.min(G.clock,2);G.endEarlyT=-999;
+    }
+  }
+}
+
+/* ---------------- ambient flavor ---------------- */
+const FLAVOR=[
+  "A camper beats a railroad spike against a rusty oil drum.",
+  "Mosquitoes are winning their own war along the town line.",
+  "Sour watermelon gummies make the rounds at a quiet gate.",
+  "Somewhere beyond the trees, the war wagon rumbles.",
+  "A giant green fern bobs above the underbrush, very slowly.",
+  "The showers drip cold creek water onto the pine needles.",
+  "Two umpires confer over a clipboard, tortoiseshell glasses flashing.",
+  "A squadron catches its breath, hands on knees, gulping air.",
+  "Someone brags that he didn't brush his teeth this morning.",
+  "A pith helmet moves with great dignity through the swamp grass.",
+];
+function updateFlavor(dt){
+  G.flavorT-=dt;
+  if(G.flavorT<=0){G.flavorT=20+rnd()*18;log("flav",pick(FLAVOR))}
+  // caller noise & sound fx
+  for(const gs of G.gates)gs.noise=0;
+  let anyCaller=false;
+  for(const m of G.men){
+    if(m.caller&&m.state!=="tempdead"&&m.state!=="centerdead"&&(!m.path)){
+      let ng=-1,nd=1e9;GATES.forEach((g,i)=>{const d=dist(m,g.pos);if(d<nd){nd=d;ng=i}});
+      if(nd<320){G.gates[ng].noise++;anyCaller=true}
+    }
+  }
+  if(!HEADLESS){
+    if(anyCaller&&!G._sirenOn&&G.phase==="play"){G._sirenOn=true;SND.siren(true)}
+    if((!anyCaller||G.phase!=="play")&&G._sirenOn){G._sirenOn=false;SND.siren(false)}
+  }
+}
+
+/* ---------------- gate upkeep & road clashes ---------------- */
+function updateGates(dt){
+  const now=CFG.quarterLen-G.clock;
+  G.gates.forEach((gs,i)=>{
+    gs.cooldown=Math.max(0,gs.cooldown-dt);
+    gs.fxT=Math.max(0,gs.fxT-dt);
+    const inArea=menInGateArea(i);
+    gs.def=inArea.length;
+    const plug=inArea.length>=CFG.plugStrength;
+    if(plug!==gs.plugged){
+      gs.plugged=plug;
+      const def=other(G.attacker);
+      if(G.playLive)log(def==="G"?"grey":"blue",
+        plug?`${GATES[i].id} Gate is PLUGGED — ${inArea.length} hands come down on the pole as one.`
+            :`${GATES[i].id} Gate is no longer plugged.`);
+    }
+    gs.seenCount*=Math.pow(0.5,dt/6); // threat memory decays
+  });
+  // kneeling visual + keep garrison men arranged in their slots
+  for(const g of GATES){
+    const def=other(G.attacker);
+    const men=armyMen(def).filter(m=>m.homeGate===g.idx&&m.state==="idle"&&!m.path&&dist(m,g.pos)<130);
+    men.forEach((m,k)=>{
+      let slot;
+      if(k<CFG.plugStrength){
+        const row=k%4,col=Math.floor(k/4);
+        slot={x:g.pos.x+g.perp.x*(row-1.5)*14+g.dx*(col===0?-6:6),
+              y:g.pos.y+g.perp.y*(row-1.5)*14+g.dy*(col===0?-6:6)};
+      }else{
+        const j=k-CFG.plugStrength;
+        slot={x:g.gateIn.x-g.dx*(16+Math.floor(j/5)*15)+g.perp.x*((j%5)-2)*15,
+              y:g.gateIn.y-g.dy*(16+Math.floor(j/5)*15)+g.perp.y*((j%5)-2)*15};
+      }
+      const d=dist(m,slot);
+      if(d>4){const sp=CFG.baseSpeed*0.9*dt;m.x+=(slot.x-m.x)/d*Math.min(sp,d);m.y+=(slot.y-m.y)/d*Math.min(sp,d)}
+      m.plugKneel=G.gates[g.idx].plugged&&k<CFG.plugStrength;
+    });
+  }
+}
+function detectRoadClashes(dt){
+  if(!G.playLive)return;
+  const atk=G.attacker,def=other(atk);
+  for(const g of GATES){
+    const gs=G.gates[g.idx];
+    if(gs.cooldown>0)continue;
+    // defenders loitering in road areas, outside the gate itself
+    const dRFA=armyMen(def).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead"&&dist(m,g.pos)>=46&&inRFA(m,g));
+    const dBFA=armyMen(def).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead"&&inBFA(m,g));
+    if(!dRFA.length&&!dBFA.length)continue;
+    const aRFA=armyMen(atk).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead"&&inRFA(m,g));
+    const aBFA=armyMen(atk).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead"&&inBFA(m,g));
+    if(dBFA.length&&aBFA.length){
+      gs.clashT=(gs.clashT||0)+dt;
+      if(gs.clashT>0.8){
+        gs.clashT=0;
+        G.bfaClash={defN:dBFA.length,atkN:aBFA.length};
+        const party=aBFA[0].partyId?getParty(aBFA[0].partyId):null;
+        resolvePlay(g.idx,party,"bfa");
+      }
+    }else if(dRFA.length&&aRFA.length){
+      gs.clashT=(gs.clashT||0)+dt;
+      if(gs.clashT>0.8){
+        gs.clashT=0;
+        const diff=Math.abs(dRFA.length-aRFA.length);
+        if(diff>0){
+          const winner=dRFA.length>aRFA.length?def:atk;
+          G.score[winner]+=diff;G.stats.challenges++;
+          gs.cooldown=CFG.gateCooldown;G.freeze={gate:g.idx,t:CFG.whistleFreeze};
+          SND.whistle(true);
+          log("ump",`⟟ Challenge in the red flag area at ${g.id} — ${diff} point${diff===1?"":"s"}, ${ARMIES[winner].name}.`);
+          banner(`CHALLENGE — ${diff} PTS ${ARMIES[winner].name}`,`Parties met in the red flag area at ${g.id} Gate`,2.4);
+          const party=aRFA[0].partyId?getParty(aRFA[0].partyId):null;
+          if(party)clearChargedParty(party,g,true);
+          ui.hudDirty=true;
+        }
+      }
+    }else gs.clashT=0;
+  }
+}
+
+/* ---------------- AI: DEFENSE ---------------- */
+function aiDefense(dt){
+  const def=other(G.attacker);
+  if(def===G.playerArmy&&!G.autotest)return;
+  const ai=G.aiD;
+  ai.think-=dt;
+  if(!G.scoutsOut)return;
+  if(ai.think>0)return;
+  const REACT=[3.2,1.9,1.05][G.difficulty];       // camper / counselor / general
+  const NOISE_W=[1.6,0.9,0.45][G.difficulty];     // how much callers fool this general
+  ai.think=REACT*(0.75+rnd()*0.5);
+  const now=CFG.quarterLen-G.clock;
+  const men=armyMen(def).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
+  // threat estimate per gate
+  const threat=GATES.map((g,i)=>{
+    const gs=G.gates[i];
+    let t=gs.seenCount*1.4+gs.noise*NOISE_W;
+    for(const gh of G.ghosts)if(gh.side===def){const d=dist(gh,g.pos);if(d<420)t+=gh.n*(1-d/420)}
+    return t;
+  });
+  // lockdown when protecting a lead late in the last quarter
+  const myLead=G.score[def]-G.score[G.attacker];
+  const lockdown=(G.quarter===4&&G.clock<100&&myLead>0)||(G.quarter===4&&G.clock<45);
+  // desired garrison sizes
+  let desire;
+  if(lockdown){
+    desire=GATES.map(()=>Math.floor(men.length/6));
+    for(let i=0;i<men.length%6;i++)desire[i]++;
+    if(!ai.saidLockdown){ai.saidLockdown=true;
+      log(def==="G"?"grey":"blue",`${ARMIES[def].general} calls LOCKDOWN — knees in every gate, hold what we have.`)}
+  }else{
+    desire=GATES.map(()=>4);
+    let spare=men.length-24;
+    const order=threat.map((t,i)=>[t,i]).sort((a,b)=>b[0]-a[0]);
+    for(const[t,i]of order){
+      if(spare<=0)break;
+      const want=t>7?CFG.plugStrength+2:(t>3?CFG.plugStrength:(t>1?6:4));
+      const add=Math.min(spare,Math.max(0,want-desire[i]));
+      desire[i]+=add;spare-=add;
+    }
+    // Camper-level generals occasionally miscount, Treat-in-2011 style
+    if(G.difficulty===0&&rnd()<0.12){const i=rndi(0,5);desire[i]=Math.max(2,desire[i]-3)}
+  }
+  // current garrison census
+  const at=GATES.map(()=>[]);
+  for(const m of men)if(m.homeGate>=0)at[m.homeGate].push(m);
+  // move surplus toward deficit, one squadron per think
+  let worst=-1,worstDef=0;
+  for(let i=0;i<6;i++){const d=desire[i]-at[i].length;if(d>worstDef){worstDef=d;worst=i}}
+  if(worst>=0&&worstDef>=2){
+    let donor=-1,donorSur=0;
+    for(let i=0;i<6;i++){const s=at[i].length-desire[i];if(s>donorSur){donorSur=s;donor=i}}
+    if(donor>=0){
+      const squad=at[donor].filter(m=>!m.path).slice(0,Math.min(worstDef,donorSur,6));
+      if(squad.length){
+        orderGarrison(squad,worst,{sprint:threat[worst]>4});
+        if(G.playerArmy===G.attacker&&threat[worst]>4&&rnd()<0.5)
+          log("flav",`A ${ARMIES[def].adj} squadron flag goes up — runners are moving.`);
+      }
+    }
+  }
+  // initial deployment
+  if(!ai.deployed){
+    ai.deployed=true;
+    for(let gi=0;gi<6;gi++){
+      const squad=men.filter(m=>m.homeGate===gi);
+      if(squad.length)orderGarrison(squad,gi,{});
+    }
+  }
+}
+
+/* ---------------- AI: ATTACK ---------------- */
+function aiAttack(dt){
+  const atk=G.attacker;
+  if(atk===G.playerArmy&&!G.autotest)return;
+  const ai=G.aiA;
+  ai.think-=dt;ai.stageT+=dt;
+  if(ai.think>0)return;
+  const AGGR=[0.85,1.05,1.3][G.difficulty];
+  ai.think=(1.5+rnd()*1.5)/AGGR;
+  const now=CFG.quarterLen-G.clock;
+  const men=armyMen(atk);
+  const free=men.filter(m=>m.state==="idle"&&!m.path&&!m.caller);
+  const idleFree=free.filter(m=>!m.partyId||!(getParty(m.partyId)||{}).role||["move","done"].includes((getParty(m.partyId)||{}).role));
+
+  // knowledge of gates: fresh scouted counts or optimistic guess
+  function knownDef(gi){
+    const gs=G.gates[gi];
+    if(now-gs.lastSeenByAtk<9)return {n:gs.atkSeenDef??4,plug:!!gs.atkSeenPlug,fresh:true};
+    return {n:4,plug:false,fresh:false};
+  }
+  // abort charges that walked into strength
+  for(const p of G.parties){
+    if(p.army!==atk||p.role!=="charge")continue;
+    if(["approach","form","wait"].includes(p.state)){
+      const k=knownDef(p.targetGate);
+      const alive=p.men.filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
+      if(k.fresh&&(k.plug||k.n>=alive.length)){
+        const g=GATES[p.targetGate];
+        G.gates[p.targetGate].atkAbortT=now;
+        clearChargedParty(p,g,false);
+        log("flav",`${ARMIES[atk].adj} attackers melt back into the trees at ${g.id}.`);
+      }
+    }
+  }
+  if(!G.playLive){
+    // spread out through the woods early
+    if(ai.stage==="gather"&&idleFree.length){
+      const staging=[GATES[rndi(0,5)],GATES[rndi(0,5)]];
+      for(const g of staging){
+        const grab=idleFree.splice(0,rndi(4,8));
+        if(grab.length)orderMove(grab,{x:g.roadEnd.x+g.dx*130+g.perp.x*(rnd()*160-80),
+                                        y:g.roadEnd.y+g.dy*130+g.perp.y*(rnd()*160-80)},{});
+      }
+      ai.stage="spread";
+    }
+    return;
+  }
+  // deploy callers once
+  if(!ai.callersOut){
+    ai.callersOut=true;
+    const gi=rndi(0,5),gj=(gi+rndi(2,4))%6;
+    const c1=idleFree.splice(0,2),c2=idleFree.splice(0,2);
+    if(c1.length)orderCallers(c1,gi);
+    if(c2.length)orderCallers(c2,gj);
+    log("flav",`Away by the ${GATES[gi].id} road, ${ARMIES[atk].callerNoise}.`);
+    if(atk==="B")SND.horn();else SND.drum();
+  }
+  // send scouts to watch gates
+  const scouts=men.filter(m=>m.scout&&m.state!=="centerdead");
+  if(scouts.length<3&&idleFree.length>6){
+    const s=idleFree.splice(0,1)[0];
+    if(s){s.scout=true;const g=GATES[rndi(0,5)];
+      orderMove([s],{x:g.bfaPt.x+g.perp.x*90,y:g.bfaPt.y+g.perp.y*90},{})}
+  }
+  // main strikes
+  const charging=G.parties.filter(p=>p.army===atk&&p.role==="charge").length;
+  const wantCharges=(G.clock<70)?3:(idleFree.length>=14?2:1);
+  if(charging<wantCharges&&idleFree.length>=4){
+    // choose target: weakest known, discounting plugged
+    let best=-1,bestScore=-1;
+    for(let i=0;i<6;i++){
+      const k=knownDef(i);
+      if(k.fresh&&k.plug)continue;
+      if(G.gates[i].atkAbortT!=null&&now-G.gates[i].atkAbortT<12)continue;
+      let sc=10-k.n+(k.fresh?3:0)+rnd()*2.5;
+      if(G.gates[i].cooldown>0)sc-=3;
+      if(sc>bestScore){bestScore=sc;best=i}
+    }
+    if(best>=0){
+      const k=knownDef(best);
+      const eligible=idleFree.filter(eligibleToScore);
+      const escortPool=idleFree.filter(m=>!eligibleToScore(m));
+      const size=Math.min(eligible.length,Math.max(4,k.n+2+rndi(1,4)));
+      if(size>=3&&size>=k.n+1){
+        const party=eligible.slice(0,size).concat(escortPool.slice(0,rndi(0,2)));
+        orderCharge(party,best);
+      }else if(eligible.length>=k.n+1){
+        orderCharge(eligible,best);
+      }
+    }
+  }
+  // rescue idle revived men back to a staging pocket
+  const stragglers=idleFree.slice(0,0); // handled implicitly by next strike selection
+}
+
+/* ---------------- master tick ---------------- */
+function tick(dt){
+  if(!G||G.paused||G.over)return;
+  if(G.phase!=="play")return;
+  dt*=G.speed;
+  G.tPlay+=dt;
+  updatePhase(dt);
+  if(G.playLive){
+    G.clock-=dt;
+    if(G.clock<=0){G.clock=0;endQuarter();return}
+  }
+  // whistle freeze
+  let frozenGate=-1;
+  if(G.freeze){G.freeze.t-=dt;if(G.freeze.t<=0)G.freeze=null;else frozenGate=G.freeze.gate}
+  for(const m of G.men){
+    if(m.state==="centerdead"){if(m.path)moveMan(m,dt);continue}
+    if(frozenGate>=0&&dist(m,GATES[frozenGate].pos)<175)continue;
+    if(m.state==="tempdead"){
+      if(m.path)moveMan(m,dt);
+      else{m.deadTimer-=dt;if(m.deadTimer<=0){m.state="idle";}}
+      continue;
+    }
+    const canMove=(m.army===G.attacker)?(G.tPlay>=CFG.attackersOutAt):(G.scoutsOut);
+    if(canMove&&m.path)moveMan(m,dt);
+  }
+  G._sightT=(G._sightT||0)-dt;
+  if(G._sightT<=0){G._sightT=0.25;updateSighting(dt)}
+  if(G.playLive){updateCharges(dt);detectRoadClashes(dt);maybeEndEarly(dt)}
+  updateGates(dt);
+  updateFlavor(dt);
+  aiDefense(dt);
+  aiAttack(dt);
+}
+
+/* ---------------- UI (all DOM access lives here) ---------------- */
+const ui={
+  logDirty:true,hudDirty:true,view:{scale:1,ox:0,oy:0},
+  el(id){return HEADLESS?null:document.getElementById(id)},
+  init(){
+    if(HEADLESS)return;
+    this.canvas=this.el("game");this.ctx=this.canvas.getContext("2d");
+    window.addEventListener("resize",()=>this.resize());
+    this.resize();
+    bindInput(this.canvas);
+    this.el("btn-help").onclick=()=>this.showHelp();
+    this.el("btn-mute").onclick=()=>{SND.setMuted(!SND.muted);this.el("btn-mute").classList.toggle("on",SND.muted);
+      this.el("btn-mute").textContent=SND.muted?"♪̸":"♪"};
+    this.el("btn-pause").onclick=()=>{if(!G)return;G.paused=!G.paused;this.el("btn-pause").classList.toggle("on",G.paused)};
+    document.querySelectorAll("#speed-ctl .tb-btn").forEach(b=>{
+      b.onclick=()=>{if(!G)return;G.speed=+b.dataset.spd;
+        document.querySelectorAll("#speed-ctl .tb-btn").forEach(x=>x.classList.toggle("on",x===b))};
+    });
+    document.addEventListener("keydown",e=>onKey(e));
+  },
+  resize(){
+    if(HEADLESS)return;
+    const dpr=window.devicePixelRatio||1;
+    this.canvas.width=innerWidth*dpr;this.canvas.height=innerHeight*dpr;
+    const availW=innerWidth-8,availH=innerHeight-128;
+    const sc=Math.min(availW/CFG.worldW,availH/CFG.worldH);
+    this.view={scale:sc,ox:(innerWidth-CFG.worldW*sc)/2,oy:62+(availH-CFG.worldH*sc)/2,dpr};
+  },
+  toWorld(px,py){const v=this.view;return{x:(px-v.ox)/v.scale,y:(py-v.oy)/v.scale}},
+  /* ---------- HUD ---------- */
+  syncHud(){
+    if(HEADLESS||!G)return;
+    this.el("score-g").textContent=G.score.G;
+    this.el("score-b").textContent=G.score.B;
+    this.el("q-label").textContent=`Day ${G.day} — ${["1st","2nd","3rd","4th"][G.quarter-1]} Quarter`;
+    const role=(G.playerArmy===G.attacker)?"You are ATTACKING":"You are DEFENDING";
+    const phase=G.phase!=="play"?"—":(!G.scoutsOut?"Attackers out…":(!G.playLive?"Scouts out…":"Play is on"));
+    this.el("phase-label").textContent=`${ARMIES[G.attacker].name} attacks • ${role} • ${phase}`;
+    this.el("clock").textContent=fmtClock(G.clock);
+    this.hudDirty=false;
+  },
+  syncLog(){
+    if(HEADLESS||!this.logDirty||!G)return;
+    const box=this.el("log-entries");
+    box.innerHTML=G.log.slice(-40).map(e=>
+      `<div class="ent"><span class="t">${fmtClock(CFG.quarterLen-e.t)}</span><span class="${e.kind}">${e.msg}</span></div>`
+    ).join("");
+    box.parentElement.scrollTop=box.parentElement.scrollHeight;
+    this.logDirty=false;
+  },
+  /* ---------- selection & buttons ---------- */
+  syncSelInfo(){
+    if(HEADLESS||!G)return;
+    const s=G.selection.filter(m=>m.state!=="centerdead");
+    const el=this.el("sel-info");
+    if(!s.length){el.innerHTML=`No men selected<div id="sel-sub">${G.playerArmy===G.attacker?
+      "Drag to select attackers. Right-click the woods to move; right-click a gate to charge it.":
+      "Drag to select defenders, or press 1–6 to grab a gate's garrison."}</div>`;return}
+    const elig=s.filter(eligibleToScore).length;
+    const dead=G.selection.length-s.length;
+    el.innerHTML=`${s.length} men selected`+
+      `<div id="sel-sub">${G.playerArmy===G.attacker?`${elig} still eligible to score`:
+      `garrison orders ready`}${dead?` • ${dead} dead at the Center of Town`:""}</div>`;
+  },
+  rebuildButtons(){
+    if(HEADLESS||!G)return;
+    const box=this.el("act-buttons");box.innerHTML="";
+    const mk=(label,key,fn,arm)=>{
+      const b=document.createElement("button");b.className="act-btn";b.dataset.arm=arm||"";
+      b.innerHTML=`${label} <span class="key-hint">${key}</span>`;b.onclick=()=>{SND.poke();fn(b)};box.appendChild(b);return b};
+    if(G.playerArmy===G.attacker){
+      mk("⚔ Charge a gate","A",()=>armOrder("charge"),"charge");
+      mk("📯 Post callers","C",()=>armOrder("callers"),"callers");
+      mk("↧ Move","M",()=>armOrder("move"),"move");
+      mk("↩ Fall back","F",()=>{
+        const s=commandable();if(s.length)orderMove(s,{x:G.rally.x,y:G.rally.y},{});setTip("Falling back to the rally point.")});
+    }else{
+      mk("⚑ Send to gate","G",()=>armOrder("garrison"),"garrison");
+      mk("🏃 Sprint to gate","S",()=>armOrder("sprint"),"sprint");
+      mk("🔒 Lockdown","L",()=>doLockdown());
+      mk("↧ Move","M",()=>armOrder("move"),"move");
+    }
+    this.syncSelInfo();
+  },
+  syncArmed(){
+    if(HEADLESS)return;
+    document.querySelectorAll(".act-btn").forEach(b=>{
+      b.classList.toggle("armed",!!G.armedOrder&&b.dataset.arm===G.armedOrder)});
+  },
+  /* ---------- banners ---------- */
+  syncBanner(dt){
+    if(HEADLESS)return;
+    const b=G&&G.banners[0];
+    const el=this.el("banner");
+    if(b){
+      if(!this._bannerShown||this._bannerShown!==b){
+        this._bannerShown=b;
+        this.el("banner-main").textContent=b.main;
+        this.el("banner-sub").textContent=b.sub;
+        el.classList.add("show");
+      }
+      b.dur-=dt;
+      if(b.dur<=0){G.banners.shift();el.classList.remove("show");this._bannerShown=null}
+    }else el.classList.remove("show");
+  },
+  /* ---------- overlays ---------- */
+  overlay(html){
+    if(HEADLESS)return;
+    this.el("overlay-sheet").innerHTML=html;
+    this.el("overlay").classList.remove("hidden");
+  },
+  hideOverlay(){if(!HEADLESS)this.el("overlay").classList.add("hidden")},
+  showTitle(){
+    if(HEADLESS)return;
+    this.overlay(`
+      <h1>THE WAR GAME</h1>
+      <h2 class="script">York's Crossing — the 115th Year</h2>
+      <p style="text-align:center" class="fine">Pine Island Camp • est. 1912 • Starks &amp; Mercer → Mercer → Wing's Mills → Dunn's Corners → Fogg's Forks → York's Crossing</p>
+      <hr class="rule-line">
+      <p style="text-align:center">An invisible town. Six gates. Two armies bound by blood and history.<br>
+      No contact, no mercy — only running, scheming, and the Spirit of the Game.</p>
+      <div class="pick-row">
+        <div class="army-card sel" id="pick-G">
+          <div class="flagbox" style="background:#55554f">PGA</div>
+          <h3>THE GREY ARMY</h3><div class="gen">Gen. Treat • the war wagon • the air-raid siren</div>
+          <div class="desc">“Greys love a winner! Greys will not tolerate a loser!” Property of the Grey Army — skulls, ash, and berserker joy.</div>
+        </div>
+        <div class="army-card" id="pick-B">
+          <div class="flagbox" style="background:#24407a">PBA</div>
+          <h3>THE BLUE ARMY</h3><div class="gen">Gen. Swan • the brass bell • the vuvuzelas</div>
+          <div class="desc">Navy blazers and a family crest. More wins on the wall, a curse to break, and wicked genius in reserve.</div>
+        </div>
+      </div>
+      <div class="diff-row">
+        <button class="diff-btn" data-d="0">Camper AI</button>
+        <button class="diff-btn sel" data-d="1">Counselor AI</button>
+        <button class="diff-btn" data-d="2">General AI</button>
+      </div>
+      <p class="fine" style="text-align:center">Two days, four quarters — you attack twice and defend twice. Most points after the final whistle wins.<br>
+      Attack: outnumber the defenders and step into a weak gate, in unison. Defend: plug, shuffle squadrons, don't be fooled.</p>
+      <button class="go-btn" id="btn-declare">DECLARE WAR</button>
+    `);
+    let army="G",diff=1;
+    this.el("pick-G").onclick=()=>{army="G";this.el("pick-G").classList.add("sel");this.el("pick-B").classList.remove("sel")};
+    this.el("pick-B").onclick=()=>{army="B";this.el("pick-B").classList.add("sel");this.el("pick-G").classList.remove("sel")};
+    document.querySelectorAll(".diff-btn").forEach(b=>b.onclick=()=>{diff=+b.dataset.d;
+      document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("sel",x===b))});
+    this.el("btn-declare").onclick=()=>{
+      SND.poke();SND.bell();setTimeout(()=>SND.drum(),300);
+      newMatch({playerArmy:army,difficulty:diff});
+      this.hideOverlay();
+      declarationOfWar();
+    };
+  },
+  showInterquarter(){
+    if(G.autotest){startQuarter();return}
+    if(HEADLESS)return;
+    const rows=G.qScores.map(r=>
+      `<tr><td>Day ${r.day}, Q${r.q}</td><td>${ARMIES[r.attacker].name} attacked</td><td>${r.G}</td><td>${r.B}</td></tr>`).join("");
+    const quotes=[
+      ["It seems an odd way to end a summer… but ultimately, I think, it pulls the camp together.","Ben Swan, Camp Director"],
+      ["It's the infinite puzzle. How can you beat a puzzle that's constantly changing itself?","a certain Grey General"],
+      ["I got hit by a truck, and I'm still standing!","Grey rallying cry, attributed"],
+      ["The most clear memory I have of my first War Game was just how much everyone cared.","Ben Hitchcock, camper"],
+      ["Somehow, in the end, Pine Island always wins.","Ben Swan, with a wink"],
+    ];
+    const[q,attr]=quotes[(G.quarter-2+quotes.length)%quotes.length];
+    const nextAtk=ARMIES[G.attacker];
+    this.overlay(`
+      <h2 class="script" style="font-size:36px;text-align:center">${G.quarter===3?"Night falls on York's Crossing":"The umpires meet"}</h2>
+      ${G.quarter===3?`<p style="text-align:center" class="fine">Biscuits and gravy at dawn. Watches are synchronized. Day Two of the War.</p>`:
+        `<p style="text-align:center" class="fine">Watches are re-set to real time. Disputes are settled. The armies switch sides.</p>`}
+      <hr class="rule-line">
+      <table class="score-table"><tr><th>Quarter</th><th></th><th>GREY</th><th>BLUE</th></tr>${rows}
+      <tr><th colspan="2">Total</th><th>${G.score.G}</th><th>${G.score.B}</th></tr></table>
+      <div class="quote-block">“${q}”</div><div class="quote-attr">— ${attr}</div>
+      <p style="text-align:center;font-weight:700">Next: ${nextAtk.name} attacks — you ${G.playerArmy===G.attacker?"lead the assault":"hold the town"}.</p>
+      <button class="go-btn" id="btn-next">SOUND THE WHISTLE</button>
+    `);
+    this.el("btn-next").onclick=()=>{SND.poke();this.hideOverlay();startQuarter()};
+  },
+  showFinal(){
+    if(HEADLESS||G.autotest){G.finalShown=true;return}
+    SND.whistle(true);setTimeout(()=>SND.cheer(),500);SND.siren(false);
+    const g=G.score.G,b=G.score.B;
+    const winner=g===b?null:(g>b?"G":"B");
+    const youWin=winner===G.playerArmy;
+    const rows=G.qScores.map(r=>
+      `<tr><td>Day ${r.day}, Q${r.q}</td><td>${ARMIES[r.attacker].name} attacked</td><td>${r.G}</td><td>${r.B}</td></tr>`).join("");
+    this.overlay(`
+      <h2 class="script" style="font-size:34px;text-align:center">The Reading of the Final Score</h2>
+      <p style="text-align:center" class="fine">Both armies stand in formation by their war wagons in the Center of Town, sweaty and mud-stained.
+      The head umpire peers down through tortoiseshell glasses at his clipboard…</p>
+      <hr class="rule-line">
+      <h1 style="font-size:38px">${winner?ARMIES[winner].name+" VICTORY":"A TIE — UNHEARD OF"}</h1>
+      <p style="text-align:center;font-size:24px;font-weight:700">GREY ${g} — BLUE ${b}</p>
+      <table class="score-table"><tr><th>Quarter</th><th></th><th>GREY</th><th>BLUE</th></tr>${rows}</table>
+      <p style="text-align:center">${winner?(youWin?
+        (G.playerArmy==="G"?"The Greys jump and holler — a flying punch of joy! Your name is graffitied onto the neatly inscribed history of Pine Island.":
+         "The Blues jump and holler — the family curse is broken at last! A flying punch of joy!"):
+        "Your army stands in silence, shocked and hurting. Some graciously applaud. Not many."):
+        "The umpires huddle for a very, very long time."}</p>
+      <p style="text-align:center" class="fine">Then the two armies churn together — handshakes, hugs — until, from afar, you can't tell Blue from Grey.</p>
+      <div class="quote-block">“Somehow, in the end, Pine Island always wins.”</div><div class="quote-attr">— Ben Swan, Camp Director</div>
+      <p style="text-align:center" class="fine">Plays: ${G.stats.plays} • Repulses: ${G.stats.repulses} • Challenge rulings: ${G.stats.challenges}</p>
+      <button class="go-btn" id="btn-again">PLAY AGAIN</button>
+    `);
+    this.el("btn-again").onclick=()=>this.showTitle();
+  },
+  showHelp(){
+    if(HEADLESS)return;
+    const wasPaused=G?G.paused:true;if(G)G.paused=true;
+    this.overlay(`
+      <button class="close-x" id="btn-close-help">✕</button>
+      <h2 class="script" style="font-size:32px;text-align:center">The Rules, Briefly</h2>
+      <div id="help-body">
+      <p class="fine" style="text-align:center">Condensed from the 2018 Revision. The real governing force is the Spirit of the Game.</p>
+      <h3>The Town</h3>
+      <p>An invisible town of six gates — N, NW, W, S, SE, E — each on a road. Attackers may not cross the town line;
+      defenders may go anywhere but the Center of Town. Each road holds a <b>gate</b> (white flags), a <b>red flag area</b>,
+      and at four gates a <b>blue flag area</b> beyond it (omitted at NW and SE).</p>
+      <h3>Scoring (attacking)</h3>
+      <ul>
+        <li>Approach through the red flag area and step into the gate <i>in unison</i>.</li>
+        <li>Enter a <b>weak gate</b> outnumbering the defenders inside: every eligible attacker scores a point.</li>
+        <li><b>Equal numbers = REPULSE</b> — your party is dead until it retreats past the red flags.</li>
+        <li>A <b>plugged gate</b> (${CFG.plugStrength}+ defenders) repulses any number of attackers.</li>
+        <li>Each man may score <b>${CFG.maxScoreGame} points per game</b>, max ${CFG.maxScoreFirstPeriod} in your first attack quarter. After a man's
+        2nd point on Day 1 (or 3rd on Day 2) he walks to the Center of Town, dead for the period — spend your men wisely.</li>
+        <li>Callers may make all the noise they like. Deception is a tool of the trade.</li>
+      </ul>
+      <h3>Challenges (both sides)</h3>
+      <ul>
+        <li>Outnumber the enemy party in the same playing area when a play is called: points equal to the difference.</li>
+        <li>In a <b>blue flag area</b> the difference counts <b>three times</b>. Do not get caught on the road.</li>
+      </ul>
+      <h3>Defending</h3>
+      <ul>
+        <li>${CFG.armySize} men can plug only five of six gates — the whole game lives in that arithmetic.</li>
+        <li>Watch the scout reports, shuffle squadrons between gates, and don't chase noise.</li>
+        <li><b>Lockdown</b> spreads everyone thin to bleed out the clock when you're ahead.</li>
+      </ul>
+      <h3>Controls</h3>
+      <ul>
+        <li><b>Drag</b> to select men • <b>Right-click</b> to move (or charge, on a gate) • <kbd>1</kbd>–<kbd>6</kbd> select a gate's garrison</li>
+        <li><kbd>A</kbd> charge • <kbd>C</kbd> callers • <kbd>G</kbd> send to gate • <kbd>S</kbd> sprint • <kbd>L</kbd> lockdown • <kbd>F</kbd> fall back • <kbd>Space</kbd> pause</li>
+      </ul>
+      </div>
+      <button class="go-btn" id="btn-close-help2">BACK TO THE WOODS</button>
+    `);
+    const close=()=>{this.hideOverlay();if(G)G.paused=wasPaused};
+    this.el("btn-close-help").onclick=close;
+    this.el("btn-close-help2").onclick=close;
+  },
+};
+function setTip(t){if(!HEADLESS)ui.el("tipline").textContent=t}
+
+function declarationOfWar(){
+  banner("WAR IS DECLARED","The counselors have self-divided, like paramecia",3.4);
+  log("ump","At the trill of a whistle, the armies muster. War has officially been declared.");
+  log("grey",`${ARMIES.G.general} arrives in ${ARMIES.G.wagon}.`);
+  log("blue",`${ARMIES.B.general} arrives with ${ARMIES.B.wagon}.`);
+  startQuarter();
+}
+function doLockdown(){
+  const def=other(G.attacker);
+  if(G.playerArmy!==def)return;
+  const men=armyMen(def).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
+  const per=Math.floor(men.length/6);let k=0;
+  for(let gi=0;gi<6;gi++){
+    const squad=men.slice(k,k+per+(gi<men.length%6?1:0));k+=squad.length;
+    if(squad.length)orderGarrison(squad,gi,{});
+  }
+  log(def==="G"?"grey":"blue",`${ARMIES[def].general} calls LOCKDOWN — every gate manned, knees in the pine needles.`);
+  setTip("Lockdown: all six gates held thin. Boring, effective, watermelon gummies optional.");
+}
+function commandable(){
+  if(!G)return[];
+  return G.selection.filter(m=>m.army===G.playerArmy&&m.state!=="tempdead"&&m.state!=="centerdead");
+}
+function armOrder(kind){
+  G.armedOrder=(G.armedOrder===kind)?null:kind;
+  ui.syncArmed();
+  const tips={charge:"Charge armed — click a gate. Your party steps in together; make sure you outnumber what's inside.",
+    callers:"Callers armed — click a gate to post noisemakers by its road.",
+    move:"Move armed — click anywhere.",
+    garrison:"Garrison armed — click a gate to send the selected men.",
+    sprint:"Sprint armed — click a gate; the squadron runs flat out (watch their wind)."};
+  setTip(G.armedOrder?tips[kind]:"");
+}
+
+/* ---------------- input ---------------- */
+let dragStart=null,dragCur=null;
+function bindInput(cv){
+  cv.addEventListener("contextmenu",e=>e.preventDefault());
+  cv.addEventListener("mousedown",e=>{
+    SND.poke();
+    if(!G||G.phase!=="play")return;
+    const w=ui.toWorld(e.clientX,e.clientY);
+    if(e.button===0){
+      if(G.armedOrder){executeArmed(w);return}
+      dragStart=w;dragCur=w;
+    }else if(e.button===2){
+      contextOrder(w);
+    }
+  });
+  cv.addEventListener("mousemove",e=>{
+    if(dragStart)dragCur=ui.toWorld(e.clientX,e.clientY);
+    if(G){const w=ui.toWorld(e.clientX,e.clientY);
+      G.hoverGate=-1;GATES.forEach((g,i)=>{if(dist(w,g.pos)<55)G.hoverGate=i})}
+  });
+  window.addEventListener("mouseup",e=>{
+    if(e.button!==0||!dragStart||!G)return;
+    const a=dragStart,b=dragCur||dragStart;dragStart=null;dragCur=null;
+    const x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x),y0=Math.min(a.y,b.y),y1=Math.max(a.y,b.y);
+    const isClick=(x1-x0<8&&y1-y0<8);
+    let picked;
+    if(isClick){
+      // click near a gate while defending selects its garrison
+      let gi=-1;GATES.forEach((g,idx)=>{if(dist(a,g.pos)<55)gi=idx});
+      if(gi>=0&&G.playerArmy!==G.attacker){picked=armyMen(G.playerArmy).filter(m=>m.homeGate===gi&&m.state!=="centerdead")}
+      else{picked=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead"&&dist(m,a)<14).slice(0,1)}
+    }else{
+      picked=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead"&&m.x>=x0&&m.x<=x1&&m.y>=y0&&m.y<=y1);
+    }
+    if(e.shiftKey)G.selection=[...new Set(G.selection.concat(picked))];
+    else G.selection=picked;
+    ui.syncSelInfo();
+  });
+}
+function nearestGateTo(w,maxD){
+  let gi=-1,bd=maxD||70;
+  GATES.forEach((g,i)=>{const d=Math.min(dist(w,g.pos),dist(w,g.rfaPt),dist(w,g.bfaPt));if(d<bd){bd=d;gi=i}});
+  return gi;
+}
+function executeArmed(w){
+  const kind=G.armedOrder;
+  const sel=commandable();
+  const gi=nearestGateTo(w,95);
+  if(!sel.length){setTip("Select some men first.");G.armedOrder=null;ui.syncArmed();return}
+  if(kind==="move"){orderMove(sel,w,{})}
+  else if(kind==="charge"){
+    if(gi<0){setTip("Click a gate to charge.");return}
+    orderCharge(sel,gi);
+    log(G.playerArmy==="G"?"grey":"blue",`Party of ${sel.length} moves on the ${GATES[gi].id} Gate.`);
+  }
+  else if(kind==="callers"){
+    if(gi<0){setTip("Click a gate to post callers.");return}
+    orderCallers(sel,gi);
+    log(G.playerArmy==="G"?"grey":"blue",`Callers posted at ${GATES[gi].id} — ${ARMIES[G.playerArmy].callerNoise}.`);
+    if(G.playerArmy==="B")SND.horn();else SND.drum();
+  }
+  else if(kind==="garrison"||kind==="sprint"){
+    if(gi<0){setTip("Click a gate.");return}
+    orderGarrison(sel,gi,{sprint:kind==="sprint"});
+  }
+  G.armedOrder=null;ui.syncArmed();ui.syncSelInfo();
+}
+function contextOrder(w){
+  const sel=commandable();
+  if(!sel.length)return;
+  const gi=nearestGateTo(w,80);
+  if(G.playerArmy===G.attacker){
+    if(gi>=0){orderCharge(sel,gi);log("grey"===G.playerArmy?"grey":"blue",`Party of ${sel.length} moves on the ${GATES[gi].id} Gate.`)}
+    else orderMove(sel,w,{});
+  }else{
+    if(gi>=0)orderGarrison(sel,gi,{sprint:false});
+    else orderMove(sel,w,{});
+  }
+}
+function onKey(e){
+  if(!G||G.phase!=="play")return;
+  const k=e.key.toLowerCase();
+  if(k===" "){G.paused=!G.paused;ui.el("btn-pause").classList.toggle("on",G.paused);e.preventDefault();return}
+  if(k>="1"&&k<="6"){
+    const gi=+k-1;
+    if(G.playerArmy!==G.attacker){
+      G.selection=armyMen(G.playerArmy).filter(m=>m.homeGate===gi&&m.state!=="centerdead");
+      ui.syncSelInfo();setTip(`${GATES[gi].id} Gate garrison selected (${G.selection.length} men).`);
+    }
+    return;
+  }
+  const atk=G.playerArmy===G.attacker;
+  if(atk&&k==="a")armOrder("charge");
+  if(atk&&k==="c")armOrder("callers");
+  if(atk&&k==="f"){const s=commandable();if(s.length)orderMove(s,{x:G.rally.x,y:G.rally.y},{})}
+  if(!atk&&k==="g")armOrder("garrison");
+  if(!atk&&k==="s")armOrder("sprint");
+  if(!atk&&k==="l")doLockdown();
+  if(k==="m")armOrder("move");
+  if(k==="escape"){G.armedOrder=null;ui.syncArmed();setTip("")}
+}
+
+/* ---------------- vintage map rendering ---------------- */
+let MAPIMG=null;
+function scriptFont(px){return `${px}px "Snell Roundhand","Apple Chancery","Segoe Script","Brush Script MT",cursive`}
+function serifFont(px,bold){return `${bold?"bold ":""}${px}px "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif`}
+function drawPine(c,x,y,s,col){
+  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=1;
+  c.beginPath();c.moveTo(x,y+s*0.5);c.lineTo(x,y+s*0.9);c.stroke(); // trunk
+  for(let k=0;k<3;k++){
+    const w=s*(0.55-k*0.13),ty=y+s*0.45-k*s*0.32;
+    c.beginPath();c.moveTo(x-w,ty);c.lineTo(x,ty-s*0.42);c.lineTo(x+w,ty);c.closePath();c.fill();
+  }
+}
+function drawTuft(c,x,y,s,col){
+  c.strokeStyle=col;c.lineWidth=1.1;
+  for(let k=-2;k<=2;k++){c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+k*s*0.3,y-s*0.7,x+k*s*0.5,y-s);c.stroke()}
+}
+function buildMap(){
+  const W=CFG.worldW,H=CFG.worldH;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const c=cv.getContext("2d");
+  const R=mulberry32(20180719);
+  // parchment
+  c.fillStyle="#d8c495";c.fillRect(0,0,W,H);
+  for(let i=0;i<90;i++){
+    const x=R()*W,y=R()*H,r=40+R()*180;
+    const g=c.createRadialGradient(x,y,0,x,y,r);
+    const dark=R()<0.5;
+    g.addColorStop(0,dark?"rgba(148,120,70,0.10)":"rgba(248,238,205,0.12)");
+    g.addColorStop(1,"rgba(0,0,0,0)");
+    c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
+  }
+  for(let i=0;i<2600;i++){c.fillStyle=`rgba(90,70,40,${0.02+R()*0.05})`;
+    c.fillRect(R()*W,R()*H,1.3,1.3)}
+  // edge vignette
+  const vg=c.createRadialGradient(W/2,H/2,H*0.42,W/2,H/2,H*0.85);
+  vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(94,70,35,0.30)");
+  c.fillStyle=vg;c.fillRect(0,0,W,H);
+  // border frame + era names, like the anniversary map
+  c.strokeStyle="#2b2317";c.lineWidth=3;c.strokeRect(14,14,W-28,H-28);
+  c.lineWidth=1;c.strokeRect(22,22,W-44,H-44);
+  c.fillStyle="#2b2317";
+  c.font=scriptFont(30);c.textAlign="center";c.textBaseline="middle";
+  c.fillText("Mercer: 1916–1939   ❧   Wing's Mills: 1940–1948",W/2,44);
+  c.fillText("Fogg's Forks: 1961–1969   ❧   York's Crossing: 1970–Present",W/2,H-42);
+  c.save();c.translate(44,H/2);c.rotate(-Math.PI/2);
+  c.fillText("Starks and Mercer: 1912–1915",0,0);c.restore();
+  c.save();c.translate(W-44,H/2);c.rotate(Math.PI/2);
+  c.fillText("Dunn's Corners: 1948–1960",0,0);c.restore();
+  // highway (old road with cross-ticks)
+  c.strokeStyle="#6b5a3a";c.lineWidth=2;
+  c.beginPath();HIGHWAY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
+  for(let i=0;i<HIGHWAY.length-1;i++){
+    const a=HIGHWAY[i],b=HIGHWAY[i+1],L=dist(a,b),n=Math.floor(L/16);
+    for(let k=0;k<n;k++){
+      const t=k/n,x=lerp(a.x,b.x,t),y=lerp(a.y,b.y,t);
+      const dx=(b.x-a.x)/L,dy=(b.y-a.y)/L;
+      c.beginPath();c.moveTo(x-dy*6,y+dx*6);c.lineTo(x+dy*6,y-dx*6);c.stroke();
+    }
+  }
+  c.font=serifFont(15,true);c.fillStyle="#5a4a2e";
+  c.save();c.translate(300,858);c.rotate(0.55);c.fillText("H I G H W A Y",0,0);c.restore();
+  // streams
+  c.strokeStyle="#4a70a8";c.lineWidth=2.6;c.lineCap="round";
+  for(const s of STREAMS){c.beginPath();
+    for(let i=0;i<s.length;i++){const p=s[i];i?c.quadraticCurveTo(s[i-1].x,s[i-1].y,(s[i-1].x+p.x)/2,(s[i-1].y+p.y)/2):c.moveTo(p.x,p.y)}
+    c.stroke()}
+  // swamp
+  for(let i=0;i<170;i++){
+    const a=R()*Math.PI*2,r=Math.sqrt(R());
+    const x=SWAMP.x+Math.cos(a)*SWAMP.rx*r,y=SWAMP.y+Math.sin(a)*SWAMP.ry*r;
+    drawTuft(c,x,y,5+R()*5,"rgba(58,94,50,0.85)");
+  }
+  c.font=serifFont(17,true);c.fillStyle="#3a5e32";c.textAlign="center";
+  c.fillText("S W A M P",SWAMP.x,SWAMP.y-8);
+  // forests
+  for(const f of FORESTS){
+    const area=f.rx*f.ry,n=Math.floor(area/380);
+    const FR=mulberry32(f.seed|0);
+    for(let i=0;i<n;i++){
+      const a=FR()*Math.PI*2,r=Math.sqrt(FR());
+      const x=f.x+Math.cos(a)*f.rx*r,y=f.y+Math.sin(a)*f.ry*r;
+      if(distToPoly({x,y},HIGHWAY)<18)continue;
+      let onRd=false;for(const g of GATES){if(dist({x,y},ptOnSeg({x,y},g.pos,g.roadEnd))<20){onRd=true;break}}
+      if(onRd)continue;
+      drawPine(c,x,y,7+FR()*7,FR()<0.85?"#2f4a28":"#3d5c33");
+    }
+  }
+  // town line (dashed loop)
+  c.strokeStyle="#2f4a28";c.lineWidth=2.2;c.setLineDash([9,7]);
+  c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
+  c.setLineDash([]);
+  c.font=scriptFont(19);c.fillStyle="#2f4a28";c.fillText("town line",660,352);
+  // interior defensive routes (dashed, faint)
+  c.strokeStyle="rgba(47,74,40,0.5)";c.lineWidth=1.4;c.setLineDash([5,6]);
+  c.beginPath();
+  GATES.forEach((g,i)=>{
+    const n=GATES[(i+1)%GATES.length];
+    let mx=(g.gateIn.x+n.gateIn.x)/2,my=(g.gateIn.y+n.gateIn.y)/2;
+    const d=Math.hypot(mx-CENTER.x,my-CENTER.y)||1,need=CENTER.r+45;
+    if(d<need){mx=CENTER.x+(mx-CENTER.x)/d*need;my=CENTER.y+(my-CENTER.y)/d*need}
+    if(i===0)c.moveTo(g.gateIn.x,g.gateIn.y);
+    c.quadraticCurveTo(mx,my,n.gateIn.x,n.gateIn.y);
+  });
+  c.stroke();c.setLineDash([]);
+  // roads
+  for(const g of GATES){
+    const p=g.perp;
+    c.strokeStyle="#8a7448";c.lineWidth=1.8;
+    for(const s of[-1,1]){
+      c.beginPath();
+      c.moveTo(g.gateIn.x-g.dx*30+p.x*9*s,g.gateIn.y-g.dy*30+p.y*9*s);
+      c.lineTo(g.roadEnd.x+p.x*9*s,g.roadEnd.y+p.y*9*s);c.stroke();
+    }
+    c.fillStyle="rgba(196,170,120,0.7)";
+    c.save();c.translate(g.pos.x,g.pos.y);c.rotate(Math.atan2(g.dy,g.dx));
+    c.fillRect(-56,-9,321,18);c.restore();
+  }
+  // gates & flags
+  for(const g of GATES){
+    const rect=gateRect(g);
+    c.strokeStyle="#f7f2e4";c.lineWidth=2.4;
+    c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
+    c.strokeStyle="rgba(43,35,23,0.65)";c.lineWidth=0.8;
+    c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
+    for(const p of rect){c.fillStyle="#f7f2e4";c.beginPath();c.arc(p.x,p.y,3,0,7);c.fill();
+      c.strokeStyle="#2b2317";c.lineWidth=0.7;c.stroke()}
+    // red flags
+    for(const s of[-1,1]){
+      const x=g.redFlag.x+g.perp.x*30*s,y=g.redFlag.y+g.perp.y*30*s;
+      c.fillStyle="#a03325";c.beginPath();c.arc(x,y,3.6,0,7);c.fill();
+      c.strokeStyle="#2b2317";c.lineWidth=0.7;c.stroke();
+    }
+    if(g.hasBlue)for(const s of[-1,1]){
+      const x=g.blueFlag.x+g.perp.x*33*s,y=g.blueFlag.y+g.perp.y*33*s;
+      c.fillStyle="#33559c";c.beginPath();c.arc(x,y,3.6,0,7);c.fill();
+      c.strokeStyle="#2b2317";c.lineWidth=0.7;c.stroke();
+    }
+    // label
+    c.font=scriptFont(26);c.fillStyle="#2b2317";c.textAlign="center";
+    const lx=g.pos.x-g.dx*52+g.perp.x*30,ly=g.pos.y-g.dy*52+g.perp.y*30;
+    c.fillText(g.label,lx,ly+8);
+  }
+  // center of town
+  c.fillStyle="rgba(222,203,150,0.9)";
+  c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r,0,7);c.fill();
+  c.strokeStyle="rgba(43,35,23,0.5)";c.lineWidth=1;c.setLineDash([4,4]);c.stroke();c.setLineDash([]);
+  c.font=scriptFont(17);c.fillStyle="#4a3c26";
+  c.fillText("center of town",CENTER.x,CENTER.y-CENTER.r-8);
+  // landmarks
+  c.font=scriptFont(16);c.fillStyle="#4a3c26";
+  c.fillText("showers",SHOWERS.x,SHOWERS.y+22);
+  c.strokeStyle="#4a3c26";c.lineWidth=1.5;
+  c.strokeRect(SHOWERS.x-10,SHOWERS.y-8,20,12);
+  c.beginPath();c.moveTo(SHOWERS.x-13,SHOWERS.y-8);c.lineTo(SHOWERS.x,SHOWERS.y-16);c.lineTo(SHOWERS.x+13,SHOWERS.y-8);c.stroke();
+  c.fillText("fallen tree",FALLENTREE.x,FALLENTREE.y+20);
+  c.save();c.translate(FALLENTREE.x,FALLENTREE.y);c.rotate(0.5);
+  c.strokeStyle="#5a4a2e";c.lineWidth=4;c.beginPath();c.moveTo(-16,0);c.lineTo(16,0);c.stroke();
+  c.lineWidth=1.5;c.beginPath();c.moveTo(10,0);c.lineTo(15,-6);c.moveTo(4,0);c.lineTo(8,7);c.stroke();c.restore();
+  // campsite arrow
+  c.save();c.translate(CAMPSITE.x-40,CAMPSITE.y+10);c.rotate(-0.5);
+  c.font=scriptFont(17);c.fillText("To the campsite",40,26);
+  c.strokeStyle="#4a3c26";c.lineWidth=2;
+  c.beginPath();c.moveTo(30,8);c.lineTo(-28,26);c.stroke();
+  c.beginPath();c.moveTo(-28,26);c.lineTo(-16,18);c.moveTo(-28,26);c.lineTo(-15,30);c.stroke();
+  c.restore();
+  // compass rose
+  const cx=1380,cy=1065;
+  c.strokeStyle="#2b2317";c.fillStyle="#2b2317";c.lineWidth=1.4;
+  c.beginPath();c.arc(cx,cy,26,0,7);c.stroke();
+  c.beginPath();c.arc(cx,cy,4,0,7);c.fill();
+  for(let k=0;k<4;k++){
+    const a=k*Math.PI/2-Math.PI/2;
+    c.beginPath();c.moveTo(cx+Math.cos(a)*38,cy+Math.sin(a)*38);
+    c.lineTo(cx+Math.cos(a+2.6)*10,cy+Math.sin(a+2.6)*10);
+    c.lineTo(cx+Math.cos(a-2.6)*10,cy+Math.sin(a-2.6)*10);c.closePath();
+    k===0?c.fill():c.stroke();
+  }
+  c.font=serifFont(15,true);c.textAlign="center";
+  c.fillText("N",cx,cy-48);c.fillText("S",cx,cy+56);c.fillText("E",cx+52,cy+4);c.fillText("W",cx-52,cy+4);
+  // scale bar
+  c.strokeStyle="#2b2317";c.lineWidth=2;
+  c.beginPath();c.moveTo(700,1128);c.lineTo(800,1128);c.stroke();
+  c.beginPath();c.moveTo(700,1122);c.lineTo(700,1134);c.moveTo(800,1122);c.lineTo(800,1134);c.stroke();
+  c.font=serifFont(13,false);c.fillText("250 feet",750,1114);
+  // legend
+  c.strokeStyle="#2b2317";c.lineWidth=1.5;c.fillStyle="rgba(232,215,168,0.92)";
+  c.fillRect(1252,1120,300,56);c.strokeRect(1252,1120,300,56);
+  c.fillStyle="#6f6f68";c.fillRect(1266,1132,26,10);c.strokeStyle="#2b2317";c.lineWidth=0.8;c.strokeRect(1266,1132,26,10);
+  c.fillStyle="#3b5ea8";c.fillRect(1266,1152,26,10);c.strokeRect(1266,1152,26,10);
+  c.fillStyle="#2b2317";c.font=serifFont(13,false);c.textAlign="left";
+  c.fillText("Grey Army Troops",1300,1141);c.fillText("Blue Army Troops",1300,1161);
+  // cartouche
+  const bx=1128,by=64,bw=424,bh=210;
+  c.fillStyle="rgba(236,220,175,0.95)";c.fillRect(bx,by,bw,bh);
+  c.strokeStyle="#2b2317";c.lineWidth=2.5;c.strokeRect(bx,by,bw,bh);
+  c.lineWidth=1;c.strokeRect(bx+6,by+6,bw-12,bh-12);
+  c.textAlign="center";c.fillStyle="#2b2317";
+  c.font=scriptFont(26);c.fillText("Map of York's Crossing",bx+bw/2,by+38);
+  c.font=scriptFont(20);c.fillText("being the field of the",bx+bw/2,by+66);
+  c.font=serifFont(30,true);c.fillText("WAR GAME",bx+bw/2,by+100);
+  c.font=scriptFont(20);c.fillText("Pine Island Camp • 1912 – 2026",bx+bw/2,by+130);
+  // pennants
+  for(const[i,[col,txt]]of[["#55554f","PGA"],["#24407a","PBA"]].entries()){
+    const px=bx+bw/2-64+i*74,py=by+146;
+    c.fillStyle=col;
+    c.beginPath();c.moveTo(px,py);c.lineTo(px+54,py);c.lineTo(px+42,py+13);c.lineTo(px+54,py+26);c.lineTo(px,py+26);c.closePath();c.fill();
+    c.strokeStyle="#2b2317";c.lineWidth=1;c.stroke();
+    c.fillStyle="#f7f2e4";c.font=serifFont(12,true);c.fillText(txt,px+22,py+18);
+    c.beginPath();c.moveTo(px,py);c.lineTo(px,py+34);c.stroke();
+  }
+  c.font=scriptFont(16);c.fillStyle="#4a3c26";
+  c.fillText("Pine Insula Semper Vincit",bx+bw/2,by+196);
+  MAPIMG=cv;
+}
+
+/* ---------------- dynamic rendering ---------------- */
+function render(dt){
+  if(HEADLESS)return;
+  const c=ui.ctx,v=ui.view,dpr=v.dpr||1;
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.fillStyle="#1d1812";c.fillRect(0,0,innerWidth,innerHeight);
+  if(!MAPIMG)buildMap();
+  c.setTransform(dpr*v.scale,0,0,dpr*v.scale,dpr*v.ox,dpr*v.oy);
+  c.drawImage(MAPIMG,0,0);
+  if(!G)return;
+  const now=performance.now()/1000;
+  const viewer=G.playerArmy,enemy=other(viewer);
+  const viewerIsAtk=viewer===G.attacker;
+
+  // gate status overlays
+  GATES.forEach((g,i)=>{
+    const gs=G.gates[i];
+    // caller noise arcs
+    if(gs.noise>0){
+      const col=G.attacker==="G"?"rgba(190,120,40,0.65)":"rgba(60,100,190,0.65)";
+      c.strokeStyle=col;c.lineWidth=1.6;
+      for(let k=0;k<3;k++){
+        const r=12+((now*36+k*17)%52);
+        c.globalAlpha=1-r/60;
+        c.beginPath();c.arc(g.roadEnd.x+g.dx*-40,g.roadEnd.y+g.dy*-40,r,0,7);c.stroke();
+      }
+      c.globalAlpha=1;
+    }
+    // whistle freeze / cooldown
+    if(G.freeze&&G.freeze.gate===i){
+      c.fillStyle="rgba(160,51,37,0.92)";c.font=serifFont(15,true);c.textAlign="center";
+      c.fillText("⟟ PLAY IS OFF",g.pos.x,g.pos.y-42);
+    }else if(gs.cooldown>0){
+      c.fillStyle="rgba(90,74,46,0.85)";c.font=serifFont(11,true);c.textAlign="center";
+      c.fillText("play resumes "+Math.ceil(gs.cooldown)+"s",g.pos.x,g.pos.y-40);
+    }
+    // garrison badge
+    let label=null,style="#2b2317";
+    if(!viewerIsAtk){label=gs.def+(gs.plugged?" ⊕":"");if(gs.plugged)style="#a03325"}
+    else{
+      const age=(CFG.quarterLen-G.clock)-gs.lastSeenByAtk;
+      if(age<10){label=(gs.atkSeenDef??"?")+(gs.atkSeenPlug?" ⊕":"");style=age<5?"#2b2317":"#6b5a3a"}
+      else label="?";
+    }
+    if(label!=null){
+      const bxp=g.pos.x+g.perp.x*44-14,byp=g.pos.y+g.perp.y*44-9;
+      c.fillStyle="rgba(240,228,190,0.92)";c.fillRect(bxp,byp,30,17);
+      c.strokeStyle="#2b2317";c.lineWidth=0.8;c.strokeRect(bxp,byp,30,17);
+      c.fillStyle=style;c.font=serifFont(11.5,true);c.textAlign="center";
+      c.fillText(label,bxp+15,byp+12.5);
+    }
+    if(gs.plugged&&!viewerIsAtk){
+      c.fillStyle="#a03325";c.font=serifFont(10,true);
+      c.fillText("PLUGGED",g.pos.x-g.dx*76-g.perp.x*10,g.pos.y-g.dy*76-g.perp.y*10);
+    }
+    // hover/armed highlight
+    if(G.hoverGate===i&&G.armedOrder){
+      c.strokeStyle="#b98a2f";c.lineWidth=2.5;
+      c.beginPath();c.arc(g.pos.x,g.pos.y,40,0,7);c.stroke();
+    }
+  });
+
+  // visibility of enemy men
+  const myMen=armyMen(viewer).filter(m=>m.state!=="centerdead");
+  function enemyVisible(m){
+    if(G.phase!=="play")return true;
+    const r=viewerIsAtk?CFG.attackerSight:CFG.sightBase*(inForest(m)?CFG.sightForestTargetMult:1)*(onRoad(m)?1.35:1);
+    for(const mm of myMen)if(dist(mm,m)<r)return true;
+    return false;
+  }
+  // ghosts (your army's memory of sighted parties)
+  for(const gh of G.ghosts){
+    if(gh.side!==viewer)continue;
+    const age=(CFG.quarterLen-G.clock)-gh.t;
+    const al=clamp(1-age/CFG.ghostFade,0,1)*0.8;
+    c.globalAlpha=al;
+    c.strokeStyle=ARMIES[enemy].dark;c.lineWidth=1.6;
+    c.strokeRect(gh.x-13,gh.y-8,26,16);
+    c.font=serifFont(12,true);c.fillStyle=ARMIES[enemy].dark;c.textAlign="center";
+    c.fillText(gh.n,gh.x,gh.y+4.5);
+    c.font=serifFont(9,false);c.fillText(age<1.2?"sighted!":"last seen",gh.x,gh.y+20);
+    c.globalAlpha=1;
+  }
+  // men
+  for(const m of G.men){
+    const own=m.army===viewer;
+    if(!own&&!enemyVisible(m))continue;
+    const A=ARMIES[m.army];
+    const sel=own&&G.selection.includes(m);
+    let w=10,h=6;
+    if(m.plugKneel){w=8;h=8}
+    c.globalAlpha=(m.state==="centerdead")?0.4:(m.state==="tempdead"?0.65:1);
+    if(sel){c.strokeStyle="#b98a2f";c.lineWidth=2;c.strokeRect(m.x-w/2-2,m.y-h/2-2,w+4,h+4)}
+    c.fillStyle=A.color;c.fillRect(m.x-w/2,m.y-h/2,w,h);
+    c.strokeStyle=A.dark;c.lineWidth=1;c.strokeRect(m.x-w/2,m.y-h/2,w,h);
+    if(m.state==="tempdead"){ // hands on head
+      c.fillStyle="#f7f2e4";c.beginPath();c.arc(m.x,m.y-h/2-3,2.2,0,7);c.fill();
+      c.strokeStyle="#2b2317";c.lineWidth=0.6;c.stroke();
+    }
+    if(m.caller){
+      c.strokeStyle=m.army==="G"?"#b06a20":"#2f56b0";c.lineWidth=1.2;
+      const r=5+((now*22+m.id*7)%14);
+      c.globalAlpha=Math.max(0,1-r/20);
+      c.beginPath();c.arc(m.x,m.y-6,r,-2.6,-0.6);c.stroke();
+      c.globalAlpha=1;
+    }
+    c.globalAlpha=1;
+  }
+  // party badges for own charging/caller parties
+  for(const p of G.parties){
+    if(p.army!==viewer||!["charge","callers"].includes(p.role))continue;
+    const alive=p.men.filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
+    if(alive.length<2)continue;
+    const pc=partyCenter(p);
+    c.fillStyle="rgba(240,228,190,0.92)";
+    c.fillRect(pc.x-16,pc.y-26,32,14);
+    c.strokeStyle="#2b2317";c.lineWidth=0.8;c.strokeRect(pc.x-16,pc.y-26,32,14);
+    c.fillStyle="#2b2317";c.font=serifFont(10,true);c.textAlign="center";
+    c.fillText((p.role==="charge"?"⚔ ":"📯 ")+alive.length,pc.x,pc.y-15.5);
+    if(p.state==="form"||p.state==="step"){
+      c.fillStyle="#a03325";c.font=serifFont(10,true);
+      c.fillText(p.state==="form"?"READY—READY—":"ONE, TWO, STEP!",pc.x,pc.y+18);
+    }
+  }
+  // rally marker (attacking)
+  if(viewerIsAtk&&G.rally){
+    c.font=serifFont(11,true);c.fillStyle="#4a3c26";c.textAlign="center";
+    c.fillText("⚑ rally / war wagon",G.rally.x,G.rally.y-28);
+  }
+  // drag rectangle
+  if(dragStart&&dragCur){
+    c.strokeStyle="#b98a2f";c.lineWidth=1.5;c.setLineDash([6,4]);
+    c.strokeRect(Math.min(dragStart.x,dragCur.x),Math.min(dragStart.y,dragCur.y),
+      Math.abs(dragCur.x-dragStart.x),Math.abs(dragCur.y-dragStart.y));
+    c.setLineDash([]);
+  }
+}
+
+/* ---------------- main loop & boot ---------------- */
+if(!HEADLESS){
+  let lastT=0;
+  function frame(t){
+    const dt=Math.min(0.05,(t-lastT)/1000||0.016);lastT=t;
+    if(G)tick(dt);
+    render(dt);
+    ui.syncBanner(dt);
+    if(G){ui.syncHud();ui.syncLog()}
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener("DOMContentLoaded",()=>{
+    ui.init();
+    buildMap();
+    ui.showTitle();
+    requestAnimationFrame(frame);
+  });
+}
+
+/* ---------------- test hooks ---------------- */
+const __wg={
+  newMatch,startQuarter,tick,CFG,GATES,ARMIES,NAV,ui,
+  get state(){return G},
+  resolvePlay,eligibleToScore,menInGateArea,
+  render,buildMap,getMapImage(){return MAPIMG},
+  runHeadless(opts){
+    opts=Object.assign({playerArmy:"G",difficulty:1,autotest:true},opts||{});
+    newMatch(opts);
+    startQuarter();
+    let steps=0,err=null;
+    while(!G.over&&steps<80000){tick(0.1);steps++}
+    return {finished:G.over,steps,score:{...G.score},qScores:G.qScores.map(q=>({...q})),
+      stats:{plays:G.stats.plays,repulses:G.stats.repulses,challenges:G.stats.challenges},
+      logCount:G.log.length};
+  },
+};
+if(typeof window!=="undefined")window.__wg=__wg;
+</script>
+</body>
+</html>
