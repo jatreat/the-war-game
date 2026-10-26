@@ -1,0 +1,120 @@
+name: App (iPhone, iPad, Mac)
+
+# Every push that touches the game or the app: compile both apps (no signing) as a check.
+# Actions tab → "App (iPhone, iPad, Mac)" → Run workflow → release: true
+#   signs with the App Store Connect API key in the repo secrets and uploads both
+#   builds to App Store Connect (TestFlight first, then submit for review there).
+on:
+  push:
+    branches: [main]
+    paths: ["index.html", "app/**", ".github/workflows/app.yml"]
+  pull_request:
+    paths: ["index.html", "app/**", ".github/workflows/app.yml"]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Sign and upload to App Store Connect"
+        type: boolean
+        default: true
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compile check
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: app
+        run: xcodegen generate
+      - name: Build iPhone/iPad app (unsigned)
+        working-directory: app
+        run: |
+          set -o pipefail
+          xcodebuild -project PineIslandWarGame.xcodeproj -scheme PineIslandWarGame-iOS \
+            -destination 'generic/platform=iOS' -configuration Release \
+            CODE_SIGNING_ALLOWED=NO build | tail -40
+      - name: Build Mac app (unsigned)
+        working-directory: app
+        run: |
+          set -o pipefail
+          xcodebuild -project PineIslandWarGame.xcodeproj -scheme PineIslandWarGame-macOS \
+            -destination 'generic/platform=macOS' -configuration Release \
+            CODE_SIGNING_ALLOWED=NO build | tail -40
+      - name: Screenshot in the iPhone simulator
+        working-directory: app
+        run: |
+          set -o pipefail
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys;d=json.load(sys.stdin)['devices'];print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if 'iPhone' in x['name']))")
+          xcrun simctl boot "$UDID"
+          xcodebuild -project PineIslandWarGame.xcodeproj -scheme PineIslandWarGame-iOS \
+            -destination "id=$UDID" -configuration Debug -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO build | tail -5
+          APP=$(find build/sim -name "Pine Island War Game.app" -path "*iphonesimulator*" | head -1)
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.joshtreat.pineislandwargame
+          sleep 8
+          xcrun simctl io "$UDID" screenshot sim-iphone.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simulator-screenshot
+          path: app/sim-iphone.png
+
+  release:
+    name: Sign & upload to App Store Connect
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.release
+    runs-on: macos-15
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the App Store Connect secrets are set
+        run: |
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 TEAM_ID; do
+            if [ -z "${!v}" ]; then echo "::error::Missing repo secret for $v"; exit 1; fi
+          done
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: app
+        run: xcodegen generate
+      - name: Write API key and export options
+        working-directory: app
+        run: |
+          mkdir -p build
+          printf '%s\n' "$ASC_KEY_P8" > build/AuthKey.p8
+          python3 -c "import plistlib,os; plistlib.dump({'method':'app-store-connect','destination':'upload','teamID':os.environ['TEAM_ID'],'signingStyle':'automatic','uploadSymbols':True}, open('build/ExportOptions.plist','wb'))"
+      - name: Archive & upload iPhone/iPad
+        working-directory: app
+        run: |
+          set -o pipefail
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $PWD/build/AuthKey.p8 -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID"
+          xcodebuild -project PineIslandWarGame.xcodeproj -scheme PineIslandWarGame-iOS \
+            -destination 'generic/platform=iOS' -configuration Release \
+            -archivePath build/ios.xcarchive archive \
+            DEVELOPMENT_TEAM=$TEAM_ID CURRENT_PROJECT_VERSION=${{ github.run_number }} $AUTH | tail -30
+          xcodebuild -exportArchive -archivePath build/ios.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/ios-export $AUTH | tail -30
+      - name: Archive & upload Mac
+        working-directory: app
+        run: |
+          set -o pipefail
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $PWD/build/AuthKey.p8 -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID"
+          xcodebuild -project PineIslandWarGame.xcodeproj -scheme PineIslandWarGame-macOS \
+            -destination 'generic/platform=macOS' -configuration Release \
+            -archivePath build/mac.xcarchive archive \
+            DEVELOPMENT_TEAM=$TEAM_ID CURRENT_PROJECT_VERSION=${{ github.run_number }} $AUTH | tail -30
+          xcodebuild -exportArchive -archivePath build/mac.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/mac-export $AUTH | tail -30
+      - name: Remove the key
+        if: always()
+        run: rm -f app/build/AuthKey.p8

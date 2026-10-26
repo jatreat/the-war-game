@@ -11,7 +11,8 @@
     --grey:#7d7d76; --grey-dark:#55554f; --blue:#33559c; --blue-dark:#24407a;
     --gold:#b98a2f; --red:#a03325; --green:#2f4a28;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{width:100%;height:100%;overflow:hidden;background:#1d1812}
   body{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;color:var(--ink)}
   .script{font-family:"Snell Roundhand","Apple Chancery","Segoe Script","Brush Script MT",cursive}
@@ -22,7 +23,8 @@
   /* ---------- top bar ---------- */
   #topbar{position:absolute;top:0;left:0;right:0;height:58px;z-index:20;display:flex;align-items:stretch;
     background:linear-gradient(#efe2bd,#dcc794 70%,#c9b27e);border-bottom:3px double var(--ink);
-    box-shadow:0 3px 14px rgba(0,0,0,.45);font-size:15px}
+    box-shadow:0 3px 14px rgba(0,0,0,.45);font-size:15px;
+    padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:content-box}
   .tb-cell{display:flex;align-items:center;gap:8px;padding:0 14px;border-right:1px solid rgba(43,35,23,.35);white-space:nowrap}
   .tb-flex{flex:1;justify-content:center;border-right:none}
   .army-chip{display:flex;align-items:center;gap:7px;font-weight:700;letter-spacing:.5px}
@@ -41,7 +43,8 @@
   /* ---------- bottom bar ---------- */
   #botbar{position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:10px;
     padding:8px 14px;background:linear-gradient(#dcc794,#c9b27e);border-top:3px double var(--ink);
-    box-shadow:0 -3px 14px rgba(0,0,0,.45);min-height:58px;flex-wrap:wrap}
+    box-shadow:0 -3px 14px rgba(0,0,0,.45);min-height:58px;flex-wrap:wrap;
+    padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom))}
   #sel-info{font-size:14px;font-weight:700;min-width:210px}
   #sel-sub{font-size:12px;font-weight:400;font-style:italic;color:var(--ink-soft)}
   .act-btn{cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:5px;padding:7px 13px;
@@ -79,6 +82,11 @@
   #overlay{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
     background:rgba(20,16,10,.72)}
   #overlay.hidden{display:none}
+  #overlay .sheet{animation:sheetIn .28s ease-out}
+  @keyframes sheetIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+  #gatepanel:not(.hidden){animation:panelIn .18s ease-out}
+  @keyframes panelIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+  @media (prefers-reduced-motion:reduce){#overlay .sheet,#gatepanel:not(.hidden){animation:none}}
   .sheet{background:var(--parch);border:4px double var(--ink);border-radius:6px;max-width:760px;width:92%;
     max-height:92vh;overflow-y:auto;padding:30px 40px;box-shadow:0 14px 60px rgba(0,0,0,.7);
     background-image:radial-gradient(ellipse at 30% 20%,rgba(255,250,225,.55),transparent 60%),
@@ -188,7 +196,7 @@
     .tb-btns{margin-left:auto;gap:4px;padding:5px 6px}
     .tb-btn{padding:5px 8px;font-size:14px;min-width:34px;min-height:34px}
     .lbl-long{display:none}.lbl-short{display:inline}
-    #botbar{padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:6px;min-height:0}
+    #botbar{padding:6px max(6px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:6px;min-height:0}
     #sel-info{min-width:0;flex-basis:100%;font-size:13px}
     #sel-info #sel-sub{display:inline;margin-left:6px}
     #gate-chips{flex-basis:100%;justify-content:space-between}
@@ -233,7 +241,7 @@
     #clock{font-size:18px}
     .tb-btn{padding:3px 7px;min-height:30px;font-size:13px}
     .lbl-long{display:none}.lbl-short{display:inline}
-    #botbar{padding:4px 6px calc(4px + env(safe-area-inset-bottom));gap:6px;min-height:0;flex-wrap:nowrap}
+    #botbar{padding:4px max(6px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:6px;min-height:0;flex-wrap:nowrap}
     #sel-info,#tipline{display:none}
     #gate-chips{flex:1 1 auto}
     .gchip{flex:1;min-width:0;height:40px}
@@ -301,7 +309,7 @@ const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
 
 /* ---------------- config ---------------- */
 const CFG = {
-  version: "1.2.5",
+  version: "1.3.0",
   worldW: 1600, worldH: 1200,
   armySize: 40,            // active players per army (announced by the Director)
   plugStrength: 8,         // defenders needed to plug a gate
@@ -605,6 +613,14 @@ const SND=(function(){
   return {whistle,bell,drum,horn,cheer,siren,
     setMuted(m){muted=m;if(m)siren(false)},get muted(){return muted},poke(){ac()}};
 })();
+
+/* ---------------- native app bridge (iPhone, iPad, Mac app) ---------------- */
+const APP=(typeof window!=="undefined"&&window.WG_APP)||null;
+function haptic(kind){
+  if(HEADLESS)return;
+  try{if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.native)
+    window.webkit.messageHandlers.native.postMessage({haptic:kind})}catch(e){}
+}
 
 /* ---------------- game state ---------------- */
 const ARMIES={
@@ -985,6 +1001,10 @@ function resolvePlay(gi,chargeParty,trigger){
   }
 
   if(pts&&ptsArmy){G.score[ptsArmy]+=pts}
+  if(!G.autotest){
+    const good=kind==="noplay"?null:(kind==="repulse"?atk!==G.playerArmy:ptsArmy===G.playerArmy);
+    haptic(good==null?"whistle":(good?"score":"against"));
+  }
   log("ump",`⟟ Play off at ${g.id} Gate — ${ruling}`);
   banner(kind==="score"?`${pts} POINT${pts===1?"":"S"} — ${ARMIES[ptsArmy].name}!`:
          kind==="repulse"?`REPULSE AT ${g.id} GATE`:
@@ -1097,13 +1117,13 @@ function startQuarter(){
 function updatePhase(dt){
   const t=G.tPlay;
   if(!G.scoutsOut&&t>=CFG.scoutsOutAt){
-    G.scoutsOut=true;SND.whistle(false);
+    G.scoutsOut=true;SND.whistle(false);haptic("whistle");
     banner("SCOUTS OUT","Defenders man the gates",2.2);
     log("ump","Whistle: “Scouts out!” The defense takes the field.");
     deployPlayerGarrisons();
   }
   if(!G.playLive&&t>=CFG.playOnAt){
-    G.playLive=true;SND.whistle(true);
+    G.playLive=true;SND.whistle(true);haptic("whistle");
     banner("PLAY IS ON","Scoring is live at every gate",2.4);
     log("ump","Whistle: play is on at all six gates.");
   }
@@ -1239,6 +1259,7 @@ function detectRoadClashes(dt){
         if(diff>0){
           const winner=dRFA.length>aRFA.length?def:atk;
           G.score[winner]+=diff;G.stats.challenges++;
+          if(!G.autotest)haptic(winner===G.playerArmy?"score":"against");
           gs.cooldown=CFG.gateCooldown;G.freeze={gate:g.idx,t:CFG.whistleFreeze};
           SND.whistle(true);
           log("ump",`⟟ Challenge in the red flag area at ${g.id} — ${diff} point${diff===1?"":"s"}, ${ARMIES[winner].name}.`);
@@ -1720,7 +1741,7 @@ const ui={
     if(atk)n=recommendCharge(gi).n;
     else{const cur=garrisonOf(gi).length,s=gateSighting(gi,G.playerArmy);
       n=s&&s.age<10?clamp(Math.max(cur,s.n+1),1,CFG.plugStrength+4):cur}
-    this.gp={gi,atk,n,sprint:false};
+    this.gp={gi,atk,n,sprint:false};haptic("select");
     G.hold=!!SETTINGS.pauseOrders;
     const head=`<div class="gp-head"><span class="gp-title">${g.id} Gate</span>
         <span class="gp-sub">${g.hasBlue?"Blue flag area on this road — challenges there count triple.":"No blue flag area on this road."}</span>
@@ -1749,10 +1770,10 @@ const ui={
     }
     const panel=this.el("gatepanel");
     panel.innerHTML=body;panel.classList.remove("hidden");
-    const E=id=>this.el(id),done=(tip)=>{this.closeGate();if(tip)setTip(tip);ui.syncSelInfo()};
+    const E=id=>this.el(id),done=(tip)=>{haptic("order");this.closeGate();if(tip)setTip(tip);ui.syncSelInfo()};
     E("gp-close").onclick=()=>this.closeGate();
-    E("gp-minus").onclick=()=>{this.gp.n=Math.max(atk?1:0,this.gp.n-1);this.refreshGate()};
-    E("gp-plus").onclick=()=>{this.gp.n++;this.refreshGate()};
+    E("gp-minus").onclick=()=>{this.gp.n=Math.max(atk?1:0,this.gp.n-1);haptic("select");this.refreshGate()};
+    E("gp-plus").onclick=()=>{this.gp.n++;haptic("select");this.refreshGate()};
     if(atk){
       E("gp-go").onclick=()=>{const k=cmdCharge(gi,this.gp.n);
         done(k?`${k} men head for the ${g.id} road. They form up, then step in together on “one, two, STEP!”`:"No free men to send.")};
@@ -1971,7 +1992,8 @@ const ui={
       <p class="fine" style="text-align:center">Two days, four quarters — you attack twice and defend twice. Most points after the final whistle wins.<br>
       Attack: outnumber the defenders and step into a weak gate, in unison. Defend: plug, shuffle squadrons, don't be fooled.</p>
       <button class="go-btn" id="btn-declare">DECLARE WAR</button>
-      <p class="fine" style="text-align:center;margin-top:10px"><a href="#" id="lnk-guide" style="color:inherit">How to play in one minute</a></p>
+      <p class="fine" style="text-align:center;margin-top:10px"><a href="#" id="lnk-guide" style="color:inherit">How to play in one minute</a>
+        &nbsp;•&nbsp; <a href="#" id="lnk-about" style="color:inherit">About</a></p>
     `);
     let army=STORE.get("army","G"),diff=STORE.get("diff",1);
     if(army!=="G"&&army!=="B")army="G";
@@ -1991,6 +2013,7 @@ const ui={
     }
     document.querySelectorAll(".diff-btn").forEach(b=>b.onclick=()=>pickDiff(+b.dataset.d));
     this.el("lnk-guide").onclick=e=>{e.preventDefault();this.showGuide(()=>this.showTitle())};
+    this.el("lnk-about").onclick=e=>{e.preventDefault();this.showAbout(()=>this.showTitle())};
     this.el("btn-declare").onclick=()=>{
       SND.poke();SND.bell();setTimeout(()=>SND.drum(),300);
       for(const a of["G","B"])setGeneral(a,this.el("gen-"+a).value);
@@ -2005,6 +2028,24 @@ const ui={
       };
       if(!STORE.get("guideSeen",false)){STORE.set("guideSeen",true);this.showGuide(go)}else go();
     };
+  },
+  showAbout(then){
+    if(HEADLESS)return;
+    this.overlay(`
+      <h2 class="script" style="font-size:32px;text-align:center">About the War Game</h2>
+      <hr class="rule-line">
+      <p>Since 1912, Pine Island Camp has ended its summers with the War Game: two hereditary armies, Grey and Blue,
+      attacking and defending the six gates of an invisible town in the Maine woods. This game follows the 2018 Revision of the rules —
+      every scoring point, challenge, repulse and plugged gate is ruled the way the umpires would rule it.</p>
+      <p>The generals you can choose are real Grey and Blue generals, drawn from <i>The Pine Needle</i> and camp lore.
+      The War Game itself belongs to Pine Island Camp and its campers; this is a tribute by one of its Grey generals.</p>
+      <h3 style="margin:12px 0 4px;font-size:17px">Privacy</h3>
+      <p>This game collects nothing. No accounts, no ads, no tracking, no network connection. Your generals' names and settings
+      are saved only on this device.</p>
+      <p class="fine" style="text-align:center">Version ${CFG.version}${APP&&APP.version?` • App ${esc(APP.version)}`:""} • Pine Insula Semper Vincit</p>
+      <button class="go-btn" id="btn-about-back">BACK</button>
+    `);
+    this.el("btn-about-back").onclick=()=>{SND.poke();if(then)then();else this.hideOverlay()};
   },
   showGuide(then){
     if(HEADLESS)return;
@@ -2055,7 +2096,7 @@ const ui={
     SND.whistle(true);setTimeout(()=>SND.cheer(),500);SND.siren(false);
     const g=G.score.G,b=G.score.B;
     const winner=g===b?null:(g>b?"G":"B");
-    const youWin=winner===G.playerArmy;
+    const youWin=winner===G.playerArmy;haptic(youWin?"win":(winner?"lose":"whistle"));
     const rows=G.qScores.map(r=>
       `<tr><td>Day ${r.day}, Q${r.q}</td><td>${ARMIES[r.attacker].name} attacked</td><td>${r.G}</td><td>${r.B}</td></tr>`).join("");
     this.overlay(`
@@ -2120,7 +2161,7 @@ const ui={
         <li><b>Classic (mouse):</b> drag to select men • right-click to move (or charge, on a gate) • scroll to zoom • <kbd>1</kbd>–<kbd>6</kbd> select a gate's garrison</li>
         <li><kbd>A</kbd> charge • <kbd>C</kbd> callers • <kbd>G</kbd> send to gate • <kbd>S</kbd> sprint • <kbd>L</kbd> lockdown • <kbd>F</kbd> fall back • <kbd>Space</kbd> pause • <kbd>Esc</kbd> close a panel</li>
       </ul>
-      <p style="text-align:center"><a href="#" id="lnk-guide2" style="color:inherit">Show the one-minute guide</a></p>
+      <p style="text-align:center"><a href="#" id="lnk-guide2" style="color:inherit">Show the one-minute guide</a> &nbsp;•&nbsp; <a href="#" id="lnk-about2" style="color:inherit">About &amp; privacy</a></p>
       </div>
       <button class="go-btn" id="btn-close-help2">BACK TO THE WOODS</button>
     `);
@@ -2128,6 +2169,7 @@ const ui={
     this.el("btn-close-help").onclick=close;
     this.el("btn-close-help2").onclick=close;
     this.el("lnk-guide2").onclick=e=>{e.preventDefault();this.showGuide(()=>close())};
+    this.el("lnk-about2").onclick=e=>{e.preventDefault();this.showAbout(()=>close())};
   },
 };
 function setTip(t){if(!HEADLESS)ui.el("tipline").textContent=t}
@@ -2725,6 +2767,10 @@ if(!HEADLESS){
       ui.canvas.style.cursor=G.hoverGate>=0?"pointer":"crosshair"}
     requestAnimationFrame(frame);
   }
+  // leaving the app (or tab) mid-quarter pauses the clock
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden&&G&&G.phase==="play"&&!G.over&&!G.paused)togglePause();
+  });
   window.addEventListener("DOMContentLoaded",()=>{
     ui.init();
     buildMap();

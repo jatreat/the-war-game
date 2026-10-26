@@ -1,0 +1,74 @@
+# XcodeGen spec for Pine Island War Game.
+# Generate the Xcode project with:  cd app && xcodegen generate
+# The game itself is ../index.html — the same file GitHub Pages serves — bundled for offline play.
+name: PineIslandWarGame
+options:
+  bundleIdPrefix: com.joshtreat
+  deploymentTarget:
+    iOS: "16.0"
+    macOS: "13.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    PRODUCT_BUNDLE_IDENTIFIER: com.joshtreat.pineislandwargame
+    INFOPLIST_KEY_CFBundleDisplayName: "War Game"
+    INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.strategy-games
+    INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+    GENERATE_INFOPLIST_FILE: YES
+
+targetTemplates:
+  Game:
+    type: application
+    sources:
+      - path: Sources
+      - path: Resources/Assets.xcassets
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: ../index.html
+        buildPhase: resources
+        group: Game
+
+targets:
+  PineIslandWarGame-iOS:
+    templates: [Game]
+    platform: iOS
+    settings:
+      base:
+        PRODUCT_NAME: "Pine Island War Game"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        INFOPLIST_KEY_UIStatusBarHidden: YES
+        INFOPLIST_KEY_UIViewControllerBasedStatusBarAppearance: NO
+        INFOPLIST_KEY_UIRequiresFullScreen: NO
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UIUserInterfaceStyle: Light
+    info:
+      path: Generated/Info-iOS.plist
+      properties:
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchLogo
+          UIImageRespectsSafeAreaInsets: true
+
+  PineIslandWarGame-macOS:
+    templates: [Game]
+    platform: macOS
+    entitlements:
+      path: Generated/macOS.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    settings:
+      base:
+        PRODUCT_NAME: "Pine Island War Game"
+        INFOPLIST_KEY_NSHumanReadableCopyright: "A fan-made tribute to the Pine Island Camp War Game."
+        ENABLE_HARDENED_RUNTIME: YES
+        COMBINE_HIDPI_IMAGES: YES
