@@ -54,7 +54,7 @@ A tribute to the Pine Island Camp War Game. The War Game belongs to Pine Island 
 
 ## Keywords (≤100, comma-separated, no spaces after commas)
 
-pine island,war game,camp,maine,strategy,capture the flag,summer camp,belgrade,generals,gates,tactics
+pine island,war game,camp,maine,strategy,capture the flag,summer camp,belgrade,generals,tactics
 
 ## What's New (version 1.0)
 
