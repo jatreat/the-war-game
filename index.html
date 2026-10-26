@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>The War Game — York's Crossing • Pine Island Camp</title>
 <style>
   :root{
@@ -15,7 +16,8 @@
   body{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;color:var(--ink)}
   .script{font-family:"Snell Roundhand","Apple Chancery","Segoe Script","Brush Script MT",cursive}
   #wrap{position:fixed;inset:0;display:flex;flex-direction:column}
-  canvas#game{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+  canvas#game{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
+  input,textarea{-webkit-user-select:text;user-select:text}
 
   /* ---------- top bar ---------- */
   #topbar{position:absolute;top:0;left:0;right:0;height:58px;z-index:20;display:flex;align-items:stretch;
@@ -64,7 +66,7 @@
   #log-toggle{position:absolute;right:10px;top:66px;z-index:16}
 
   /* ---------- banners ---------- */
-  #banner{position:absolute;left:50%;top:16%;transform:translateX(-50%);z-index:30;pointer-events:none;
+  #banner{position:absolute;left:50%;top:16%;transform:translateX(-50%);z-index:24;pointer-events:none;
     text-align:center;transition:opacity .35s;opacity:0}
   #banner.show{opacity:1}
   #banner .b-main{font-size:34px;font-weight:700;color:#f4e9c8;background:rgba(43,35,23,.88);
@@ -115,6 +117,140 @@
   #help-body ul{margin-left:20px;margin-bottom:8px}
   kbd{border:1px solid var(--ink);border-radius:3px;padding:0 5px;font-size:12px;background:rgba(255,250,230,.6);font-family:inherit}
   .close-x{float:right;cursor:pointer;font-size:22px;font-weight:700;padding:0 6px;border:none;background:none;color:var(--ink)}
+
+  /* ---------- generals & options on the title sheet ---------- */
+  .gen-in{font-family:inherit;font-size:15px;font-style:italic;font-weight:700;color:var(--ink);text-align:center;
+    width:100%;max-width:200px;padding:5px 6px;border:1.5px solid var(--ink);border-radius:4px;background:rgba(255,250,230,.8)}
+  .gen-line{display:flex;gap:6px;align-items:center;justify-content:center;margin:6px 0 2px}
+  .gen-lbl{font-size:11px;letter-spacing:1px;font-weight:700;color:var(--ink-soft)}
+  .dice{border:1.5px solid var(--ink);background:#efe2bd;border-radius:4px;font-size:17px;width:34px;height:32px;cursor:pointer;flex:none}
+  .opt-row{display:flex;flex-direction:column;gap:6px;align-items:center;margin:4px 0 6px;font-size:14px}
+  .opt-row label{cursor:pointer;display:flex;gap:8px;align-items:center}
+  .opt-row input{width:18px;height:18px;accent-color:#2b2317}
+  .guide li{margin-bottom:8px}
+
+  /* ---------- gate buttons in the bottom bar ---------- */
+  #gate-chips{display:flex;gap:5px}
+  .gchip{min-width:50px;height:44px;border:1.5px solid var(--ink);border-radius:6px;background:#efe2bd;font-family:inherit;
+    font-weight:700;font-size:14px;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    line-height:1.1;cursor:pointer;padding:0 4px;box-shadow:0 2px 0 rgba(43,35,23,.5)}
+  .gchip small{font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+  .gchip.threat{border-color:var(--red);box-shadow:inset 0 0 0 2px rgba(160,51,37,.55),0 2px 0 rgba(43,35,23,.5)}
+  .gchip.threat small,.gchip.plug small{color:var(--red)}
+  .gchip.noise{border-style:dashed;border-color:#b06a20}
+  .gchip.open{background:var(--gold);color:#fff}.gchip.open small{color:#fff}
+  .gchip:active{transform:translateY(1px);box-shadow:none}
+
+  /* ---------- gate command panel ---------- */
+  #gatepanel{position:absolute;left:50%;transform:translateX(-50%);z-index:26;width:min(470px,96vw);
+    background:var(--parch);border:3px double var(--ink);border-radius:7px;box-shadow:0 8px 32px rgba(0,0,0,.6);
+    padding:10px 14px 12px;font-size:14px;max-height:70vh;overflow-y:auto}
+  #gatepanel.hidden{display:none}
+  .gp-head{display:flex;align-items:baseline;gap:10px}
+  .gp-title{font-size:23px;font-weight:700;white-space:nowrap}
+  .gp-sub{font-size:12px;font-style:italic;color:var(--ink-soft);flex:1}
+  .gp-x{border:none;background:none;font-size:24px;font-weight:700;cursor:pointer;color:var(--ink);padding:0 4px;align-self:center}
+  .gp-paused{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.6px;margin-top:2px}
+  .gp-intel{margin:6px 0 4px;line-height:1.45}
+  .gp-intel .warn{color:var(--red)}
+  .gp-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+  .gp-lbl{font-weight:700}
+  .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:rgba(255,250,230,.6)}
+  .stepper button{width:44px;height:44px;font-size:24px;font-weight:700;border:none;background:#efe2bd;cursor:pointer;color:var(--ink);font-family:inherit}
+  .stepper button:active{background:#d9c690}
+  .stepper span{min-width:42px;text-align:center;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+  .gp-hint{font-size:13px;font-style:italic;color:var(--ink-soft);flex:1 1 140px}
+  .gp-hint.good{color:#2f6a2a;font-weight:700;font-style:normal}.gp-hint.bad{color:var(--red);font-weight:700;font-style:normal}
+  .gp-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+  .gp-btn{flex:1 1 auto;min-height:44px;cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:6px;
+    padding:7px 10px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink);box-shadow:0 2px 0 rgba(43,35,23,.5)}
+  .gp-btn.primary{background:var(--ink);color:var(--parch);font-size:16px}
+  .gp-btn:disabled{opacity:.4;cursor:default}
+  .gp-btn:active{transform:translateY(1px);box-shadow:none}
+  .gp-chk{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
+  .gp-chk input{width:20px;height:20px;accent-color:#2b2317}
+  #log-last{display:none;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  #log.collapsed #log-last{display:block}
+  #log.docked{width:auto;max-height:none}
+  .lbl-short{display:none}
+
+  /* ---------- phones & narrow windows ---------- */
+  @media (max-width:760px){
+    #topbar{height:auto;flex-wrap:wrap;font-size:13px}
+    .tb-cell{padding:0 7px}
+    .army-chip .pennant{display:none}
+    .army-chip .aname{font-size:12px}
+    .bigscore{font-size:22px;min-width:30px}
+    #tb-mid{order:10;flex-basis:100%;border-top:1px solid rgba(43,35,23,.3);padding:2px 8px 3px;flex-direction:row!important;gap:8px!important}
+    #q-label{font-size:12px;white-space:nowrap}
+    #phase-label{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #clock{font-size:20px}
+    .tb-btns{margin-left:auto;gap:4px;padding:5px 6px}
+    .tb-btn{padding:5px 8px;font-size:14px;min-width:34px;min-height:34px}
+    .lbl-long{display:none}.lbl-short{display:inline}
+    #botbar{padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:6px;min-height:0}
+    #sel-info{min-width:0;flex-basis:100%;font-size:13px}
+    #sel-info #sel-sub{display:inline;margin-left:6px}
+    #gate-chips{flex-basis:100%;justify-content:space-between}
+    .gchip{flex:1;min-width:0}
+    #act-buttons{display:flex;gap:6px;flex-wrap:wrap;flex-basis:100%}
+    .act-btn{flex:1 1 auto;padding:8px 8px;font-size:13.5px}
+    .act-btn.adv,.key-hint{display:none}
+    #tipline{font-size:12px;padding-top:0}
+    #log{width:auto;left:8px;right:8px;top:auto;font-size:12px}
+    #banner .b-main{font-size:22px;padding:8px 18px}
+    #banner .b-sub{font-size:13px}
+    #banner{top:22%;width:94vw}
+    .sheet{padding:18px 16px;width:96%}
+    .sheet h1{font-size:30px}
+    .sheet h2.script{font-size:23px}
+    .sheet p{font-size:14px}
+    .pick-row{flex-direction:column;gap:10px;margin:12px 0;align-items:stretch}
+    .army-card{max-width:none;padding:10px 12px}
+    .army-card h3{font-size:19px}
+    .army-card .desc{display:none}
+    .flagbox{width:48px;height:28px;font-size:12px;margin-bottom:4px}
+    .diff-row{flex-wrap:wrap}
+    .go-btn{padding:12px 30px;font-size:19px}
+  }
+  @media (max-width:420px){
+    .tb-cell{padding:0 5px}
+    .army-chip{gap:4px}
+    .army-chip .aname{font-size:11px;letter-spacing:0}
+    .bigscore{font-size:20px;min-width:22px}
+    #clock{font-size:18px}
+    .tb-btns{gap:3px;padding:4px 4px}
+    .tb-btn{padding:3px 4px;min-width:30px;min-height:32px;font-size:13px}
+  }
+  /* phones held sideways: one slim bar on top, one on the bottom */
+  @media (max-height:500px){
+    #topbar{height:40px;flex-wrap:nowrap;font-size:13px}
+    .tb-cell{padding:0 7px}
+    .army-chip .pennant{display:none}
+    .bigscore{font-size:20px;min-width:24px}
+    #tb-mid{order:0;flex-basis:auto;border-top:none;padding:0 6px;flex-direction:column!important;gap:0!important;min-width:0}
+    #q-label{font-size:12px} #phase-label{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+    #clock{font-size:18px}
+    .tb-btn{padding:3px 7px;min-height:30px;font-size:13px}
+    .lbl-long{display:none}.lbl-short{display:inline}
+    #botbar{padding:4px 6px calc(4px + env(safe-area-inset-bottom));gap:6px;min-height:0;flex-wrap:nowrap}
+    #sel-info,#tipline{display:none}
+    #gate-chips{flex:1 1 auto}
+    .gchip{flex:1;min-width:0;height:40px}
+    #act-buttons{display:flex;gap:5px;flex:none}
+    .act-btn{padding:6px 8px;font-size:13px}
+    .act-btn.adv,.key-hint{display:none}
+    #log{font-size:11.5px}
+    #gatepanel{max-height:calc(100vh - 110px);padding:8px 12px}
+    .gp-intel{font-size:13px}
+    #banner{top:18%}
+    #banner .b-main{font-size:20px;padding:6px 16px} #banner .b-sub{font-size:12px}
+    .sheet{padding:14px 18px;max-height:96vh}
+    .sheet h1{font-size:28px}
+    .pick-row{margin:8px 0}
+    .army-card .desc{display:none}
+  }
+  @media (pointer:coarse){ .act-btn.adv{display:none} .key-hint{display:none} .gp-classic{display:none!important} }
 </style>
 </head>
 <body>
@@ -122,27 +258,28 @@
   <canvas id="game"></canvas>
 
   <div id="topbar">
-    <div class="tb-cell army-chip"><span class="pennant g">PGA</span><span>GREY</span><span class="bigscore" id="score-g">0</span></div>
-    <div class="tb-cell army-chip"><span class="bigscore" id="score-b">0</span><span>BLUE</span><span class="pennant b">PBA</span></div>
-    <div class="tb-cell tb-flex" style="flex-direction:column;justify-content:center;gap:0">
+    <div class="tb-cell army-chip"><span class="pennant g">PGA</span><span class="aname">GREY</span><span class="bigscore" id="score-g">0</span></div>
+    <div class="tb-cell army-chip"><span class="bigscore" id="score-b">0</span><span class="aname">BLUE</span><span class="pennant b">PBA</span></div>
+    <div class="tb-cell tb-flex" id="tb-mid" style="flex-direction:column;justify-content:center;gap:0">
       <div id="q-label">Day 1 — 1st Quarter</div>
       <div id="phase-label">Declaration of War</div>
     </div>
     <div class="tb-cell"><span id="clock">4:00</span></div>
-    <div class="tb-cell" id="speed-ctl">
-      <button class="tb-btn on" data-spd="1">1×</button><button class="tb-btn" data-spd="2">2×</button><button class="tb-btn" data-spd="4">4×</button>
-    </div>
-    <div class="tb-cell">
-      <button class="tb-btn" id="btn-pause">❙❙</button>
-      <button class="tb-btn" id="btn-mute">♪</button>
-      <button class="tb-btn" id="btn-help">Rules</button>
+    <div class="tb-cell tb-btns">
+      <button class="tb-btn" id="btn-speed" title="Game speed">1×</button>
+      <button class="tb-btn" id="btn-pause" title="Pause (Space)">❙❙</button>
+      <button class="tb-btn" id="btn-mute" title="Sound">♪</button>
+      <button class="tb-btn" id="btn-help" title="Rules &amp; controls"><span class="lbl-long">Rules</span><span class="lbl-short">?</span></button>
     </div>
   </div>
 
-  <div id="log"><h4 id="log-head" title="click to collapse">UMPIRE'S CLIPBOARD ▾</h4><div id="log-entries"></div></div>
+  <div id="log"><h4 id="log-head" title="tap to open or close">UMPIRE'S CLIPBOARD ▾</h4><div id="log-last"></div><div id="log-entries"></div></div>
+
+  <div id="gatepanel" class="hidden"></div>
 
   <div id="botbar">
-    <div id="sel-info">No men selected<div id="sel-sub">Drag on the map to select your troops.</div></div>
+    <div id="sel-info">No men selected<div id="sel-sub">Tap a gate to give orders.</div></div>
+    <div id="gate-chips"></div>
     <span id="act-buttons"></span>
     <div id="tipline"></div>
   </div>
@@ -164,7 +301,7 @@ const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
 
 /* ---------------- config ---------------- */
 const CFG = {
-  version: "1.1.0",
+  version: "1.2.0",
   worldW: 1600, worldH: 1200,
   armySize: 40,            // active players per army (announced by the Director)
   plugStrength: 8,         // defenders needed to plug a gate
@@ -471,14 +608,39 @@ const SND=(function(){
 
 /* ---------------- game state ---------------- */
 const ARMIES={
-  G:{key:"G",name:"GREY",adj:"Grey",color:"#6f6f68",dark:"#4b4b45",general:"Gen. Treat",
+  G:{key:"G",name:"GREY",adj:"Grey",color:"#6f6f68",dark:"#4b4b45",general:"Gen. Hollis",
      flag:"PGA",callerNoise:"an air-raid siren cranks up",wagon:"a grey Ford pickup — WARWGN",
      cry:"We're going to stink those Blues into the woods!"},
-  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3b5ea8",dark:"#27437e",general:"Gen. Swan",
+  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3b5ea8",dark:"#27437e",general:"Gen. Whitcomb",
      flag:"PBA",callerNoise:"a chorus of blue vuvuzelas drones",wagon:"the Blue war wagon, brass bell clanging",
      cry:"And they will know our name are the Blues when we lay our vengeance upon them!"},
 };
 const other=a=>a==="G"?"B":"G";
+
+/* ---------------- settings & generals (remembered on this device) ---------------- */
+const STORE={
+  get(k,d){try{const v=localStorage.getItem("wg."+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("wg."+k,JSON.stringify(v))}catch(e){}},
+};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+const DEFAULT_GENERAL={G:"Gen. Hollis",B:"Gen. Whitcomb"};
+const GENERAL_POOL={
+  G:["Gen. Hollis","Gen. Thatcher","Gen. Ainsworth","Gen. Fairbanks","Gen. Wendell","Gen. Birch","Gen. Larkin","Gen. Holloway"],
+  B:["Gen. Whitcomb","Gen. Prescott","Gen. Merrill","Gen. Ellery","Gen. Lowell","Gen. Cabot","Gen. Harlow","Gen. Sewall"],
+};
+function normGeneral(s,fallback){
+  s=String(s==null?"":s).replace(/\s+/g," ").trim().slice(0,24);
+  if(!s)return fallback;
+  if(!/^(gen\b|gen\.|general|brig|maj|lt|col|capt|cpt|sgt|cmdr|commander|adm|admiral)/i.test(s))s="Gen. "+s;
+  return s;
+}
+function setGeneral(a,name){ARMIES[a].general=normGeneral(name,DEFAULT_GENERAL[a]);STORE.set("gen"+a,ARMIES[a].general)}
+ARMIES.G.general=normGeneral(STORE.get("genG",DEFAULT_GENERAL.G),DEFAULT_GENERAL.G);
+ARMIES.B.general=normGeneral(STORE.get("genB",DEFAULT_GENERAL.B),DEFAULT_GENERAL.B);
+const SETTINGS={
+  pauseOrders:STORE.get("pauseOrders",true),   // stop the clock while an order panel is open
+  aide:STORE.get("aide",false),                // aide-de-camp shuffles your defenders
+};
 
 let G=null; // the whole game state
 
@@ -497,7 +659,9 @@ function newMatch(opts){
     ghosts:[], // enemy sighting markers for the viewing side
     log:[], banners:[], whistles:[], freeze:null,
     selection:[], armedOrder:null, hoverGate:-1,
-    speed:1, paused:false, over:false,
+    speed:1, paused:false, over:false, hold:false,
+    aide:opts.aide!=null?!!opts.aide:SETTINGS.aide,
+    pTarget:GATES.map(()=>null), pTouch:GATES.map(()=>-999), // player's garrison targets (defense)
     aiD:{think:0,plan:null,lastRedeploy:0}, aiA:{think:0,stage:"gather",stageT:0,targets:[],callers:[]},
     flavorT:18+rnd()*14, endEarlyT:0,
     stats:{plays:0,repulses:0,challenges:0,scoresByMan:{}},
@@ -553,7 +717,10 @@ function placeArmiesForQuarter(){
     m.x=CENTER.x+Math.cos(i*0.7)*(CENTER.r+30+(i%3)*14);
     m.y=CENTER.y+Math.sin(i*0.7)*(CENTER.r+30+(i%3)*14);
   });
-  G.gates.forEach(gs=>{gs.cooldown=0;gs.plugged=false;gs.noise=0;gs.seenCount=0;gs.lastSeenByAtk=-999;gs.atkAbortT=null;gs.clashT=0});
+  G.gates.forEach(gs=>{gs.cooldown=0;gs.plugged=false;gs.noise=0;gs.seenCount=0;gs.lastSeenByAtk=-999;gs.atkAbortT=null;gs.clashT=0;
+    gs.atkSeenDef=null;gs.atkSeenPlug=false;gs.lastSeen=-999});
+  if(G.pTarget){G.pTarget=GATES.map(()=>null);G.pTouch=GATES.map(()=>-999)}
+  G.hold=false;
   G.ghosts=[];G.parties=[];G.selection=[];G.armedOrder=null;
   G.clock=CFG.quarterLen;G.tPlay=0;G.playLive=false;G.scoutsOut=false;G.freeze=null;
   G.aiD={think:0,plan:null,lastRedeploy:0};
@@ -607,7 +774,7 @@ function orderMove(men,target,opts){
   for(const m of p.men){
     if(m.state==="tempdead"||m.state==="centerdead")continue;
     m.path=path.map(q=>({x:q.x,y:q.y}));m.pathI=0;m.state="move";
-    m.sprint=!!opts.sprint;m.gateIdx=-1;m.plugKneel=false;m.caller=false;
+    m.sprint=!!opts.sprint;m.gateIdx=-1;m.plugKneel=false;m.caller=false;m.scout=!!opts.scout;
   }
   if(opts.role==="callers")for(const m of p.men)m.caller=true;
   return p;
@@ -896,12 +1063,15 @@ function startQuarter(){
   log("ump",`— Day ${G.day}, ${["1st","2nd","3rd","4th"][G.quarter-1]} Quarter. ${atk.name} attacks; ${def.name} defends York's Crossing. —`);
   log("ump",`The Director sets active players at ${CFG.armySize} and plugged-gate strength at ${CFG.plugStrength}.`);
   const playerAtk=G.playerArmy===G.attacker;
-  if(playerAtk&&!G.autotest)G.selection=armyMen(G.playerArmy).slice();
+  G.selection=[];
   banner(`${atk.name} ATTACKS`,playerAtk?
-    `Your army musters at the ${G.attacker==="G"?"southwest":"southeast"} corner — it is already selected; right-click a gate to move on it`:
-    `${def.name} defends the six gates of York's Crossing`,3.6);
+    `Your army musters at the ${G.attacker==="G"?"southwest":"southeast"} corner. ${ui.coarse?"Tap":"Click"} a gate to send men.`:
+    `You hold the six gates of York's Crossing. ${ui.coarse?"Tap":"Click"} a gate to shift men.`,3.6);
   if(G.playerArmy===G.attacker)log(G.playerArmy==="G"?"grey":"blue",`${atk.general}: “${atk.cry}”`);
+  else log(sideKind(G.playerArmy),`${ARMIES[G.playerArmy].general} holds the town.`);
   ui.hudDirty=true;ui.rebuildButtons();
+  setTip(playerAtk?"Scout a gate to count its defenders, post callers somewhere else, then charge where they're thin.":
+    "Garrisons go out at “Scouts out.” Watch for red-outlined gate buttons — that's where a party was sighted.");
 }
 function updatePhase(dt){
   const t=G.tPlay;
@@ -909,6 +1079,7 @@ function updatePhase(dt){
     G.scoutsOut=true;SND.whistle(false);
     banner("SCOUTS OUT","Defenders man the gates",2.2);
     log("ump","Whistle: “Scouts out!” The defense takes the field.");
+    deployPlayerGarrisons();
   }
   if(!G.playLive&&t>=CFG.playOnAt){
     G.playLive=true;SND.whistle(true);
@@ -921,6 +1092,7 @@ function endQuarter(){
     G:G.score.G-(G.qScores.reduce((s,r)=>s+r.G,0)),
     B:G.score.B-(G.qScores.reduce((s,r)=>s+r.B,0))};
   G.qScores.push(qrec);
+  ui.closeGate();G.selection=[];G.armedOrder=null;
   SND.whistle(true);SND.siren(false);
   log("ump",`Final whistle of the quarter. Score so far — GREY ${G.score.G}, BLUE ${G.score.B}.`);
   if(G.quarter>=4){G.phase="final";G.over=true;ui.showFinal()}
@@ -1062,15 +1234,19 @@ function detectRoadClashes(dt){
 /* ---------------- AI: DEFENSE ---------------- */
 function aiDefense(dt){
   const def=other(G.attacker);
-  if(def===G.playerArmy&&!G.autotest)return;
+  // the player's own defense only runs here when the aide-de-camp is switched on
+  const isPlayer=def===G.playerArmy&&!G.autotest;
+  if(isPlayer&&!G.aide)return;
   const ai=G.aiD;
   ai.think-=dt;
   if(!G.scoutsOut)return;
   if(ai.think>0)return;
-  const REACT=[3.2,1.9,1.05][G.difficulty];       // camper / counselor / general
-  const NOISE_W=[1.6,0.9,0.45][G.difficulty];     // how much callers fool this general
+  const REACT=isPlayer?1.9:[3.2,1.9,1.05][G.difficulty];       // camper / counselor / general
+  const NOISE_W=isPlayer?0.9:[1.6,0.9,0.45][G.difficulty];     // how much callers fool this general
   ai.think=REACT*(0.75+rnd()*0.5);
   const now=CFG.quarterLen-G.clock;
+  // the aide leaves alone any gate the general has given orders for in the last 25 seconds
+  const locked=i=>isPlayer&&now-G.pTouch[i]<25;
   const men=armyMen(def).filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
   // threat estimate per gate
   const threat=GATES.map((g,i)=>{
@@ -1088,7 +1264,7 @@ function aiDefense(dt){
     desire=GATES.map(()=>Math.floor(men.length/6));
     for(let i=0;i<men.length%6;i++)desire[i]++;
     if(!ai.saidLockdown){ai.saidLockdown=true;
-      log(def==="G"?"grey":"blue",`${ARMIES[def].general} calls LOCKDOWN — knees in every gate, hold what we have.`)}
+      log(def==="G"?"grey":"blue",`${isPlayer?"Your aide-de-camp":ARMIES[def].general} calls LOCKDOWN — knees in every gate, hold what we have.`)}
   }else{
     desire=GATES.map(()=>4);
     let spare=men.length-24;
@@ -1100,23 +1276,26 @@ function aiDefense(dt){
       desire[i]+=add;spare-=add;
     }
     // Camper-level generals occasionally miscount, Treat-in-2011 style
-    if(G.difficulty===0&&rnd()<0.12){const i=rndi(0,5);desire[i]=Math.max(2,desire[i]-3)}
+    if(!isPlayer&&G.difficulty===0&&rnd()<0.12){const i=rndi(0,5);desire[i]=Math.max(2,desire[i]-3)}
   }
+  // gates the general set by hand keep the general's number
+  if(isPlayer)for(let i=0;i<6;i++)if(G.pTarget[i]!=null&&locked(i))desire[i]=G.pTarget[i];
   // current garrison census
   const at=GATES.map(()=>[]);
   for(const m of men)if(m.homeGate>=0)at[m.homeGate].push(m);
   // move surplus toward deficit, one squadron per think
   let worst=-1,worstDef=0;
-  for(let i=0;i<6;i++){const d=desire[i]-at[i].length;if(d>worstDef){worstDef=d;worst=i}}
+  for(let i=0;i<6;i++){if(locked(i))continue;const d=desire[i]-at[i].length;if(d>worstDef){worstDef=d;worst=i}}
   if(worst>=0&&worstDef>=2){
     let donor=-1,donorSur=0;
-    for(let i=0;i<6;i++){const s=at[i].length-desire[i];if(s>donorSur){donorSur=s;donor=i}}
+    for(let i=0;i<6;i++){if(locked(i))continue;const s=at[i].length-desire[i];if(s>donorSur){donorSur=s;donor=i}}
     if(donor>=0){
       const squad=at[donor].filter(m=>!m.path).slice(0,Math.min(worstDef,donorSur,6));
       if(squad.length){
         orderGarrison(squad,worst,{sprint:threat[worst]>4});
         if(G.playerArmy===G.attacker&&threat[worst]>4&&rnd()<0.5)
           log("flav",`A ${ARMIES[def].adj} squadron flag goes up — runners are moving.`);
+        if(isPlayer)log(def==="G"?"grey":"blue",`Aide-de-camp: ${squad.length} men from ${GATES[donor].id} to ${GATES[worst].id}.`);
       }
     }
   }
@@ -1191,8 +1370,8 @@ function aiAttack(dt){
   const scouts=men.filter(m=>m.scout&&m.state!=="centerdead");
   if(scouts.length<3&&idleFree.length>6){
     const s=idleFree.splice(0,1)[0];
-    if(s){s.scout=true;const g=GATES[rndi(0,5)];
-      orderMove([s],{x:g.bfaPt.x+g.perp.x*90,y:g.bfaPt.y+g.perp.y*90},{})}
+    if(s){const g=GATES[rndi(0,5)];
+      orderMove([s],{x:g.bfaPt.x+g.perp.x*90,y:g.bfaPt.y+g.perp.y*90},{scout:true})}
   }
   // main strikes
   const charging=G.parties.filter(p=>p.army===atk&&p.role==="charge").length;
@@ -1225,9 +1404,144 @@ function aiAttack(dt){
   const stragglers=idleFree.slice(0,0); // handled implicitly by next strike selection
 }
 
+/* ---------------- one-tap gate commands ----------------
+   A simpler way to give the same orders: pick a gate and a number, and the
+   nearest suitable men go. Underneath it is the same orderCharge / orderCallers /
+   orderGarrison the classic controls use, so every rule and umpire call is unchanged. */
+const nowT=()=>CFG.quarterLen-G.clock;
+const aliveMan=m=>m.state!=="tempdead"&&m.state!=="centerdead";
+function gateStage(g){return g.hasBlue?g.bfaPt:{x:g.x+g.dx*120,y:g.y+g.dy*120}}
+function attackPool(){ // attackers free for a new job: alive, not callers/scouts, not already in a charge
+  return attackerMen().filter(m=>{
+    if(!aliveMan(m)||m.caller||m.scout)return false;
+    const p=m.partyId?getParty(m.partyId):null;
+    return !(p&&p.role==="charge"&&p.targetGate>=0);
+  });
+}
+function attackIntel(gi){ // what the attacking army knows about a gate's garrison
+  const gs=G.gates[gi],age=nowT()-gs.lastSeenByAtk;
+  if(age<10&&gs.atkSeenDef!=null)return{known:true,n:gs.atkSeenDef,plug:!!gs.atkSeenPlug,age};
+  if(gs.atkSeenDef!=null)return{known:false,stale:true,n:gs.atkSeenDef,plug:!!gs.atkSeenPlug,age};
+  return{known:false,stale:false,n:null,plug:false,age:Infinity};
+}
+function partiesAt(gi,army,role){return G.parties.filter(p=>p.army===army&&p.targetGate===gi&&p.role===role&&p.men.some(aliveMan))}
+function recommendCharge(gi){
+  const k=attackIntel(gi),pool=attackPool();
+  let n=k.n!=null?k.n+2:6;
+  return {n:clamp(n,1,Math.max(1,pool.length)),pool:pool.length,elig:pool.filter(eligibleToScore).length,k};
+}
+function sideKind(a){return a==="G"?"grey":"blue"}
+function cmdCharge(gi,n){
+  const g=GATES[gi],st=gateStage(g);
+  const pool=attackPool().sort((a,b)=>dist(a,st)-dist(b,st));
+  const elig=pool.filter(eligibleToScore),rest=pool.filter(m=>!eligibleToScore(m));
+  // eligible men first; men at their scoring limit fill out the numbers (they still count in the gate)
+  const party=elig.slice(0,n).concat(rest.slice(0,Math.max(0,n-elig.length)));
+  if(!party.length)return 0;
+  orderCharge(party,gi);
+  log(sideKind(G.attacker),`Party of ${party.length} moves on the ${g.id} Gate.`);
+  return party.length;
+}
+function helperPool(gi){ // for callers & scouts, prefer men who can't score any more
+  const g=GATES[gi];
+  return attackPool().sort((a,b)=>(eligibleToScore(a)-eligibleToScore(b))||(dist(a,g.roadEnd)-dist(b,g.roadEnd)));
+}
+function cmdCallers(gi,n){
+  const men=helperPool(gi).slice(0,n||2);
+  if(!men.length)return 0;
+  orderCallers(men,gi);
+  log(sideKind(G.attacker),`Callers posted at ${GATES[gi].id} — ${ARMIES[G.attacker].callerNoise}.`);
+  if(!HEADLESS){if(G.attacker==="B")SND.horn();else SND.drum()}
+  return men.length;
+}
+function cmdScout(gi){
+  const s=helperPool(gi)[0],g=GATES[gi];
+  if(!s)return 0;
+  const side=(GATES.indexOf(g)%2?1:-1);
+  orderMove([s],{x:g.bfaPt.x+g.perp.x*90*side,y:g.bfaPt.y+g.perp.y*90*side},{scout:true});
+  log(sideKind(G.attacker),`A scout slips off toward the ${g.id} road to count heads.`);
+  return 1;
+}
+function cmdRecall(gi){
+  const army=G.attacker,g=GATES[gi];let n=0;
+  for(const p of G.parties.slice()){
+    if(p.army!==army||p.targetGate!==gi||!["charge","callers"].includes(p.role))continue;
+    const men=p.men.filter(aliveMan);
+    if(men.length){orderMove(men,{x:G.rally.x,y:G.rally.y},{});n+=men.length}
+  }
+  const scouts=attackerMen().filter(m=>m.scout&&aliveMan(m)&&dist(m,g.pos)<300);
+  if(scouts.length){orderMove(scouts,{x:G.rally.x,y:G.rally.y},{});n+=scouts.length}
+  return n;
+}
+/* defense */
+function defMenAlive(){return defenderMen().filter(aliveMan)}
+function garrisonOf(gi){return defMenAlive().filter(m=>m.homeGate===gi)}
+function threatScore(gi,side){
+  const g=GATES[gi],gs=G.gates[gi];
+  let t=gs.seenCount*1.4+gs.noise*0.9;
+  for(const gh of G.ghosts)if(gh.side===side){const d=dist(gh,g.pos);if(d<420)t+=gh.n*(1-d/420)}
+  return t;
+}
+function gateSighting(gi,side){ // biggest recent sighting near a gate, for the defender's panel
+  const g=GATES[gi];let best=null;
+  for(const gh of G.ghosts)if(gh.side===side){const d=dist(gh,g.pos);
+    if(d<420&&(!best||gh.n>best.n))best={n:gh.n,age:nowT()-gh.t}}
+  return best;
+}
+function floorFor(i){return G.pTarget[i]!=null?G.pTarget[i]:3}
+function cmdSetGarrison(gi,n,sprint){
+  const def=other(G.attacker),men=defMenAlive(),now=nowT(),to=GATES[gi].pos;
+  const at=GATES.map(()=>[]),loose=[];
+  for(const m of men){if(m.homeGate>=0)at[m.homeGate].push(m);else loose.push(m)}
+  G.pTarget[gi]=n;G.pTouch[gi]=now;
+  const cur=at[gi].length;
+  const send=(group,dest)=>{ // one squad per source gate so each runs its own route
+    const bySrc=new Map();
+    for(const m of group){const k=m.homeGate;if(!bySrc.has(k))bySrc.set(k,[]);bySrc.get(k).push(m)}
+    for(const sq of bySrc.values())orderGarrison(sq,dest,{sprint});
+  };
+  if(cur<n){
+    let need=n-cur;const picked=[];
+    loose.sort((a,b)=>dist(a,to)-dist(b,to));
+    while(need>0&&loose.length){picked.push(loose.shift());need--}
+    const threat=GATES.map((g,i)=>threatScore(i,def));
+    const donors=GATES.map((g,i)=>({i,men:at[i].slice().sort((a,b)=>dist(a,to)-dist(b,to))})).filter(d=>d.i!==gi);
+    while(need>0){
+      let best=null;
+      for(const d of donors){const sur=d.men.length-floorFor(d.i);if(sur<=0)continue;
+        const key=threat[d.i]*2-sur+dist(GATES[d.i].pos,to)/400;
+        if(!best||key<best.key)best={d,key}}
+      if(!best)break;
+      picked.push(best.d.men.shift());need--;
+    }
+    if(picked.length)send(picked,gi);
+    return {moved:picked.length,short:need};
+  }
+  if(cur>n){
+    const extra=at[gi].slice().sort((a,b)=>dist(b,to)-dist(a,to)).slice(0,cur-n);
+    let tgt=-1,best=-1e9;
+    for(let i=0;i<6;i++){if(i===gi)continue; // the thinnest, most threatened gate gets them
+      const sc=threatScore(i,def)*1.5-at[i].length+(G.pTarget[i]!=null?(G.pTarget[i]-at[i].length)*2:0);
+      if(sc>best){best=sc;tgt=i}}
+    if(tgt>=0)send(extra,tgt);
+    return {moved:-extra.length,to:tgt};
+  }
+  return {moved:0};
+}
+function deployPlayerGarrisons(){ // at "Scouts out" the player's garrisons walk to their gates
+  const def=other(G.attacker);
+  if(def!==G.playerArmy||G.autotest)return;
+  for(let gi=0;gi<6;gi++){
+    const squad=defMenAlive().filter(m=>m.homeGate===gi&&!m.path&&!m.partyId);
+    if(squad.length)orderGarrison(squad,gi,{});
+  }
+  G.aiD.deployed=true;
+  log(sideKind(def),"Garrisons take their gates — six or seven men at each. Tap a gate to shift them.");
+}
+
 /* ---------------- master tick ---------------- */
 function tick(dt){
-  if(!G||G.paused||G.over)return;
+  if(!G||G.paused||G.over||G.hold)return;
   if(G.phase!=="play")return;
   dt*=G.speed;
   G.tPlay+=dt;
@@ -1260,37 +1574,241 @@ function tick(dt){
 }
 
 /* ---------------- UI (all DOM access lives here) ---------------- */
+// the part of the map the game is played on (roads, rally points); the rest is decoration you can pan to
+const FOCUS={x:110,y:20,w:1270,h:1160};
 const ui={
-  logDirty:true,hudDirty:true,view:{scale:1,ox:0,oy:0},
+  logDirty:true,hudDirty:true,view:{scale:1,ox:0,oy:0,dpr:1},cam:{z:1,cx:FOCUS.x+FOCUS.w/2,cy:FOCUS.y+FOCUS.h/2},
+  gp:null,chipT:0,
   el(id){return HEADLESS?null:document.getElementById(id)},
+  get narrow(){return !HEADLESS&&innerWidth<=760},
+  get coarse(){return !HEADLESS&&!!(window.matchMedia&&matchMedia("(pointer:coarse)").matches)},
   init(){
     if(HEADLESS)return;
     this.canvas=this.el("game");this.ctx=this.canvas.getContext("2d");
     window.addEventListener("resize",()=>this.resize());
+    window.addEventListener("orientationchange",()=>setTimeout(()=>this.resize(),250));
+    if(this.narrow)this.setLogCollapsed(true);
     this.resize();
     bindInput(this.canvas);
     this.el("btn-help").onclick=()=>this.showHelp();
-    this.el("log-head").onclick=()=>{
-      const col=this.el("log").classList.toggle("collapsed");
-      this.el("log-head").textContent=col?"UMPIRE'S CLIPBOARD ▸":"UMPIRE'S CLIPBOARD ▾"};
+    this.el("log-head").onclick=()=>this.setLogCollapsed(!this.el("log").classList.contains("collapsed"));
     this.el("btn-mute").onclick=()=>{SND.setMuted(!SND.muted);this.el("btn-mute").classList.toggle("on",SND.muted);
       this.el("btn-mute").textContent=SND.muted?"♪̸":"♪"};
-    this.el("btn-pause").onclick=()=>{if(!G)return;G.paused=!G.paused;this.el("btn-pause").classList.toggle("on",G.paused)};
-    document.querySelectorAll("#speed-ctl .tb-btn").forEach(b=>{
-      b.onclick=()=>{if(!G)return;G.speed=+b.dataset.spd;
-        document.querySelectorAll("#speed-ctl .tb-btn").forEach(x=>x.classList.toggle("on",x===b))};
-    });
+    this.el("btn-pause").onclick=()=>togglePause();
+    this.el("btn-speed").onclick=()=>{if(!G)return;G.speed=G.speed===1?2:(G.speed===2?4:1);
+      this.el("btn-speed").textContent=G.speed+"×";this.el("btn-speed").classList.toggle("on",G.speed>1)};
     document.addEventListener("keydown",e=>onKey(e));
+  },
+  setLogCollapsed(c){
+    const lg=this.el("log");if(!lg)return;
+    if(lg.classList.contains("docked"))c=false;
+    lg.classList.toggle("collapsed",c);
+    this.el("log-head").textContent=c?"UMPIRE'S CLIPBOARD ▸":"UMPIRE'S CLIPBOARD ▾";
+    this.logDirty=true;
   },
   resize(){
     if(HEADLESS)return;
     const dpr=window.devicePixelRatio||1;
     this.canvas.width=innerWidth*dpr;this.canvas.height=innerHeight*dpr;
-    const availW=innerWidth-8,availH=innerHeight-128;
-    const sc=Math.min(availW/CFG.worldW,availH/CFG.worldH);
-    this.view={scale:sc,ox:(innerWidth-CFG.worldW*sc)/2,oy:62+(availH-CFG.worldH*sc)/2,dpr};
+    const top=this.el("topbar").offsetHeight,bot=this.el("botbar").offsetHeight;
+    let vp={x:0,y:top,w:innerWidth,h:Math.max(120,innerHeight-top-bot)};
+    let fit=Math.min((vp.w-8)/FOCUS.w,(vp.h-8)/FOCUS.h);
+    // put the clipboard in whatever space the map leaves empty, so it never covers the field:
+    // beside the map on wide screens and phones held sideways, under it on tall phones
+    const lg=this.el("log"),spareW=vp.w-FOCUS.w*fit-10,spareH=vp.h-FOCUS.h*fit-10;
+    const dock=st=>{lg.classList.add("docked");lg.classList.remove("collapsed");
+      Object.assign(lg.style,Object.assign({bottom:"auto",maxHeight:"none"},st));this.el("log-head").textContent="UMPIRE'S CLIPBOARD"};
+    if(spareW>=230){
+      const lw=Math.min(spareW,360);
+      vp.w-=lw;fit=Math.min((vp.w-8)/FOCUS.w,(vp.h-8)/FOCUS.h);
+      dock({top:(vp.y+6)+"px",height:(vp.h-12)+"px",left:"auto",right:"6px",width:(lw-12)+"px"});
+    }else if(this.narrow&&spareH>110){
+      const lh=Math.min(spareH,300);
+      vp.h-=lh;
+      dock({top:(vp.y+vp.h+2)+"px",height:(lh-6)+"px",left:"6px",right:"6px",width:"auto"});
+    }else{
+      if(lg.classList.contains("docked")){lg.classList.remove("docked");this.setLogCollapsed(this.narrow)}
+      Object.assign(lg.style,{top:(top+6)+"px",height:"",left:"",right:"",bottom:"",width:"",maxHeight:""});
+    }
+    this.vp=vp;this.fit=fit;
+    const gpEl=this.el("gatepanel");
+    gpEl.style.bottom=(bot+6)+"px";gpEl.style.left=(vp.x+vp.w/2)+"px";
+    gpEl.style.width=`min(470px,${Math.max(300,vp.w-12)}px)`;
+    this.applyCam();
   },
+  maxZoom(){return Math.max(2.2,1.25/(this.fit||1))},
+  applyCam(){
+    if(HEADLESS||!this.vp)return;
+    const W=CFG.worldW,H=CFG.worldH,vp=this.vp,cam=this.cam;
+    cam.z=clamp(cam.z,1,this.maxZoom());
+    const sc=this.fit*cam.z,hw=vp.w/2/sc,hh=vp.h/2/sc;
+    cam.cx=(W<=2*hw)?W/2:clamp(cam.cx,hw,W-hw);
+    cam.cy=(H<=2*hh)?H/2:clamp(cam.cy,hh,H-hh);
+    if(cam.z===1&&W>2*hw){cam.cx=clamp(FOCUS.x+FOCUS.w/2,hw,W-hw)}
+    if(cam.z===1&&H>2*hh){cam.cy=clamp(FOCUS.y+FOCUS.h/2,hh,H-hh)}
+    this.view={scale:sc,ox:vp.x+vp.w/2-cam.cx*sc,oy:vp.y+vp.h/2-cam.cy*sc,dpr:window.devicePixelRatio||1};
+  },
+  zoomAt(px,py,z){ // zoom keeping the world point under (px,py) still
+    const w=this.toWorld(px,py);
+    this.cam.z=clamp(z,1,this.maxZoom());
+    const sc=this.fit*this.cam.z,vp=this.vp;
+    this.cam.cx=w.x-(px-(vp.x+vp.w/2))/sc;this.cam.cy=w.y-(py-(vp.y+vp.h/2))/sc;
+    this.applyCam();
+  },
+  panBy(dx,dy){const sc=this.view.scale;this.cam.cx-=dx/sc;this.cam.cy-=dy/sc;this.applyCam()},
   toWorld(px,py){const v=this.view;return{x:(px-v.ox)/v.scale,y:(py-v.oy)/v.scale}},
+  /* ---------- gate buttons (bottom bar) ---------- */
+  buildChips(){
+    if(HEADLESS||!G)return;
+    const box=this.el("gate-chips");box.innerHTML="";
+    GATES.forEach((g,i)=>{
+      const b=document.createElement("button");b.className="gchip";b.id="chip-"+i;
+      b.innerHTML=`<span>${g.id}</span><small>–</small>`;
+      b.onclick=()=>{SND.poke();if(this.gp&&this.gp.gi===i)this.closeGate();else this.openGate(i)};
+      box.appendChild(b);
+    });
+    this.syncChips();
+  },
+  syncChips(){
+    if(HEADLESS||!G||G.phase!=="play")return;
+    const atk=G.playerArmy===G.attacker,me=G.playerArmy;
+    GATES.forEach((g,i)=>{
+      const b=this.el("chip-"+i);if(!b)return;
+      let txt,threat=false,plug=false,noise=false;
+      if(atk){
+        const k=attackIntel(i);
+        txt=k.n==null?"?":(k.known?k.n:k.n+"~");plug=k.plug;if(plug)txt+="⊕";
+        const mine=partiesAt(i,me,"charge").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
+        if(mine)txt+=" ⚔"+mine;
+      }else{
+        const here=garrisonOf(i).length;plug=G.gates[i].plugged;
+        txt=here+(plug?"⊕":"");
+        const s=gateSighting(i,me);threat=!!(s&&s.age<8&&s.n>=3);noise=G.gates[i].noise>0;
+      }
+      const sm=b.querySelector("small");if(sm.textContent!==String(txt))sm.textContent=txt;
+      b.classList.toggle("threat",threat);b.classList.toggle("noise",noise&&!threat);b.classList.toggle("plug",plug);
+      b.classList.toggle("open",!!(this.gp&&this.gp.gi===i));
+    });
+  },
+  /* ---------- the gate command panel ---------- */
+  openGate(gi){
+    if(HEADLESS||!G||G.phase!=="play"||G.over)return;
+    const atk=G.playerArmy===G.attacker,g=GATES[gi];
+    const sel=commandable();
+    let n;
+    if(atk)n=recommendCharge(gi).n;
+    else{const cur=garrisonOf(gi).length,s=gateSighting(gi,G.playerArmy);
+      n=s&&s.age<10?clamp(Math.max(cur,s.n+1),1,CFG.plugStrength+4):cur}
+    this.gp={gi,atk,n,sprint:false};
+    G.hold=!!SETTINGS.pauseOrders;
+    const head=`<div class="gp-head"><span class="gp-title">${g.id} Gate</span>
+        <span class="gp-sub">${g.hasBlue?"Blue flag area on this road — challenges there count triple.":"No blue flag area on this road."}</span>
+        <button class="gp-x" id="gp-close" aria-label="Close">✕</button></div>
+      <div class="gp-paused" id="gp-paused">⏸ THE CLOCK IS STOPPED WHILE YOU GIVE ORDERS</div>
+      <div class="gp-intel" id="gp-intel"></div>`;
+    const stepper=lbl=>`<div class="gp-row"><span class="gp-lbl">${lbl}</span>
+        <span class="stepper"><button id="gp-minus" aria-label="fewer">−</button><span id="gp-n"></span><button id="gp-plus" aria-label="more">+</button></span>
+        <span class="gp-hint" id="gp-hint"></span></div>`;
+    const selRow=`<div class="gp-btns gp-classic" id="gp-selrow"><button class="gp-btn" id="gp-sel"></button></div>`;
+    let body;
+    if(atk){
+      body=head+stepper("Charge with")+
+        `<div class="gp-btns"><button class="gp-btn primary" id="gp-go"></button></div>
+         <div class="gp-btns"><button class="gp-btn" id="gp-callers">📯 Post 2 callers</button>
+           <button class="gp-btn" id="gp-scout">👁 Send a scout</button>
+           <button class="gp-btn" id="gp-recall">↩ Pull back</button></div>`+selRow;
+    }else{
+      body=head+stepper("Hold with")+
+        `<div class="gp-row" style="margin-top:0"><label class="gp-chk"><input type="checkbox" id="gp-sprint"> Run there (sprint — they tire)</label></div>
+         <div class="gp-btns"><button class="gp-btn primary" id="gp-go"></button>
+           <button class="gp-btn" id="gp-plug">⊕ Plug it (${CFG.plugStrength})</button></div>
+         <div class="gp-btns"><button class="gp-btn" id="gp-lock">🔒 Lockdown all six</button>
+           <button class="gp-btn" id="gp-aide"></button>
+           <button class="gp-btn gp-classic" id="gp-selgar">Select garrison</button></div>`+selRow;
+    }
+    const panel=this.el("gatepanel");
+    panel.innerHTML=body;panel.classList.remove("hidden");
+    const E=id=>this.el(id),done=(tip)=>{this.closeGate();if(tip)setTip(tip);ui.syncSelInfo()};
+    E("gp-close").onclick=()=>this.closeGate();
+    E("gp-minus").onclick=()=>{this.gp.n=Math.max(atk?1:0,this.gp.n-1);this.refreshGate()};
+    E("gp-plus").onclick=()=>{this.gp.n++;this.refreshGate()};
+    if(atk){
+      E("gp-go").onclick=()=>{const k=cmdCharge(gi,this.gp.n);
+        done(k?`${k} men head for the ${g.id} road. They form up, then step in together on “one, two, STEP!”`:"No free men to send.")};
+      E("gp-callers").onclick=()=>{const k=cmdCallers(gi,2);done(k?`Callers posted by the ${g.id} road. Make them think it's coming here.`:"No free men to post.")};
+      E("gp-scout").onclick=()=>{const k=cmdScout(gi);done(k?`A scout is on his way to watch the ${g.id} Gate. The count will show on its button.`:"No free men to scout.")};
+      E("gp-recall").onclick=()=>{const k=cmdRecall(gi);done(k?`${k} men pull back from ${g.id} to the rally point.`:`Nobody of yours is working the ${g.id} road.`)};
+    }else{
+      E("gp-sprint").onchange=e=>{this.gp.sprint=e.target.checked};
+      E("gp-go").onclick=()=>{const r=cmdSetGarrison(gi,this.gp.n,this.gp.sprint);
+        done(r.moved>0?`${r.moved} men ${this.gp.sprint?"sprint":"walk"} to ${g.id}.`+(r.short?` Couldn't find ${r.short} more without stripping another gate below its minimum.`:""):
+          r.moved<0?`${-r.moved} men leave ${g.id} for ${GATES[r.to].id}.`:`${g.id} already has ${this.gp.n}.`)};
+      E("gp-plug").onclick=()=>{this.gp.n=Math.max(this.gp.n,CFG.plugStrength);const r=cmdSetGarrison(gi,this.gp.n,this.gp.sprint);
+        done(`Plugging ${g.id}: ${Math.max(0,r.moved)} men on the way.`+(r.short?` ${r.short} short — every other gate is at its minimum.`:""))};
+      E("gp-lock").onclick=()=>{doLockdown();done()};
+      E("gp-aide").onclick=()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);this.refreshGate();
+        setTip(G.aide?"Aide-de-camp on: he shuffles your squadrons, but leaves any gate you set by hand alone for 25 seconds.":"Aide-de-camp off — the defense is all yours.")};
+      E("gp-selgar").onclick=()=>{G.selection=garrisonOf(gi);done(`${g.id} garrison selected (${G.selection.length} men).`)};
+    }
+    E("gp-sel").onclick=()=>{const s=commandable();if(!s.length)return;
+      if(atk){orderCharge(s,gi);log(sideKind(G.playerArmy),`Party of ${s.length} moves on the ${g.id} Gate.`)}
+      else orderGarrison(s,gi,{sprint:this.gp.sprint});
+      done(`${s.length} selected men sent to ${g.id}.`)};
+    this.refreshGate();this.syncChips();
+  },
+  closeGate(){
+    if(HEADLESS)return;
+    this.gp=null;if(G)G.hold=false;
+    this.el("gatepanel").classList.add("hidden");
+    this.syncChips();
+  },
+  refreshGate(){
+    if(HEADLESS||!this.gp||!G)return;
+    if(G.phase!=="play"||G.over){this.closeGate();return}
+    const {gi,atk}=this.gp,g=GATES[gi],E=id=>this.el(id);
+    E("gp-paused").style.display=G.hold?"block":"none";
+    const sel=commandable();
+    E("gp-selrow").style.display=sel.length?"flex":"none";
+    E("gp-sel").textContent=`Send my ${sel.length} selected men here`;
+    let intel,hint="",hcls="";
+    if(atk){
+      const r=recommendCharge(gi),k=r.k;
+      this.gp.n=clamp(this.gp.n,1,Math.max(1,r.pool));
+      const n=this.gp.n;
+      intel=k.known?`Your eyes on it: <b>${k.n}</b> defender${k.n===1?"":"s"} in the gate${k.plug?` — <b class="warn">PLUGGED</b>`:""} <i>(just seen)</i>.`:
+        k.stale?`Last seen ${Math.round(k.age)}s ago with <b>${k.n}</b>${k.plug?" (plugged)":""}. They may have moved.`:
+        `Nobody has eyes on this gate yet. Send a scout, or go in blind.`;
+      const going=partiesAt(gi,G.playerArmy,"charge").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
+      const calling=partiesAt(gi,G.playerArmy,"callers").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
+      intel+=`<br>Free to send: <b>${r.pool}</b> (${r.elig} can still score)`+
+        (going?` • ⚔ ${going} already heading here`:"")+(calling?` • 📯 ${calling} calling`:"");
+      if(k.n!=null&&k.plug){hint=`Plugged — any number is repulsed.`;hcls="bad"}
+      else if(k.n!=null){
+        if(n>k.n){hint=`✓ ${n} beats ${k.n}${k.known?"":" (if it's still "+k.n+")"}`;hcls="good"}
+        else if(n===k.n){hint=`Equal numbers = repulse`;hcls="bad"}
+        else{hint=`They'd catch you: challenge for ${k.n-n}`;hcls="bad"}
+      }else hint=`${CFG.plugStrength}+ inside plugs a gate`;
+      E("gp-go").textContent=`⚔ Charge with ${n}`;E("gp-go").disabled=!r.pool;
+      const hp=helperPool(gi).length;
+      E("gp-callers").disabled=!hp;E("gp-scout").disabled=!hp;
+    }else{
+      const here=menInGateArea(gi).length,gar=garrisonOf(gi),enroute=gar.filter(m=>m.path).length;
+      this.gp.n=clamp(this.gp.n,0,CFG.armySize);
+      const n=this.gp.n,s=gateSighting(gi,G.playerArmy),gs=G.gates[gi];
+      intel=`In the gate: <b>${here}</b>${gs.plugged?` <b class="warn">PLUGGED</b>`:""} • assigned here: <b>${gar.length}</b>${enroute?` (${enroute} on the way)`:""}<br>`+
+        (s&&s.age<12?`<b class="warn">Party of ${s.n} sighted near this gate</b> <i>(${Math.round(s.age)}s ago)</i>.`:
+         gs.noise>0?`Callers are making a racket out on this road — could be a feint.`:`Quiet out there.`);
+      const spare=GATES.reduce((t,_,i)=>i===gi?t:t+Math.max(0,garrisonOf(i).length-floorFor(i)),0);
+      intel+=`<br>Spare men at other gates: <b>${spare}</b>`;
+      hint=n>=CFG.plugStrength?`Plugged — repulses any number`:(n===0?`Empty — anyone walks in`:`A party of ${n+1}+ would score here`);
+      hcls=n>=CFG.plugStrength?"good":"";
+      E("gp-go").textContent=n===gar.length?`⚑ Keep ${n} here`:`⚑ Hold with ${n}`;
+      E("gp-aide").textContent=`🤝 Aide: ${G.aide?"ON":"off"}`;
+    }
+    E("gp-intel").innerHTML=intel;
+    E("gp-n").textContent=this.gp.n;
+    const h=E("gp-hint");h.textContent=hint;h.className="gp-hint "+hcls;
+  },
   /* ---------- HUD ---------- */
   syncHud(){
     if(HEADLESS||!G)return;
@@ -1307,9 +1825,11 @@ const ui={
     if(HEADLESS||!this.logDirty||!G)return;
     const box=this.el("log-entries");
     box.innerHTML=G.log.slice(-40).map(e=>
-      `<div class="ent"><span class="t">${fmtClock(CFG.quarterLen-e.t)}</span><span class="${e.kind}">${e.msg}</span></div>`
+      `<div class="ent"><span class="t">${fmtClock(CFG.quarterLen-e.t)}</span><span class="${e.kind}">${esc(e.msg)}</span></div>`
     ).join("");
     box.parentElement.scrollTop=box.parentElement.scrollHeight;
+    const last=G.log.filter(e=>e.kind!=="flav").slice(-1)[0];
+    this.el("log-last").innerHTML=last?`<span class="${last.kind}">${esc(last.msg)}</span>`:"";
     this.logDirty=false;
   },
   /* ---------- selection & buttons ---------- */
@@ -1317,38 +1837,48 @@ const ui={
     if(HEADLESS||!G)return;
     const s=G.selection.filter(m=>m.state!=="centerdead");
     const el=this.el("sel-info");
-    if(!s.length){el.innerHTML=`No men selected<div id="sel-sub">${G.playerArmy===G.attacker?
-      "Drag to select attackers. Right-click the woods to move; right-click a gate to charge it.":
-      "Drag to select defenders, or press 1–6 to grab a gate's garrison."}</div>`;return}
+    const atk=G.playerArmy===G.attacker;
+    if(!s.length){
+      el.innerHTML=`${atk?"You are ATTACKING":"You are DEFENDING"}<div id="sel-sub">${this.coarse?
+        (atk?"Tap a gate to scout, fake, or charge it.":"Tap a gate to reinforce or plug it."):
+        (atk?"Click a gate for orders — or drag to select men and right-click to send them.":
+             "Click a gate for orders — or drag to select defenders, keys 1–6 grab a garrison.")}</div>`;return}
     const elig=s.filter(eligibleToScore).length;
     const dead=G.selection.length-s.length;
-    el.innerHTML=`${s.length} men selected`+
-      `<div id="sel-sub">${G.playerArmy===G.attacker?`${elig} still eligible to score`:
-      `garrison orders ready`}${dead?` • ${dead} dead at the Center of Town`:""}</div>`;
+    el.innerHTML=`${s.length} men selected <button class="tb-btn" id="sel-clear" style="padding:0 6px;font-size:12px">✕</button>`+
+      `<div id="sel-sub">${atk?`${elig} can still score • `:""}${this.coarse?"tap a gate to send them, or tap the map to move them":
+        "right-click a gate or the woods to send them"}${dead?` • ${dead} dead at the Center of Town`:""}</div>`;
+    this.el("sel-clear").onclick=()=>{G.selection=[];this.syncSelInfo()};
   },
   rebuildButtons(){
     if(HEADLESS||!G)return;
     const box=this.el("act-buttons");box.innerHTML="";
-    const mk=(label,key,fn,arm)=>{
-      const b=document.createElement("button");b.className="act-btn";b.dataset.arm=arm||"";
+    const mk=(label,key,fn,arm,adv)=>{
+      const b=document.createElement("button");b.className="act-btn"+(adv?" adv":"");b.dataset.arm=arm||"";
       b.innerHTML=`${label} <span class="key-hint">${key}</span>`;b.onclick=()=>{SND.poke();fn(b)};box.appendChild(b);return b};
     const selAll=()=>{G.selection=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead");
       this.syncSelInfo();setTip("Whole army selected.")};
     if(G.playerArmy===G.attacker){
-      mk("☰ Select army","E",selAll);
-      mk("⚔ Charge a gate","A",()=>armOrder("charge"),"charge");
-      mk("📯 Post callers","C",()=>armOrder("callers"),"callers");
-      mk("↧ Move","M",()=>armOrder("move"),"move");
+      mk("☰ Select army","E",selAll,"",true);
+      mk("⚔ Charge a gate","A",()=>armOrder("charge"),"charge",true);
+      mk("📯 Post callers","C",()=>armOrder("callers"),"callers",true);
+      mk("↧ Move","M",()=>armOrder("move"),"move",true);
       mk("↩ Fall back","F",()=>{
-        const s=commandable();if(s.length)orderMove(s,{x:G.rally.x,y:G.rally.y},{});setTip("Falling back to the rally point.")});
+        const s=commandable().length?commandable():attackerMen().filter(aliveMan);
+        orderMove(s,{x:G.rally.x,y:G.rally.y},{});setTip(`${s.length} men falling back to the rally point.`)});
     }else{
-      mk("☰ Select army","E",selAll);
-      mk("⚑ Send to gate","G",()=>armOrder("garrison"),"garrison");
-      mk("🏃 Sprint to gate","S",()=>armOrder("sprint"),"sprint");
+      mk("☰ Select army","E",selAll,"",true);
+      mk("⚑ Send to gate","G",()=>armOrder("garrison"),"garrison",true);
+      mk("🏃 Sprint to gate","S",()=>armOrder("sprint"),"sprint",true);
       mk("🔒 Lockdown","L",()=>doLockdown());
-      mk("↧ Move","M",()=>armOrder("move"),"move");
+      mk("↧ Move","M",()=>armOrder("move"),"move",true);
+      const aideBtn=mk(`🤝 Aide: ${G.aide?"ON":"off"}`,"",()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);
+        aideBtn.innerHTML=`🤝 Aide: ${G.aide?"ON":"off"}`;
+        setTip(G.aide?"Aide-de-camp on: he shuffles your squadrons, but leaves any gate you set by hand alone for 25 seconds.":"Aide-de-camp off — the defense is all yours.")});
     }
+    this.buildChips();
     this.syncSelInfo();
+    this.resize();
   },
   syncArmed(){
     if(HEADLESS)return;
@@ -1388,37 +1918,87 @@ const ui={
       <p style="text-align:center">An invisible town. Six gates. Two armies bound by blood and history.<br>
       No contact, no mercy — only running, scheming, and the Spirit of the Game.</p>
       <div class="pick-row">
-        <div class="army-card sel" id="pick-G">
+        <div class="army-card" id="pick-G">
           <div class="flagbox" style="background:#55554f">PGA</div>
-          <h3>THE GREY ARMY</h3><div class="gen">Gen. Treat • the war wagon • the air-raid siren</div>
+          <h3>THE GREY ARMY</h3>
+          <div class="gen-line"><input class="gen-in" id="gen-G" maxlength="24" aria-label="Grey general's name" value="${esc(ARMIES.G.general)}">
+            <button class="dice" id="dice-G" title="Another name" aria-label="Another name">🎲</button></div>
+          <div class="gen">the war wagon • the air-raid siren</div>
           <div class="desc">“Greys love a winner! Greys will not tolerate a loser!” Property of the Grey Army — skulls, ash, and berserker joy.</div>
         </div>
         <div class="army-card" id="pick-B">
           <div class="flagbox" style="background:#24407a">PBA</div>
-          <h3>THE BLUE ARMY</h3><div class="gen">Gen. Swan • the brass bell • the vuvuzelas</div>
+          <h3>THE BLUE ARMY</h3>
+          <div class="gen-line"><input class="gen-in" id="gen-B" maxlength="24" aria-label="Blue general's name" value="${esc(ARMIES.B.general)}">
+            <button class="dice" id="dice-B" title="Another name" aria-label="Another name">🎲</button></div>
+          <div class="gen">the brass bell • the vuvuzelas</div>
           <div class="desc">Navy blazers and a family crest. More wins on the wall, a curse to break, and wicked genius in reserve.</div>
         </div>
       </div>
+      <p class="fine" style="text-align:center;margin-top:-6px">Pick the army you'll lead. Edit either general's name to rename him.</p>
       <div class="diff-row">
         <button class="diff-btn" data-d="0">Camper AI</button>
-        <button class="diff-btn sel" data-d="1">Counselor AI</button>
+        <button class="diff-btn" data-d="1">Counselor AI</button>
         <button class="diff-btn" data-d="2">General AI</button>
+      </div>
+      <div class="opt-row">
+        <label><input type="checkbox" id="opt-pause" ${SETTINGS.pauseOrders?"checked":""}> Stop the clock while I give orders</label>
+        <label><input type="checkbox" id="opt-aide" ${SETTINGS.aide?"checked":""}> Aide-de-camp helps run my defense</label>
       </div>
       <p class="fine" style="text-align:center">Two days, four quarters — you attack twice and defend twice. Most points after the final whistle wins.<br>
       Attack: outnumber the defenders and step into a weak gate, in unison. Defend: plug, shuffle squadrons, don't be fooled.</p>
       <button class="go-btn" id="btn-declare">DECLARE WAR</button>
+      <p class="fine" style="text-align:center;margin-top:10px"><a href="#" id="lnk-guide" style="color:inherit">How to play in one minute</a></p>
     `);
-    let army="G",diff=1;
-    this.el("pick-G").onclick=()=>{army="G";this.el("pick-G").classList.add("sel");this.el("pick-B").classList.remove("sel")};
-    this.el("pick-B").onclick=()=>{army="B";this.el("pick-B").classList.add("sel");this.el("pick-G").classList.remove("sel")};
-    document.querySelectorAll(".diff-btn").forEach(b=>b.onclick=()=>{diff=+b.dataset.d;
-      document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("sel",x===b))});
+    let army=STORE.get("army","G"),diff=STORE.get("diff",1);
+    if(army!=="G"&&army!=="B")army="G";
+    const pickArmy=a=>{army=a;this.el("pick-G").classList.toggle("sel",a==="G");this.el("pick-B").classList.toggle("sel",a==="B")};
+    const pickDiff=d=>{diff=d;document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("sel",+x.dataset.d===d))};
+    pickArmy(army);pickDiff(diff);
+    this.el("pick-G").onclick=()=>pickArmy("G");
+    this.el("pick-B").onclick=()=>pickArmy("B");
+    for(const a of["G","B"]){
+      const inp=this.el("gen-"+a);
+      inp.onclick=e=>e.stopPropagation();
+      inp.onchange=()=>{setGeneral(a,inp.value);inp.value=ARMIES[a].general};
+      inp.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter")inp.blur()};
+      this.el("dice-"+a).onclick=e=>{e.stopPropagation();
+        const pool=GENERAL_POOL[a].filter(n=>n!==ARMIES[a].general&&n!==ARMIES[other(a)].general);
+        setGeneral(a,pick(pool));inp.value=ARMIES[a].general};
+    }
+    document.querySelectorAll(".diff-btn").forEach(b=>b.onclick=()=>pickDiff(+b.dataset.d));
+    this.el("lnk-guide").onclick=e=>{e.preventDefault();this.showGuide(()=>this.showTitle())};
     this.el("btn-declare").onclick=()=>{
       SND.poke();SND.bell();setTimeout(()=>SND.drum(),300);
-      newMatch({playerArmy:army,difficulty:diff});
-      this.hideOverlay();
-      declarationOfWar();
+      for(const a of["G","B"])setGeneral(a,this.el("gen-"+a).value);
+      SETTINGS.pauseOrders=this.el("opt-pause").checked;STORE.set("pauseOrders",SETTINGS.pauseOrders);
+      SETTINGS.aide=this.el("opt-aide").checked;STORE.set("aide",SETTINGS.aide);
+      STORE.set("army",army);STORE.set("diff",diff);
+      const go=()=>{
+        newMatch({playerArmy:army,difficulty:diff});
+        this.hideOverlay();
+        this.cam={z:1,cx:FOCUS.x+FOCUS.w/2,cy:FOCUS.y+FOCUS.h/2};this.applyCam();
+        declarationOfWar();
+      };
+      if(!STORE.get("guideSeen",false)){STORE.set("guideSeen",true);this.showGuide(go)}else go();
     };
+  },
+  showGuide(then){
+    if(HEADLESS)return;
+    const t=this.coarse;
+    this.overlay(`
+      <h2 class="script" style="font-size:32px;text-align:center">How to Command</h2>
+      <hr class="rule-line">
+      <ol class="guide" style="margin-left:22px;font-size:15px;line-height:1.5">
+        <li><b>${t?"Tap":"Click"} a gate</b> — on the map, or the six gate buttons along the bottom. A panel shows what your army knows about it and the orders you can give. You choose the job and the number; the nearest free men go.</li>
+        <li><b>Attacking:</b> find a weak gate. Send a scout to count heads, post callers to make noise somewhere else, then charge with <i>more</i> men than are inside. Equal numbers is a repulse; ${CFG.plugStrength} inside plugs the gate.</li>
+        <li><b>Defending:</b> your garrisons walk to their gates at “Scouts out.” When a party is sighted, move men there — but ${CFG.armySize} men can only plug five of six gates. Turn on the <b>Aide-de-camp</b> if you'd like help.</li>
+        <li>${SETTINGS.pauseOrders?"The clock stops while an order panel is open, so take your time.":"The clock keeps running while you give orders."} You can change that on the title screen.</li>
+        <li>${t?"Pinch to zoom, drag to look around, double-tap to zoom in or out.":"Scroll to zoom; drag with the middle button (or arrow keys) to pan. Classic controls still work: drag to select, right-click to send, hotkeys in the Rules."}</li>
+      </ol>
+      <button class="go-btn" id="btn-guide-go">TO THE WOODS</button>
+    `);
+    this.el("btn-guide-go").onclick=()=>{SND.poke();if(then)then();else this.hideOverlay()};
   },
   showInterquarter(){
     if(G.autotest){startQuarter();return}
@@ -1462,6 +2042,7 @@ const ui={
       <hr class="rule-line">
       <h1 style="font-size:38px">${winner?ARMIES[winner].name+" VICTORY":"A TIE — UNHEARD OF"}</h1>
       <p style="text-align:center;font-size:24px;font-weight:700">GREY ${g} — BLUE ${b}</p>
+      <p style="text-align:center" class="fine">${esc(ARMIES.G.general)} (Grey) vs. ${esc(ARMIES.B.general)} (Blue)</p>
       <table class="score-table"><tr><th>Quarter</th><th></th><th>GREY</th><th>BLUE</th></tr>${rows}</table>
       <p style="text-align:center">${winner?(youWin?
         (G.playerArmy==="G"?"The Greys jump and holler — a flying punch of joy! Your name is graffitied onto the neatly inscribed history of Pine Island.":
@@ -1510,15 +2091,20 @@ const ui={
       </ul>
       <h3>Controls</h3>
       <ul>
-        <li><b>Drag</b> to select men • <b>Right-click</b> to move (or charge, on a gate) • <kbd>1</kbd>–<kbd>6</kbd> select a gate's garrison</li>
-        <li><kbd>A</kbd> charge • <kbd>C</kbd> callers • <kbd>G</kbd> send to gate • <kbd>S</kbd> sprint • <kbd>L</kbd> lockdown • <kbd>F</kbd> fall back • <kbd>Space</kbd> pause</li>
+        <li><b>Tap or click a gate</b> (on the map or the gate buttons along the bottom) to open its orders: charge with a set number, post callers, send a scout, pull back — or on defense, hold with a set number, plug it, or lock down.</li>
+        <li>Gate buttons show what you know: on attack, the last count your men saw (<b>?</b> = unknown, <b>~</b> = stale, <b>⊕</b> = plugged, <b>⚔</b> = your party heading there); on defense, your garrison — outlined red when a party of three or more is sighted nearby, dashed when callers are making noise on that road (maybe a feint).</li>
+        <li><b>Phone:</b> pinch to zoom, drag to look around, double-tap to zoom. Tap one of your men to select his party, then tap the map to move it.</li>
+        <li><b>Classic (mouse):</b> drag to select men • right-click to move (or charge, on a gate) • scroll to zoom • <kbd>1</kbd>–<kbd>6</kbd> select a gate's garrison</li>
+        <li><kbd>A</kbd> charge • <kbd>C</kbd> callers • <kbd>G</kbd> send to gate • <kbd>S</kbd> sprint • <kbd>L</kbd> lockdown • <kbd>F</kbd> fall back • <kbd>Space</kbd> pause • <kbd>Esc</kbd> close a panel</li>
       </ul>
+      <p style="text-align:center"><a href="#" id="lnk-guide2" style="color:inherit">Show the one-minute guide</a></p>
       </div>
       <button class="go-btn" id="btn-close-help2">BACK TO THE WOODS</button>
     `);
     const close=()=>{this.hideOverlay();if(G)G.paused=wasPaused};
     this.el("btn-close-help").onclick=close;
     this.el("btn-close-help2").onclick=close;
+    this.el("lnk-guide2").onclick=e=>{e.preventDefault();this.showGuide(()=>close())};
   },
 };
 function setTip(t){if(!HEADLESS)ui.el("tipline").textContent=t}
@@ -1538,9 +2124,15 @@ function doLockdown(){
   for(let gi=0;gi<6;gi++){
     const squad=men.slice(k,k+per+(gi<men.length%6?1:0));k+=squad.length;
     if(squad.length)orderGarrison(squad,gi,{});
+    G.pTarget[gi]=squad.length;G.pTouch[gi]=nowT();
   }
   log(def==="G"?"grey":"blue",`${ARMIES[def].general} calls LOCKDOWN — every gate manned, knees in the pine needles.`);
   setTip("Lockdown: all six gates held thin. Boring, effective, watermelon gummies optional.");
+}
+function togglePause(){
+  if(!G)return;G.paused=!G.paused;
+  ui.el("btn-pause").classList.toggle("on",G.paused);ui.el("btn-pause").textContent=G.paused?"▶":"❙❙";
+  if(G.paused)banner("PAUSED","Tap ▶ to resume",1.6);
 }
 function commandable(){
   if(!G)return[];
@@ -1559,42 +2151,102 @@ function armOrder(kind){
 
 /* ---------------- input ---------------- */
 let dragStart=null,dragCur=null;
+const ptrs=new Map();let gest=null,lastTap={t:0,x:0,y:0};
 function bindInput(cv){
   cv.addEventListener("contextmenu",e=>e.preventDefault());
-  cv.addEventListener("mousedown",e=>{
+  cv.addEventListener("pointerdown",e=>{
     SND.poke();
-    if(!G||G.phase!=="play")return;
+    try{cv.setPointerCapture(e.pointerId)}catch(_){}
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(ptrs.size===2){ // pinch
+      const[a,b]=[...ptrs.values()];
+      gest={type:"pinch",d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:ui.cam.z};dragStart=null;dragCur=null;return}
+    if(ptrs.size>2)return;
     const w=ui.toWorld(e.clientX,e.clientY);
-    if(e.button===0){
-      if(G.armedOrder){executeArmed(w);return}
-      dragStart=w;dragCur=w;
-    }else if(e.button===2){
-      contextOrder(w);
-    }
-  });
-  cv.addEventListener("mousemove",e=>{
-    if(dragStart)dragCur=ui.toWorld(e.clientX,e.clientY);
-    if(G){const w=ui.toWorld(e.clientX,e.clientY);
-      G.hoverGate=-1;GATES.forEach((g,i)=>{if(dist(w,g.pos)<55)G.hoverGate=i})}
-  });
-  window.addEventListener("mouseup",e=>{
-    if(e.button!==0||!dragStart||!G)return;
-    const a=dragStart,b=dragCur||dragStart;dragStart=null;dragCur=null;
-    const x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x),y0=Math.min(a.y,b.y),y1=Math.max(a.y,b.y);
-    const isClick=(x1-x0<8&&y1-y0<8);
-    let picked;
-    if(isClick){
-      // click near a gate while defending selects its garrison
-      let gi=-1;GATES.forEach((g,idx)=>{if(dist(a,g.pos)<55)gi=idx});
-      if(gi>=0&&G.playerArmy!==G.attacker){picked=armyMen(G.playerArmy).filter(m=>m.homeGate===gi&&m.state!=="centerdead")}
-      else{picked=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead"&&dist(m,a)<14).slice(0,1)}
+    if(e.pointerType==="mouse"){
+      if(e.button===2){if(G&&G.phase==="play")contextOrder(w);gest=null;return}
+      if(e.button===1){gest={type:"pan",x:e.clientX,y:e.clientY,moved:true};e.preventDefault();return}
+      gest={type:"mouse",sx:e.clientX,sy:e.clientY,w0:w,moved:false,shift:e.shiftKey};
     }else{
-      picked=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead"&&m.x>=x0&&m.x<=x1&&m.y>=y0&&m.y<=y1);
+      gest={type:"touch",sx:e.clientX,sy:e.clientY,x:e.clientX,y:e.clientY,moved:false,t:performance.now()};
     }
-    if(e.shiftKey)G.selection=[...new Set(G.selection.concat(picked))];
-    else G.selection=picked;
-    ui.syncSelInfo();
   });
+  cv.addEventListener("pointermove",e=>{
+    const p=ptrs.get(e.pointerId);if(p){p.x=e.clientX;p.y=e.clientY}
+    if(G&&e.pointerType==="mouse"){const w=ui.toWorld(e.clientX,e.clientY);G.hoverGate=gateHit(w)}
+    if(!gest)return;
+    if(gest.type==="pinch"&&ptrs.size>=2){
+      const[a,b]=[...ptrs.values()];
+      const d=Math.hypot(a.x-b.x,a.y-b.y)||1;
+      ui.zoomAt((a.x+b.x)/2,(a.y+b.y)/2,gest.z0*d/gest.d0);return}
+    if(gest.type==="touch"||gest.type==="pan"){
+      if(!gest.moved&&Math.hypot(e.clientX-gest.sx,e.clientY-gest.sy)>9)gest.moved=true;
+      if(gest.moved){ui.panBy(e.clientX-(gest.x??e.clientX),e.clientY-(gest.y??e.clientY))}
+      gest.x=e.clientX;gest.y=e.clientY;return}
+    if(gest.type==="mouse"){
+      if(!gest.moved&&Math.hypot(e.clientX-gest.sx,e.clientY-gest.sy)>6)gest.moved=true;
+      if(gest.moved&&G&&G.phase==="play"&&!G.armedOrder){dragStart=gest.w0;dragCur=ui.toWorld(e.clientX,e.clientY)}
+    }
+  });
+  const up=e=>{
+    ptrs.delete(e.pointerId);
+    if(!gest)return;
+    const g=gest;
+    if(g.type==="pinch"){if(ptrs.size===0)gest=null;else gest={type:"touch",sx:0,sy:0,moved:true};return}
+    gest=null;
+    if(e.type==="pointercancel"){dragStart=null;dragCur=null;return}
+    const w=ui.toWorld(e.clientX,e.clientY);
+    if(g.type==="touch"&&!g.moved){
+      const now=performance.now();
+      if(now-lastTap.t<320&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<30&&gateHit(w)<0){ // double-tap zoom
+        lastTap.t=0;ui.zoomAt(e.clientX,e.clientY,ui.cam.z>1.15?1:Math.min(ui.maxZoom(),2.4));return}
+      lastTap={t:now,x:e.clientX,y:e.clientY};
+      tapAt(w,false,true);return}
+    if(g.type==="mouse"){
+      if(dragStart&&dragCur){boxSelect(dragStart,dragCur,g.shift);dragStart=null;dragCur=null;return}
+      dragStart=null;dragCur=null;
+      if(!g.moved)tapAt(w,g.shift,false);
+    }
+  };
+  cv.addEventListener("pointerup",up);
+  cv.addEventListener("pointercancel",up);
+  cv.addEventListener("dblclick",e=>{const w=ui.toWorld(e.clientX,e.clientY);
+    if(gateHit(w)<0)ui.zoomAt(e.clientX,e.clientY,ui.cam.z>1.15?1:2)});
+  cv.addEventListener("wheel",e=>{e.preventDefault();
+    ui.zoomAt(e.clientX,e.clientY,ui.cam.z*Math.exp(-e.deltaY*0.0016))},{passive:false});
+}
+function gateHit(w){ // generous, screen-size-aware hit test for gates and their roads
+  const r=Math.max(58,30/(ui.view.scale||1));
+  return nearestGateTo(w,r);
+}
+function tapAt(w,shift,touch){
+  if(!G||G.phase!=="play")return;
+  if(G.armedOrder){executeArmed(w);return}
+  const gi=gateHit(w);
+  if(gi>=0){ui.openGate(gi);return}
+  if(ui.gp){ui.closeGate();return}
+  // one of your own men? select his whole party
+  const r=Math.max(14,(touch?22:12)/(ui.view.scale||1));
+  let best=null,bd=r;
+  for(const m of armyMen(G.playerArmy)){if(m.state==="centerdead")continue;const d=dist(m,w);if(d<bd){bd=d;best=m}}
+  if(best){
+    const p=best.partyId?getParty(best.partyId):null;
+    let picked=p?p.men.filter(m=>m.state!=="centerdead"):[best];
+    if(G.playerArmy!==G.attacker&&best.homeGate>=0&&(!p||p.role==="garrison"))picked=garrisonOf(best.homeGate);
+    G.selection=shift?[...new Set(G.selection.concat(picked))]:picked;
+    ui.syncSelInfo();setTip(`${picked.length} men selected. ${touch?"Tap":"Click"} a gate to send them${touch?", or tap the map to move them":""}.`);
+    return;
+  }
+  const sel=commandable();
+  if(touch&&sel.length){orderMove(sel,w,{});setTip(`${sel.length} men on the move.`);return}
+  if(!shift&&G.selection.length){G.selection=[];ui.syncSelInfo()}
+}
+function boxSelect(a,b,shift){
+  if(!G)return;
+  const x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x),y0=Math.min(a.y,b.y),y1=Math.max(a.y,b.y);
+  const picked=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead"&&m.x>=x0&&m.x<=x1&&m.y>=y0&&m.y<=y1);
+  G.selection=shift?[...new Set(G.selection.concat(picked))]:picked;
+  ui.syncSelInfo();
 }
 function nearestGateTo(w,maxD){
   let gi=-1,bd=maxD||70;
@@ -1629,7 +2281,7 @@ function contextOrder(w){
   if(!sel.length)return;
   const gi=nearestGateTo(w,80);
   if(G.playerArmy===G.attacker){
-    if(gi>=0){orderCharge(sel,gi);log("grey"===G.playerArmy?"grey":"blue",`Party of ${sel.length} moves on the ${GATES[gi].id} Gate.`)}
+    if(gi>=0){orderCharge(sel,gi);log(sideKind(G.playerArmy),`Party of ${sel.length} moves on the ${GATES[gi].id} Gate.`)}
     else orderMove(sel,w,{});
   }else{
     if(gi>=0)orderGarrison(sel,gi,{sprint:false});
@@ -1638,8 +2290,14 @@ function contextOrder(w){
 }
 function onKey(e){
   if(!G||G.phase!=="play")return;
+  if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
   const k=e.key.toLowerCase();
-  if(k===" "){G.paused=!G.paused;ui.el("btn-pause").classList.toggle("on",G.paused);e.preventDefault();return}
+  if(k===" "){togglePause();e.preventDefault();return}
+  const pan={arrowleft:[60,0],arrowright:[-60,0],arrowup:[0,60],arrowdown:[0,-60]}[k];
+  if(pan){ui.panBy(pan[0],pan[1]);e.preventDefault();return}
+  if(k==="+"||k==="="){ui.zoomAt(innerWidth/2,innerHeight/2,ui.cam.z*1.25);return}
+  if(k==="-"||k==="_"){ui.zoomAt(innerWidth/2,innerHeight/2,ui.cam.z/1.25);return}
+  if(k==="escape"&&ui.gp){ui.closeGate();return}
   if(k>="1"&&k<="6"){
     const gi=+k-1;
     if(G.playerArmy!==G.attacker){
@@ -1930,9 +2588,15 @@ function render(dt){
       c.fillStyle="#a03325";c.font=serifFont(10,true);
       c.fillText("PLUGGED",g.pos.x-g.dx*76-g.perp.x*10,g.pos.y-g.dy*76-g.perp.y*10);
     }
-    // hover/armed highlight
-    if(G.hoverGate===i&&G.armedOrder){
-      c.strokeStyle="#b98a2f";c.lineWidth=2.5;
+    // open-panel / hover / armed highlight
+    if(ui.gp&&ui.gp.gi===i){
+      const r=42+Math.sin(now*4)*4;
+      c.strokeStyle="#b98a2f";c.lineWidth=4;
+      c.beginPath();c.arc(g.pos.x,g.pos.y,r,0,7);c.stroke();
+      c.lineWidth=2;c.setLineDash([6,5]);
+      c.beginPath();c.moveTo(g.pos.x,g.pos.y);c.lineTo(g.roadEnd.x,g.roadEnd.y);c.stroke();c.setLineDash([]);
+    }else if(G.hoverGate===i){
+      c.strokeStyle=G.armedOrder?"#b98a2f":"rgba(185,138,47,0.6)";c.lineWidth=2.5;
       c.beginPath();c.arc(g.pos.x,g.pos.y,40,0,7);c.stroke();
     }
   });
@@ -1964,7 +2628,7 @@ function render(dt){
     if(!own&&!enemyVisible(m))continue;
     const A=ARMIES[m.army];
     const sel=own&&G.selection.includes(m);
-    const uS=clamp(0.85/v.scale,1,1.8);
+    const uS=clamp(0.85/v.scale,1,2.4);
     let w=10*uS,h=6*uS;
     if(m.plugKneel){w=8*uS;h=8*uS}
     c.globalAlpha=(m.state==="centerdead")?0.4:(m.state==="tempdead"?0.65:1);
@@ -2013,7 +2677,7 @@ function render(dt){
       c.fillStyle="#8a2b1d";c.font=serifFont(16,true);
       c.fillText("YOUR ARMY MUSTERS HERE",G.rally.x,G.rally.y-58);
       c.font=serifFont(12,true);
-      c.fillText("drag to select • right-click a gate to charge it",G.rally.x,G.rally.y+58);
+      c.fillText(ui.coarse?"tap a gate to send men":"click a gate to send men",G.rally.x,G.rally.y+58);
     }
   }
   // drag rectangle
@@ -2033,7 +2697,9 @@ if(!HEADLESS){
     if(G)tick(dt);
     render(dt);
     ui.syncBanner(dt);
-    if(G){ui.syncHud();ui.syncLog()}
+    if(G){ui.syncHud();ui.syncLog();
+      ui.chipT-=dt;if(ui.chipT<=0){ui.chipT=0.25;ui.syncChips();ui.refreshGate()}
+      ui.canvas.style.cursor=G.hoverGate>=0?"pointer":"crosshair"}
     requestAnimationFrame(frame);
   }
   window.addEventListener("DOMContentLoaded",()=>{
@@ -2049,6 +2715,8 @@ const __wg={
   newMatch,startQuarter,tick,CFG,GATES,ARMIES,NAV,ui,
   get state(){return G},
   resolvePlay,eligibleToScore,menInGateArea,
+  cmdCharge,cmdCallers,cmdScout,cmdRecall,cmdSetGarrison,attackIntel,attackPool,garrisonOf,recommendCharge,
+  setGeneral,normGeneral,SETTINGS,
   render,buildMap,getMapImage(){return MAPIMG},
   runHeadless(opts){
     opts=Object.assign({playerArmy:"G",difficulty:1,autotest:true},opts||{});

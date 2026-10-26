@@ -10,6 +10,8 @@ A video game of the **Pine Island Camp War Game**, played in the Maine woods eve
 
 You are the General. Take command of the Grey Army or the Blue Army and fight a full two-day match: four quarters, attacking twice and defending twice, against an AI general (Camper, Counselor, or General difficulty). Most points after the final whistle wins.
 
+Name both generals on the title screen (or roll the dice for one). Your names are remembered on your device. Plays on phones, tablets and computers.
+
 ## The game
 
 Picture an invisible town surrounded by wilderness, with six gates — N, NW, W, S, SE, E — each at the end of a road marked with white, red, and blue flags.
@@ -22,7 +24,16 @@ The umpire logic implements the 2018 Revision of the rules: scoring points, chal
 
 ## Controls
 
-Drag to select men. Right-click to move — or to charge, on a gate. Keys: `1`–`6` grab a gate's garrison, `A` charge, `C` callers, `G` send to gate, `S` sprint, `L` lockdown, `F` fall back, `Space` pause. The **Rules** button in-game has the full summary.
+**Tap or click a gate** — on the map, or one of the six gate buttons along the bottom. A panel shows what your army knows about that gate and the orders you can give:
+
+- **Attacking:** charge with a set number of men, post two callers, send a scout to count heads, or pull back. The panel tells you whether your number beats what's been seen inside.
+- **Defending:** hold the gate with a set number, plug it, or lock down all six. Turn on the **Aide-de-camp** if you'd like help shuffling squadrons; he leaves any gate you set by hand alone.
+
+You pick the job and the number; the nearest free men go. The game still plays by every rule below — the panel is just a faster way to give the same orders.
+
+By default the clock stops while an order panel is open (switch it off on the title screen). On a phone: pinch to zoom, drag to look around, double-tap to zoom.
+
+**Classic controls** still work with a mouse: drag to select men, right-click to move (or charge, on a gate), scroll to zoom. Keys: `1`–`6` grab a gate's garrison, `A` charge, `C` callers, `G` send to gate, `S` sprint, `L` lockdown, `F` fall back, `Space` pause, `Esc` close a panel. The **Rules** button in-game has the full summary.
 
 ## Provenance
 
