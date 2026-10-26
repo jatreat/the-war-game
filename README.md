@@ -10,7 +10,7 @@ A video game of the **Pine Island Camp War Game**, played in the Maine woods eve
 
 You are the General. Take command of the Grey Army or the Blue Army and fight a full two-day match: four quarters, attacking twice and defending twice, against an AI general (Camper, Counselor, or General difficulty). Most points after the final whistle wins.
 
-Name both generals on the title screen (or roll the dice for one). Your names are remembered on your device. Plays on phones, tablets and computers.
+Name both generals on the title screen. The dice draw a real War Game general from camp history — the Grey and Blue generals named in *The Pine Needle* since 2003, plus legends from earlier decades — or type any name you like. Your choices are remembered on your device. Plays on phones, tablets and computers.
 
 ## The game
 

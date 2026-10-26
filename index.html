@@ -119,8 +119,8 @@
   .close-x{float:right;cursor:pointer;font-size:22px;font-weight:700;padding:0 6px;border:none;background:none;color:var(--ink)}
 
   /* ---------- generals & options on the title sheet ---------- */
-  .gen-in{font-family:inherit;font-size:15px;font-style:italic;font-weight:700;color:var(--ink);text-align:center;
-    width:100%;max-width:200px;padding:5px 6px;border:1.5px solid var(--ink);border-radius:4px;background:rgba(255,250,230,.8)}
+  .gen-in{font-family:inherit;font-size:14.5px;font-style:italic;font-weight:700;color:var(--ink);text-align:center;
+    width:100%;max-width:230px;padding:5px 6px;border:1.5px solid var(--ink);border-radius:4px;background:rgba(255,250,230,.8)}
   .gen-line{display:flex;gap:6px;align-items:center;justify-content:center;margin:6px 0 2px}
   .gen-lbl{font-size:11px;letter-spacing:1px;font-weight:700;color:var(--ink-soft)}
   .dice{border:1.5px solid var(--ink);background:#efe2bd;border-radius:4px;font-size:17px;width:34px;height:32px;cursor:pointer;flex:none}
@@ -608,10 +608,10 @@ const SND=(function(){
 
 /* ---------------- game state ---------------- */
 const ARMIES={
-  G:{key:"G",name:"GREY",adj:"Grey",color:"#6f6f68",dark:"#4b4b45",general:"Gen. Hollis",
+  G:{key:"G",name:"GREY",adj:"Grey",color:"#6f6f68",dark:"#4b4b45",general:"",
      flag:"PGA",callerNoise:"an air-raid siren cranks up",wagon:"a grey Ford pickup — WARWGN",
      cry:"We're going to stink those Blues into the woods!"},
-  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3b5ea8",dark:"#27437e",general:"Gen. Whitcomb",
+  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3b5ea8",dark:"#27437e",general:"",
      flag:"PBA",callerNoise:"a chorus of blue vuvuzelas drones",wagon:"the Blue war wagon, brass bell clanging",
      cry:"And they will know our name are the Blues when we lay our vengeance upon them!"},
 };
@@ -623,20 +623,41 @@ const STORE={
   set(k,v){try{localStorage.setItem("wg."+k,JSON.stringify(v))}catch(e){}},
 };
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-const DEFAULT_GENERAL={G:"Gen. Hollis",B:"Gen. Whitcomb"};
-const GENERAL_POOL={
-  G:["Gen. Hollis","Gen. Thatcher","Gen. Ainsworth","Gen. Fairbanks","Gen. Wendell","Gen. Birch","Gen. Larkin","Gen. Holloway"],
-  B:["Gen. Whitcomb","Gen. Prescott","Gen. Merrill","Gen. Ellery","Gen. Lowell","Gen. Cabot","Gen. Harlow","Gen. Sewall"],
+/* Real War Game generals, from The Pine Needle (2004–2026 issues) and the Down East article.
+   Years are the summers they led. King's Game Starks (2021–) carry on the Grey line. */
+const PAST_GENERALS={
+  G:[["Josh Treat","2011"],["Jason Schachner","2008, 2010"],["Will Mason","2009"],["Max Huber","2007"],
+     ["Niel Kasper","2002–2005"],["Becca Waldo","2012"],["Ben Schachner","2013"],["David Kemp","2014"],
+     ["David Greene","2015"],["Max McKendry","2016"],["Satchel Toole","2017, 2018"],["Tommy Mottur","2019"],
+     ["Bobby Flynn","Starks, 2021"],["George Baldwin","Starks, 2022–23"],["Alex Sidorsky","Starks, 2025"],
+     ["Jim Chapman","1969"],["Rob Brent","Gray legend"],["Al Bullard","Gray legend"],["Pope Ward","retired Gray general"],
+     ["Frank Whitehouse Jr.","Gray victory"]],
+  B:[["Harry Swan","2011"],["Matt Clarke","2001, 2003"],["Bill Nagler","2002"],["Michael Robertson","2004"],
+     ["Lindsay Clarke","2005"],["Andrew Irvine","2007"],["Sam Hoyt","2008"],["Victor Dillard","2009"],
+     ["Charlie Boutwell","2010"],["Will Webb","2012"],["Rip Swan","2013"],["Nicky Isles","2014"],
+     ["Charlie Krause","2015"],["Ian Ford","2016"],["Jacob Ronson","2017"],["Miles Frank","2018"],
+     ["Noah Brodsky","2019"],["Ben Swan","Blue general"],["Whit Fisher","Blue general"],["Tom Yoder","1970"],
+     ["Dave Carman","1967–68"],["Peter Zeman","1960s"]],
 };
+const GENERAL_POOL={G:PAST_GENERALS.G.map(g=>"Gen. "+g[0]),B:PAST_GENERALS.B.map(g=>"Gen. "+g[0])};
+// a new player starts with a random real general on each side (then keeps whatever they choose)
+const DEFAULT_GENERAL={G:GENERAL_POOL.G[Math.floor(Math.random()*GENERAL_POOL.G.length)],
+                       B:GENERAL_POOL.B[Math.floor(Math.random()*GENERAL_POOL.B.length)]};
 function normGeneral(s,fallback){
-  s=String(s==null?"":s).replace(/\s+/g," ").trim().slice(0,24);
+  s=String(s==null?"":s).replace(/\s+/g," ").trim().slice(0,30);
   if(!s)return fallback;
   if(!/^(gen\b|gen\.|general|brig|maj|lt|col|capt|cpt|sgt|cmdr|commander|adm|admiral)/i.test(s))s="Gen. "+s;
   return s;
 }
 function setGeneral(a,name){ARMIES[a].general=normGeneral(name,DEFAULT_GENERAL[a]);STORE.set("gen"+a,ARMIES[a].general)}
-ARMIES.G.general=normGeneral(STORE.get("genG",DEFAULT_GENERAL.G),DEFAULT_GENERAL.G);
-ARMIES.B.general=normGeneral(STORE.get("genB",DEFAULT_GENERAL.B),DEFAULT_GENERAL.B);
+// v1.2.0 shipped invented placeholder names; anyone still on one gets a real general instead
+const OLD_PLACEHOLDERS=/^Gen\. (Hollis|Thatcher|Ainsworth|Fairbanks|Wendell|Birch|Larkin|Holloway|Whitcomb|Prescott|Merrill|Ellery|Lowell|Cabot|Harlow|Sewall)$/;
+for(const a of["G","B"]){
+  let v=STORE.get("gen"+a,null);
+  if(v&&OLD_PLACEHOLDERS.test(v))v=null;
+  ARMIES[a].general=normGeneral(v,DEFAULT_GENERAL[a]);
+  if(v==null)STORE.set("gen"+a,ARMIES[a].general);
+}
 const SETTINGS={
   pauseOrders:STORE.get("pauseOrders",true),   // stop the clock while an order panel is open
   aide:STORE.get("aide",false),                // aide-de-camp shuffles your defenders
@@ -1921,21 +1942,23 @@ const ui={
         <div class="army-card" id="pick-G">
           <div class="flagbox" style="background:#55554f">PGA</div>
           <h3>THE GREY ARMY</h3>
-          <div class="gen-line"><input class="gen-in" id="gen-G" maxlength="24" aria-label="Grey general's name" value="${esc(ARMIES.G.general)}">
-            <button class="dice" id="dice-G" title="Another name" aria-label="Another name">🎲</button></div>
+          <div class="gen-line"><input class="gen-in" id="gen-G" maxlength="30" list="gens-G" autocomplete="off" aria-label="Grey general's name" value="${esc(ARMIES.G.general)}">
+            <button class="dice" id="dice-G" title="Another past general" aria-label="Another past general">🎲</button></div>
           <div class="gen">the war wagon • the air-raid siren</div>
           <div class="desc">“Greys love a winner! Greys will not tolerate a loser!” Property of the Grey Army — skulls, ash, and berserker joy.</div>
         </div>
         <div class="army-card" id="pick-B">
           <div class="flagbox" style="background:#24407a">PBA</div>
           <h3>THE BLUE ARMY</h3>
-          <div class="gen-line"><input class="gen-in" id="gen-B" maxlength="24" aria-label="Blue general's name" value="${esc(ARMIES.B.general)}">
-            <button class="dice" id="dice-B" title="Another name" aria-label="Another name">🎲</button></div>
+          <div class="gen-line"><input class="gen-in" id="gen-B" maxlength="30" list="gens-B" autocomplete="off" aria-label="Blue general's name" value="${esc(ARMIES.B.general)}">
+            <button class="dice" id="dice-B" title="Another past general" aria-label="Another past general">🎲</button></div>
           <div class="gen">the brass bell • the vuvuzelas</div>
           <div class="desc">Navy blazers and a family crest. More wins on the wall, a curse to break, and wicked genius in reserve.</div>
         </div>
       </div>
-      <p class="fine" style="text-align:center;margin-top:-6px">Pick the army you'll lead. Edit either general's name to rename him.</p>
+      <datalist id="gens-G">${PAST_GENERALS.G.map(g=>`<option value="Gen. ${esc(g[0])}">${esc(g[1])}</option>`).join("")}</datalist>
+      <datalist id="gens-B">${PAST_GENERALS.B.map(g=>`<option value="Gen. ${esc(g[0])}">${esc(g[1])}</option>`).join("")}</datalist>
+      <p class="fine" style="text-align:center;margin-top:-6px">Pick the army you'll lead. 🎲 draws a real War Game general from camp history — or type any name you like.</p>
       <div class="diff-row">
         <button class="diff-btn" data-d="0">Camper AI</button>
         <button class="diff-btn" data-d="1">Counselor AI</button>
