@@ -82,6 +82,8 @@
   #overlay{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
     background:rgba(20,16,10,.72)}
   #overlay.hidden{display:none}
+  #overlay{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  #overlay .sheet{max-height:calc(100% - 16px)}
   #overlay .sheet{animation:sheetIn .28s ease-out}
   @keyframes sheetIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
   #gatepanel:not(.hidden){animation:panelIn .18s ease-out}
@@ -309,7 +311,7 @@ const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
 
 /* ---------------- config ---------------- */
 const CFG = {
-  version: "1.3.0",
+  version: "1.3.1",
   worldW: 1600, worldH: 1200,
   armySize: 40,            // active players per army (announced by the Director)
   plugStrength: 8,         // defenders needed to plug a gate
@@ -879,15 +881,13 @@ function updateSighting(dt){
     if(onRoad(am))r*=1.35;
     atkPre.push([am,r]);
   }
-  for(const dm of armyMen(def)){
-    if(dm.state==="centerdead")continue;
-    for(const[am,r]of atkPre){
-      if(dist(dm,am)<r){
-        const key=am.partyId||("solo"+am.id);
-        if(!seenParties.has(key))seenParties.set(key,{n:0,x:0,y:0});
-        const s=seenParties.get(key);s.n++;s.x+=am.x;s.y+=am.y;
-      }
-    }
+  // each attacker is counted once, however many defenders can see him
+  const defsAlive=armyMen(def).filter(dm=>dm.state!=="centerdead");
+  for(const[am,r]of atkPre){
+    if(!defsAlive.some(dm=>dist(dm,am)<r))continue;
+    const key=am.partyId||("solo"+am.id);
+    if(!seenParties.has(key))seenParties.set(key,{n:0,x:0,y:0});
+    const s=seenParties.get(key);s.n++;s.x+=am.x;s.y+=am.y;
   }
   // defenders sight attacker parties -> ghosts (for whichever side is viewing)
   for(const[key,s]of seenParties){
@@ -1293,8 +1293,10 @@ function aiDefense(dt){
   // threat estimate per gate
   const threat=GATES.map((g,i)=>{
     const gs=G.gates[i];
-    let t=gs.seenCount*1.4+gs.noise*NOISE_W;
-    for(const gh of G.ghosts)if(gh.side===def){const d=dist(gh,g.pos);if(d<420)t+=gh.n*(1-d/420)}
+    // sightings now count each attacker once; SENS keeps the defense as alert as it was tuned
+    const SENS=1.9;
+    let t=gs.seenCount*1.4*SENS+gs.noise*NOISE_W;
+    for(const gh of G.ghosts)if(gh.side===def){const d=dist(gh,g.pos);if(d<420)t+=gh.n*SENS*(1-d/420)}
     return t;
   });
   // lockdown when protecting a lead late in the last quarter
@@ -1520,8 +1522,8 @@ function defMenAlive(){return defenderMen().filter(aliveMan)}
 function garrisonOf(gi){return defMenAlive().filter(m=>m.homeGate===gi)}
 function threatScore(gi,side){
   const g=GATES[gi],gs=G.gates[gi];
-  let t=gs.seenCount*1.4+gs.noise*0.9;
-  for(const gh of G.ghosts)if(gh.side===side){const d=dist(gh,g.pos);if(d<420)t+=gh.n*(1-d/420)}
+  let t=gs.seenCount*1.4*1.9+gs.noise*0.9;
+  for(const gh of G.ghosts)if(gh.side===side){const d=dist(gh,g.pos);if(d<420)t+=gh.n*1.9*(1-d/420)}
   return t;
 }
 function gateSighting(gi,side){ // biggest recent sighting near a gate, for the defender's panel
@@ -1664,8 +1666,8 @@ const ui={
       const lw=Math.min(spareW,360);
       vp.w-=lw;fit=Math.min((vp.w-8)/FOCUS.w,(vp.h-8)/FOCUS.h);
       dock({top:(vp.y+6)+"px",height:(vp.h-12)+"px",left:"auto",right:"6px",width:(lw-12)+"px"});
-    }else if(this.narrow&&spareH>110){
-      const lh=Math.min(spareH,300);
+    }else if(spareH>110){
+      const lh=Math.min(spareH,this.narrow?300:380);
       vp.h-=lh;
       dock({top:(vp.y+vp.h+2)+"px",height:(lh-6)+"px",left:"6px",right:"6px",width:"auto"});
     }else{
