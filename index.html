@@ -270,6 +270,84 @@
     .sheet h1{font-size:26px}
     .pick-row{margin:8px 0}
   }
+
+  /* ======== mature theme: dark tactical UI, crisp type, flat controls ======== */
+  :root{
+    --bg:#0e1311; --card:#171e1b; --card2:#222b27; --ink:#e9eeeb; --ink-soft:#97a39c; --line:#2f3a35;
+    --grey:#8a939c; --grey-dark:#5b646d; --blue:#3f74d6; --blue-dark:#2b57ad;
+    --gold:#d4a24c; --red:#cf4b3c; --green:#3c8b5a; --r:10px;
+    --font:-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  }
+  body{color:var(--ink)}
+  #topbar,#botbar{background:#121816;box-shadow:0 1px 0 #26302b,0 4px 14px rgba(0,0,0,.4)}
+  #botbar{box-shadow:0 -1px 0 #26302b,0 -4px 14px rgba(0,0,0,.4)}
+  .bigscore{font-weight:700}
+  #clock{font-weight:700;background:none;border:1px solid #2f3a35;border-radius:6px}
+  #q-label{font-weight:600;font-size:12px;letter-spacing:.8px;text-transform:uppercase}
+  #phase-label{font-weight:600;color:var(--gold)}
+  .tb-btn,.act-btn{background:#1f2724;border:1px solid #2f3a35;border-radius:6px;font-weight:600}
+  .tb-btn.on,.act-btn.armed{background:var(--gold);color:#16120a;border-color:var(--gold)}
+  #tipline{color:var(--ink-soft);font-weight:500}
+  #sel-sub{color:var(--ink-soft);font-weight:500}
+  .pennant{border-width:1.5px;border-radius:2px;width:12px;height:12px}
+  #log{background:rgba(23,30,27,.95);border:1px solid var(--line);border-radius:8px;color:var(--ink)}
+  #log h4{color:var(--ink-soft);font-weight:700}
+  #log .ent{border-bottom-color:var(--line)}
+  #log .grey{color:#c3c9cf} #log .blue{color:#8db0f0} #log .ump{color:#ef8a7c}
+  #banner .b-main{background:rgba(14,19,17,.92);border:1px solid #3a4640;border-radius:6px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:26px}
+  #banner .b-sub{background:none;color:#e9eeeb;font-weight:500;font-style:italic;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+  #overlay{background:rgba(6,9,8,.72)}
+  .sheet{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  .sheet h1{font-weight:800;letter-spacing:4px;font-size:34px}
+  .sheet h2.script{font-weight:600;font-size:15px;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-soft)}
+  .sheet .rule-line{border-top-color:var(--line)}
+  .kicker{color:var(--gold);font-weight:700;letter-spacing:3px}
+  .army-card{border-radius:8px;opacity:.45;border:1px solid transparent}
+  #pick-G{background:linear-gradient(160deg,#59626b,#363c42)} #pick-B{background:linear-gradient(160deg,#3463bd,#1f3f7d)}
+  .army-card.sel{border:1px solid var(--gold);box-shadow:0 0 0 2px var(--gold)}
+  .army-card h3{font-weight:800;letter-spacing:3px}
+  .gen-in{background:rgba(0,0,0,.28);color:#fff;border-radius:6px;font-weight:600}
+  .dice{background:rgba(0,0,0,.28);color:#fff;border-radius:6px;font-size:16px;font-weight:700}
+  .diff-row{background:var(--card2);border-radius:8px}
+  .diff-btn{border-radius:6px;font-weight:600}
+  .diff-btn.sel{background:#34403a;color:#fff;box-shadow:none}
+  .go-btn{background:var(--gold);color:#16120a;border-radius:8px;font-weight:800;letter-spacing:3px;box-shadow:none;font-size:17px}
+  .go-btn:active{transform:translateY(1px);box-shadow:none}
+  .score-table{background:var(--card2);border-radius:8px}
+  .score-table th,.score-table td{border-bottom-color:var(--line)}
+  .opt-row input,.gp-chk input{accent-color:var(--gold)}
+  a{color:inherit}
+  kbd{background:var(--card2);border-color:var(--line)}
+  .close-x{background:var(--card2);color:var(--ink);border-radius:6px}
+  .gchip{background:#1f2724;color:var(--ink);border:1px solid #2f3a35;border-radius:8px;box-shadow:none;font-weight:700}
+  .gchip small{color:var(--ink-soft);font-weight:600}
+  .gchip.threat{background:#3a1f1b;border-color:var(--red);box-shadow:none}
+  .gchip.threat small,.gchip.plug small{color:#ef8a7c}
+  .gchip.noise{background:#2f2a1b;border-color:#8c7330;box-shadow:none}
+  .gchip.open{background:var(--gold);border-color:var(--gold);color:#16120a;box-shadow:none}.gchip.open small{color:#16120a}
+  .gchip:active{transform:translateY(1px);box-shadow:none}
+  #gatepanel{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px}
+  .gp-badge{background:none;border:1.5px solid var(--ink);border-radius:6px;width:42px;height:42px;font-weight:800;letter-spacing:.5px}
+  .gp-title{font-weight:700;font-size:19px}
+  .gp-sub{color:var(--ink-soft);font-weight:500}
+  .gp-x{background:var(--card2);color:var(--ink);border-radius:6px;font-weight:600}
+  .gp-intel{background:var(--card2);border-radius:8px;font-weight:500}
+  .gp-intel b{font-weight:700}
+  .gp-intel .warn{color:#ef8a7c}
+  .stepper{background:var(--card2);border-radius:8px}
+  .stepper button{color:var(--ink);font-weight:500}
+  .stepper button:active{background:#34403a}
+  .stepper span{font-weight:700}
+  .gp-hint{font-weight:600}
+  .gp-hint.good{color:#7cc597}.gp-hint.bad{color:#ef8a7c}
+  .gp-btn{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;font-weight:700}
+  .gp-btn small{color:var(--ink-soft);font-weight:500}
+  .gp-btn.primary{background:var(--gold);color:#16120a;border-color:var(--gold);box-shadow:none}
+  .gp-btn.primary small{color:rgba(22,18,10,.72)}
+  .gp-btn.primary.atk{background:var(--red);border-color:var(--red);color:#fff;box-shadow:none}
+  .gp-btn.primary.atk small{color:rgba(255,255,255,.8)}
+  .gp-btn:active{transform:translateY(1px)}
+  .gp-more summary,details.more summary{color:var(--ink-soft);font-weight:600}
   @media (pointer:coarse){ .act-btn.adv{display:none} .key-hint{display:none} .gp-classic{display:none!important} }
 </style>
 </head>
@@ -321,7 +399,7 @@ const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
 
 /* ---------------- config ---------------- */
 const CFG = {
-  version: "1.4.0",
+  version: "1.4.1",
   worldW: 1600, worldH: 1200,
   armySize: 40,            // active players per army (announced by the Director)
   plugStrength: 8,         // defenders needed to plug a gate
@@ -636,10 +714,10 @@ function haptic(kind){
 
 /* ---------------- game state ---------------- */
 const ARMIES={
-  G:{key:"G",name:"GREY",adj:"Grey",color:"#5d6773",dark:"#3b434d",general:"",
+  G:{key:"G",name:"GREY",adj:"Grey",color:"#9aa1a7",dark:"#4d555c",general:"",
      flag:"PGA",callerNoise:"an air-raid siren cranks up",wagon:"a grey Ford pickup — WARWGN",
      cry:"We're going to stink those Blues into the woods!"},
-  B:{key:"B",name:"BLUE",adj:"Blue",color:"#2563eb",dark:"#1d48b8",general:"",
+  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3f74d6",dark:"#24478f",general:"",
      flag:"PBA",callerNoise:"a chorus of blue vuvuzelas drones",wagon:"the Blue war wagon, brass bell clanging",
      cry:"And they will know our name are the Blues when we lay our vengeance upon them!"},
 };
@@ -1739,7 +1817,7 @@ const ui={
         const k=attackIntel(i);
         txt=k.n==null?"?":(k.known?k.n:k.n+"~");plug=k.plug;if(plug)txt+="⊕";
         const mine=partiesAt(i,me,"charge").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
-        if(mine)txt+=" ⚔"+mine;
+        if(mine)txt+=" →"+mine;
       }else{
         const here=garrisonOf(i).length;plug=G.gates[i].plugged;
         txt=here+(plug?"⊕":"");
@@ -1774,17 +1852,17 @@ const ui={
     if(atk){
       body=head+stepper("Men to send")+
         `<div class="gp-btns"><button class="gp-btn primary atk" id="gp-go"></button></div>
-         <div class="gp-btns"><button class="gp-btn" id="gp-scout">👁 Scout it<small>count the guards</small></button>
-           <button class="gp-btn" id="gp-callers">📣 Fake it<small>2 men make noise here</small></button></div>
+         <div class="gp-btns"><button class="gp-btn" id="gp-scout">Scout it<small>count the guards</small></button>
+           <button class="gp-btn" id="gp-callers">Fake it<small>2 men make noise here</small></button></div>
          <details class="gp-more"><summary>More ▾</summary>
-           <div class="gp-btns"><button class="gp-btn" id="gp-recall">↩ Pull my men back from ${g.id}</button></div>`+selRow+`</details>`;
+           <div class="gp-btns"><button class="gp-btn" id="gp-recall">Pull my men back from ${g.id}</button></div>`+selRow+`</details>`;
     }else{
       body=head+stepper("Guards here")+
         `<div class="gp-btns"><button class="gp-btn primary" id="gp-go"></button>
-           <button class="gp-btn" id="gp-plug">🔒 Plug it<small>${CFG.plugStrength} guards stop any attack</small></button></div>
+           <button class="gp-btn" id="gp-plug">Plug it<small>${CFG.plugStrength} guards stop any attack</small></button></div>
          <details class="gp-more"><summary>More ▾</summary>
            <div class="gp-row" style="justify-content:center"><label class="gp-chk"><input type="checkbox" id="gp-sprint"> Make them run (they tire)</label></div>
-           <div class="gp-btns"><button class="gp-btn" id="gp-lock">🔒 Lockdown<small>freeze every gate as is</small></button>
+           <div class="gp-btns"><button class="gp-btn" id="gp-lock">Lockdown<small>freeze every gate as is</small></button>
              <button class="gp-btn" id="gp-aide"></button></div>
            <div class="gp-btns gp-classic"><button class="gp-btn" id="gp-selgar">Select these guards</button></div>`+selRow+`</details>`;
     }
@@ -1836,35 +1914,35 @@ const ui={
       const r=recommendCharge(gi),k=r.k;
       this.gp.n=clamp(this.gp.n,1,Math.max(1,r.pool));
       const n=this.gp.n;
-      intel=k.known?`👁 <b>${k.n}</b> guard${k.n===1?"":"s"} in this gate right now${k.plug?` — <b class="warn">PLUGGED, can't be beaten</b>`:""}.`:
-        k.stale?`👁 <b>${k.n}</b> guard${k.n===1?"":"s"}${k.plug?" (plugged)":""}, seen ${Math.round(k.age)}s ago. They may have moved.`:
-        `❓ You don't know how many guards are here. <b>Scout it</b> first, or take a chance.`;
+      intel=k.known?`<b>${k.n}</b> guard${k.n===1?"":"s"} in this gate right now${k.plug?` — <b class="warn">PLUGGED, can't be beaten</b>`:""}.`:
+        k.stale?`<b>${k.n}</b> guard${k.n===1?"":"s"}${k.plug?" (plugged)":""}, seen ${Math.round(k.age)}s ago. They may have moved.`:
+        `You don't know how many guards are here. <b>Scout it</b> first, or take a chance.`;
       const going=partiesAt(gi,G.playerArmy,"charge").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
       const calling=partiesAt(gi,G.playerArmy,"callers").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
       intel+=`<br><span style="color:var(--ink-soft)">You have <b>${r.pool}</b> men free.</span>`+
-        (going?` ⚔ ${going} already on the way.`:"")+(calling?` 📣 ${calling} making noise.`:"");
+        (going?` ${going} already on the way.`:"")+(calling?` ${calling} making noise.`:"");
       if(k.n!=null&&k.plug){hint=`Plugged — pick another gate`;hcls="bad"}
       else if(k.n!=null){
         if(n>k.n){hint=`✓ ${n} beats ${k.n}`;hcls="good"}
         else if(n===k.n){hint=`Tie = bounced out. Send ${k.n+1}+`;hcls="bad"}
         else{hint=`Too few. Send ${k.n+1}+`;hcls="bad"}
       }else hint=`Beat the guards' number to score`;
-      E("gp-go").innerHTML=`⚔ Attack ${g.id} with ${n}<small>every man who gets in scores</small>`;E("gp-go").disabled=!r.pool;
+      E("gp-go").innerHTML=`Attack ${g.id} with ${n}<small>every man who gets in scores</small>`;E("gp-go").disabled=!r.pool;
       const hp=helperPool(gi).length;
       E("gp-callers").disabled=!hp;E("gp-scout").disabled=!hp;
     }else{
       const here=menInGateArea(gi).length,gar=garrisonOf(gi),enroute=gar.filter(m=>m.path).length;
       this.gp.n=clamp(this.gp.n,0,CFG.armySize);
       const n=this.gp.n,s=gateSighting(gi,G.playerArmy),gs=G.gates[gi];
-      intel=`🛡 <b>${here}</b> guarding now${gs.plugged?` — <b>plugged</b>`:""}${enroute?` (${enroute} more on the way)`:""}.<br>`+
-        (s&&s.age<12?`<b class="warn">❗ ${s.n} attackers spotted near ${g.id}</b> (${Math.round(s.age)}s ago). Have more guards than that.`:
-         gs.noise>0?`📣 Noise out on this road — might be a trick.`:`<span style="color:var(--ink-soft)">Quiet out there.</span>`);
+      intel=`<b>${here}</b> guarding now${gs.plugged?` — <b>plugged</b>`:""}${enroute?` (${enroute} more on the way)`:""}.<br>`+
+        (s&&s.age<12?`<b class="warn">${s.n} attackers spotted near ${g.id}</b> (${Math.round(s.age)}s ago). Have more guards than that.`:
+         gs.noise>0?`Noise out on this road — might be a trick.`:`<span style="color:var(--ink-soft)">Quiet out there.</span>`);
       const spare=GATES.reduce((t,_,i)=>i===gi?t:t+Math.max(0,garrisonOf(i).length-floorFor(i)),0);
       intel+=`<br><span style="color:var(--ink-soft)">${spare} spare guards at other gates.</span>`;
       hint=n>=CFG.plugStrength?`Plugged — stops any attack`:(n===0?`Empty — anyone walks in`:`Stops up to ${n} attackers`);
       hcls=n>=CFG.plugStrength?"good":(n===0?"bad":"");
-      E("gp-go").innerHTML=n===gar.length?`🛡 Keep ${n} here`:`🛡 Set ${g.id} to ${n}<small>nearest spare guards walk over</small>`;
-      E("gp-aide").innerHTML=`🤝 Helper: ${G.aide?"ON":"off"}<small>moves guards for you</small>`;
+      E("gp-go").innerHTML=n===gar.length?`Keep ${n} here`:`Set ${g.id} to ${n}<small>nearest spare guards walk over</small>`;
+      E("gp-aide").innerHTML=`Helper: ${G.aide?"ON":"off"}<small>moves guards for you</small>`;
     }
     E("gp-intel").innerHTML=intel;
     E("gp-n").textContent=this.gp.n;
@@ -1920,21 +1998,21 @@ const ui={
     const selAll=()=>{G.selection=armyMen(G.playerArmy).filter(m=>m.state!=="centerdead");
       this.syncSelInfo();setTip("Whole army selected.")};
     if(G.playerArmy===G.attacker){
-      mk("☰ Select army","E",selAll,"",true);
-      mk("⚔ Charge a gate","A",()=>armOrder("charge"),"charge",true);
-      mk("📯 Post callers","C",()=>armOrder("callers"),"callers",true);
-      mk("↧ Move","M",()=>armOrder("move"),"move",true);
-      mk("↩ Fall back","F",()=>{
+      mk("Select army","E",selAll,"",true);
+      mk("Charge a gate","A",()=>armOrder("charge"),"charge",true);
+      mk("Post callers","C",()=>armOrder("callers"),"callers",true);
+      mk("Move","M",()=>armOrder("move"),"move",true);
+      mk("Fall back","F",()=>{
         const s=commandable().length?commandable():attackerMen().filter(aliveMan);
         orderMove(s,{x:G.rally.x,y:G.rally.y},{});setTip(`${s.length} men falling back to the rally point.`)});
     }else{
-      mk("☰ Select army","E",selAll,"",true);
-      mk("⚑ Send to gate","G",()=>armOrder("garrison"),"garrison",true);
-      mk("🏃 Sprint to gate","S",()=>armOrder("sprint"),"sprint",true);
-      mk("🔒 Lockdown","L",()=>doLockdown());
-      mk("↧ Move","M",()=>armOrder("move"),"move",true);
-      const aideBtn=mk(`🤝 Helper: ${G.aide?"ON":"off"}`,"",()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);
-        aideBtn.innerHTML=`🤝 Helper: ${G.aide?"ON":"off"}`;
+      mk("Select army","E",selAll,"",true);
+      mk("Send to gate","G",()=>armOrder("garrison"),"garrison",true);
+      mk("Sprint to gate","S",()=>armOrder("sprint"),"sprint",true);
+      mk("Lockdown","L",()=>doLockdown());
+      mk("Move","M",()=>armOrder("move"),"move",true);
+      const aideBtn=mk(`Helper: ${G.aide?"ON":"off"}`,"",()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);
+        aideBtn.innerHTML=`Helper: ${G.aide?"ON":"off"}`;
         setTip(G.aide?"Helper on: it moves your guards around, but leaves a gate you just set alone for 25 seconds.":"Helper off — the defense is all yours.")});
     }
     this.buildChips();
@@ -1980,19 +2058,19 @@ const ui={
         <div class="army-card" id="pick-G">
           <h3>GREY</h3>
           <div class="gen-line"><input class="gen-in" id="gen-G" maxlength="30" list="gens-G" autocomplete="off" aria-label="Grey general's name" value="${esc(ARMIES.G.general)}">
-            <button class="dice" id="dice-G" title="Another real Grey general" aria-label="Another real Grey general">🎲</button></div>
+            <button class="dice" id="dice-G" title="Another real Grey general" aria-label="Another real Grey general">↻</button></div>
           <div class="gen">your general</div>
         </div>
         <div class="army-card" id="pick-B">
           <h3>BLUE</h3>
           <div class="gen-line"><input class="gen-in" id="gen-B" maxlength="30" list="gens-B" autocomplete="off" aria-label="Blue general's name" value="${esc(ARMIES.B.general)}">
-            <button class="dice" id="dice-B" title="Another real Blue general" aria-label="Another real Blue general">🎲</button></div>
+            <button class="dice" id="dice-B" title="Another real Blue general" aria-label="Another real Blue general">↻</button></div>
           <div class="gen">their general</div>
         </div>
       </div>
       <datalist id="gens-G">${PAST_GENERALS.G.map(g=>`<option value="Gen. ${esc(g[0])}">${esc(g[1])}</option>`).join("")}</datalist>
       <datalist id="gens-B">${PAST_GENERALS.B.map(g=>`<option value="Gen. ${esc(g[0])}">${esc(g[1])}</option>`).join("")}</datalist>
-      <p class="fine" style="text-align:center;margin-top:-4px">🎲 picks a real general from camp history, or type any name.</p>
+      <p class="fine" style="text-align:center;margin-top:-4px">↻ picks a real general from camp history, or type any name.</p>
       <h2 class="script" style="font-size:17px;margin-top:12px">How tough is the other army?</h2>
       <div class="diff-row">
         <button class="diff-btn" data-d="0">Easy</button>
@@ -2071,8 +2149,8 @@ const ui={
       <p class="fine" style="text-align:center">Four rounds. You attack in two and defend in two. Each round lasts 4 minutes.</p>
       <ol class="guide" style="margin:14px 0 0 22px;font-size:15px;line-height:1.45">
         <li><b>${t?"Tap":"Click"} a gate</b> (the dark circles on the map, or the six buttons at the bottom). A panel shows your choices.</li>
-        <li><b>Attacking:</b> 👁 <b>Scout</b> a gate to count its guards. ⚔ <b>Attack</b> with <i>more</i> men than that, and every man who gets in scores a point. A tie gets bounced out. 📣 <b>Fake</b> sends two men to make noise somewhere else.</li>
-        <li><b>Defending:</b> keep enough 🛡 <b>guards</b> at each gate. ${CFG.plugStrength} guards <b>plug</b> a gate and stop any attack, but you only have ${CFG.armySize} men, so one gate is always weak. When attackers are spotted (red ❗), move guards there.</li>
+        <li><b>Attacking:</b> <b>Scout</b> a gate to count its guards. <b>Attack</b> with <i>more</i> men than that, and every man who gets in scores a point. A tie gets bounced out. <b>Fake</b> sends two men to make noise somewhere else.</li>
+        <li><b>Defending:</b> keep enough <b>guards</b> at each gate. ${CFG.plugStrength} guards <b>plug</b> a gate and stop any attack, but you only have ${CFG.armySize} men, so one gate is always weak. When attackers are spotted (red), move guards there.</li>
         <li>Don't get caught out on a road with fewer men than the other side. That gives them points.</li>
         <li>${t?"Pinch to zoom and drag to look around.":"Scroll to zoom and drag to look around."} ${SETTINGS.pauseOrders?"The clock pauses while a gate panel is open.":""}</li>
       </ol>
@@ -2172,7 +2250,7 @@ const ui={
       <h3>Controls</h3>
       <ul>
         <li><b>Tap or click a gate</b> (on the map or the gate buttons along the bottom) to open its orders: charge with a set number, post callers, send a scout, pull back — or on defense, hold with a set number, plug it, or lock down.</li>
-        <li>Gate buttons show what you know: on attack, the last count your men saw (<b>?</b> = unknown, <b>~</b> = stale, <b>⊕</b> = plugged, <b>⚔</b> = your party heading there); on defense, your garrison — outlined red when a party of three or more is sighted nearby, dashed when callers are making noise on that road (maybe a feint).</li>
+        <li>Gate buttons show what you know: on attack, the last count your men saw (<b>?</b> = unknown, <b>~</b> = stale, <b>⊕</b> = plugged, <b></b> = your party heading there); on defense, your garrison — outlined red when a party of three or more is sighted nearby, dashed when callers are making noise on that road (maybe a feint).</li>
         <li><b>Phone:</b> pinch to zoom, drag to look around, double-tap to zoom. Tap one of your men to select his party, then tap the map to move it.</li>
         <li><b>Classic (mouse):</b> drag to select men • right-click to move (or charge, on a gate) • scroll to zoom • <kbd>1</kbd>–<kbd>6</kbd> select a gate's garrison</li>
         <li><kbd>A</kbd> charge • <kbd>C</kbd> callers • <kbd>G</kbd> send to gate • <kbd>S</kbd> sprint • <kbd>L</kbd> lockdown • <kbd>F</kbd> fall back • <kbd>Space</kbd> pause • <kbd>Esc</kbd> close a panel</li>
@@ -2401,13 +2479,13 @@ function onKey(e){
 
 /* ---------------- board-game map rendering ---------------- */
 let MAPIMG=null;
-const UIFONT='ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
-function scriptFont(px){return `800 ${px}px ${UIFONT}`}
+const UIFONT='-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif';
+function scriptFont(px){return `700 ${px}px ${UIFONT}`}
 function serifFont(px,bold){return `${bold?900:700} ${px}px ${UIFONT}`}
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
 function label(c,txt,x,y,px,col,halo){
   c.font=scriptFont(px);c.textAlign="center";c.textBaseline="middle";
-  c.lineJoin="round";c.strokeStyle=halo||"rgba(255,255,255,.9)";c.lineWidth=px*0.32;c.strokeText(txt,x,y);
+  c.lineJoin="round";c.strokeStyle=halo||"rgba(0,0,0,.5)";c.lineWidth=px*0.3;c.strokeText(txt,x,y);
   c.fillStyle=col||"#16211b";c.fillText(txt,x,y);
 }
 function strokePath(c,pts,smooth){c.beginPath();
@@ -2420,32 +2498,32 @@ function buildMap(){
   const c=cv.getContext("2d");
   const R=mulberry32(20180719);
   // grass, with soft mowing-stripe mottling
-  const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#86cc6a");bg.addColorStop(1,"#6cb957");
+  const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#5e7a4c");bg.addColorStop(1,"#4c6840");
   c.fillStyle=bg;c.fillRect(0,0,W,H);
   for(let i=0;i<60;i++){const x=R()*W,y=R()*H,r=60+R()*160;
-    const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,R()<.5?"rgba(255,255,255,.07)":"rgba(30,80,20,.07)");g.addColorStop(1,"rgba(0,0,0,0)");
+    const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,R()<.5?"rgba(200,190,140,.06)":"rgba(10,30,10,.09)");g.addColorStop(1,"rgba(0,0,0,0)");
     c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)}
   c.lineCap="round";c.lineJoin="round";
   // the town: a lighter lawn inside the line
-  c.fillStyle="rgba(214,240,190,.55)";
+  c.fillStyle="rgba(170,180,130,.22)";
   c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.fill();
   // highway
-  c.strokeStyle="#5f666d";c.lineWidth=34;strokePath(c,HIGHWAY);
-  c.strokeStyle="#7b838b";c.lineWidth=28;strokePath(c,HIGHWAY);
-  c.strokeStyle="#ffd166";c.lineWidth=2.5;c.setLineDash([16,14]);strokePath(c,HIGHWAY);c.setLineDash([]);
+  c.strokeStyle="#3f4344";c.lineWidth=32;strokePath(c,HIGHWAY);
+  c.strokeStyle="#55595a";c.lineWidth=27;strokePath(c,HIGHWAY);
+  c.strokeStyle="rgba(220,200,140,.7)";c.lineWidth=2;c.setLineDash([16,14]);strokePath(c,HIGHWAY);c.setLineDash([]);
   // streams
-  for(const s of STREAMS){c.strokeStyle="#2f86d6";c.lineWidth=13;strokePath(c,s,true);
-    c.strokeStyle="#6fc0f5";c.lineWidth=7;strokePath(c,s,true)}
+  for(const s of STREAMS){c.strokeStyle="#33566a";c.lineWidth=12;strokePath(c,s,true);
+    c.strokeStyle="#5b8399";c.lineWidth=6;strokePath(c,s,true)}
   // swamp: shallow ponds and reeds
   for(let i=0;i<14;i++){const a=R()*Math.PI*2,r=Math.sqrt(R())*0.7;
     const x=SWAMP.x+Math.cos(a)*SWAMP.rx*r,y=SWAMP.y+Math.sin(a)*SWAMP.ry*r,rw=26+R()*34,rh=16+R()*22;
-    c.fillStyle="#3e9c8f";c.beginPath();c.ellipse(x,y+3,rw,rh,R(),0,7);c.fill();
-    c.fillStyle="#62bfb0";c.beginPath();c.ellipse(x,y,rw,rh,0,0,7);c.fill()}
+    c.fillStyle="#34514a";c.beginPath();c.ellipse(x,y+3,rw,rh,R(),0,7);c.fill();
+    c.fillStyle="#4d6f66";c.beginPath();c.ellipse(x,y,rw,rh,0,0,7);c.fill()}
   for(let i=0;i<120;i++){const a=R()*Math.PI*2,r=Math.sqrt(R());
     const x=SWAMP.x+Math.cos(a)*SWAMP.rx*r,y=SWAMP.y+Math.sin(a)*SWAMP.ry*r;
-    c.strokeStyle="#2f6b2a";c.lineWidth=2;c.beginPath();c.moveTo(x,y);c.lineTo(x+(R()-.5)*4,y-7-R()*6);c.stroke()}
+    c.strokeStyle="#7d8a4f";c.lineWidth=1.6;c.beginPath();c.moveTo(x,y);c.lineTo(x+(R()-.5)*4,y-7-R()*6);c.stroke()}
   // interior paths between gates
-  c.strokeStyle="rgba(255,255,255,.35)";c.lineWidth=5;c.setLineDash([2,12]);
+  c.strokeStyle="rgba(230,225,190,.22)";c.lineWidth=3;c.setLineDash([2,10]);
   c.beginPath();
   GATES.forEach((g,i)=>{const n=GATES[(i+1)%GATES.length];
     let mx=(g.gateIn.x+n.gateIn.x)/2,my=(g.gateIn.y+n.gateIn.y)/2;
@@ -2455,8 +2533,8 @@ function buildMap(){
   c.stroke();c.setLineDash([]);
   // gate roads: sandy dirt with an edge
   for(const g of GATES){const a={x:g.gateIn.x-g.dx*30,y:g.gateIn.y-g.dy*30};
-    c.strokeStyle="#c79a55";c.lineWidth=40;strokePath(c,[a,g.roadEnd]);
-    c.strokeStyle="#ecd197";c.lineWidth=33;strokePath(c,[a,g.roadEnd])}
+    c.strokeStyle="#7c6a48";c.lineWidth=38;strokePath(c,[a,g.roadEnd]);
+    c.strokeStyle="#a8906222";c.lineWidth=0;c.strokeStyle="#9c875e";c.lineWidth=32;strokePath(c,[a,g.roadEnd])}
   // forests: chunky canopy blobs with a drop shadow
   const trees=[];
   for(const f of FORESTS){const n=Math.floor(f.rx*f.ry/700),FR=mulberry32(f.seed|0);
@@ -2467,59 +2545,59 @@ function buildMap(){
       if(onRd||dist({x,y},CENTER)<CENTER.r+20)continue;
       trees.push({x,y,r:11+FR()*9,t:FR()})}}
   trees.sort((p,q)=>p.y-q.y);
-  for(const t of trees){c.fillStyle="rgba(20,60,20,.28)";c.beginPath();c.ellipse(t.x+4,t.y+6,t.r,t.r*0.8,0,0,7);c.fill()}
+  for(const t of trees){c.fillStyle="rgba(5,20,8,.35)";c.beginPath();c.ellipse(t.x+4,t.y+6,t.r,t.r*0.8,0,0,7);c.fill()}
   for(const t of trees){
-    c.fillStyle=t.t<.5?"#2f7d32":(t.t<.85?"#3a8f3b":"#2a6d2f");c.beginPath();c.arc(t.x,t.y,t.r,0,7);c.fill();
-    c.fillStyle="rgba(255,255,255,.14)";c.beginPath();c.arc(t.x-t.r*0.3,t.y-t.r*0.35,t.r*0.5,0,7);c.fill()}
+    c.fillStyle=t.t<.5?"#2c4a2b":(t.t<.85?"#34552f":"#243f26");c.beginPath();c.arc(t.x,t.y,t.r,0,7);c.fill();
+    c.fillStyle="rgba(190,210,150,.07)";c.beginPath();c.arc(t.x-t.r*0.3,t.y-t.r*0.35,t.r*0.5,0,7);c.fill()}
   // town line: bold white chalk
-  c.strokeStyle="rgba(0,0,0,.18)";c.lineWidth=8;c.setLineDash([18,12]);
+  c.strokeStyle="rgba(0,0,0,.25)";c.lineWidth=5;c.setLineDash([14,10]);
   c.save();c.translate(0,2);c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();c.restore();
-  c.strokeStyle="#ffffff";c.lineWidth=6;
+  c.strokeStyle="rgba(240,236,214,.85)";c.lineWidth=3.5;
   c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();c.setLineDash([]);
   // flag areas tinted on each road, then the gates
   for(const g of GATES){
     c.save();c.translate(g.pos.x,g.pos.y);c.rotate(Math.atan2(g.dy,g.dx));
-    c.fillStyle="rgba(224,65,47,.30)";rr(c,6,-16,89,32,6);c.fill();
-    if(g.hasBlue){c.fillStyle="rgba(37,99,235,.30)";rr(c,99,-16,86,32,6);c.fill()}
+    c.fillStyle="rgba(207,75,60,.30)";rr(c,6,-16,89,32,3);c.fill();
+    if(g.hasBlue){c.fillStyle="rgba(63,116,214,.30)";rr(c,99,-16,86,32,3);c.fill()}
     c.restore();
     const rect=gateRect(g);
-    c.strokeStyle="#ffffff";c.lineWidth=4;c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
-    for(const p of rect){c.fillStyle="#fff";c.beginPath();c.arc(p.x,p.y,5,0,7);c.fill();c.strokeStyle="#16211b";c.lineWidth=1.5;c.stroke()}
-    const flag=(x,y,col)=>{c.fillStyle=col;c.beginPath();c.arc(x,y,6,0,7);c.fill();c.strokeStyle="#fff";c.lineWidth=2;c.stroke()};
-    for(const sd of[-1,1]){flag(g.redFlag.x+g.perp.x*21*sd,g.redFlag.y+g.perp.y*21*sd,"#e0412f");
-      if(g.hasBlue)flag(g.blueFlag.x+g.perp.x*21*sd,g.blueFlag.y+g.perp.y*21*sd,"#2563eb")}
+    c.strokeStyle="#f0ecd6";c.lineWidth=3;c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
+    for(const p of rect){c.fillStyle="#f0ecd6";c.beginPath();c.arc(p.x,p.y,4,0,7);c.fill()}
+    const flag=(x,y,col)=>{c.fillStyle=col;c.beginPath();c.arc(x,y,4.5,0,7);c.fill();c.strokeStyle="rgba(0,0,0,.5)";c.lineWidth=1;c.stroke()};
+    for(const sd of[-1,1]){flag(g.redFlag.x+g.perp.x*21*sd,g.redFlag.y+g.perp.y*21*sd,"#cf4b3c");
+      if(g.hasBlue)flag(g.blueFlag.x+g.perp.x*21*sd,g.blueFlag.y+g.perp.y*21*sd,"#3f74d6")}
   }
   // center of town
-  c.fillStyle="#f3e2b3";c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r,0,7);c.fill();
-  c.strokeStyle="#fff";c.lineWidth=5;c.stroke();
-  c.strokeStyle="rgba(0,0,0,.12)";c.lineWidth=2;c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r-10,0,7);c.stroke();
-  label(c,"CENTER",CENTER.x,CENTER.y,15,"#7a5a1d");
+  c.fillStyle="rgba(150,130,90,.55)";c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r,0,7);c.fill();
+  c.strokeStyle="rgba(240,236,214,.7)";c.lineWidth=2.5;c.stroke();
+  c.strokeStyle="rgba(0,0,0,.15)";c.lineWidth=1.5;c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r-10,0,7);c.stroke();
+  label(c,"CENTER OF TOWN",CENTER.x,CENTER.y,11,"#f0ecd6","rgba(0,0,0,.45)");
   // landmarks
-  c.fillStyle="#b5653a";rr(c,SHOWERS.x-16,SHOWERS.y-10,32,22,4);c.fill();
-  c.fillStyle="#8a4526";c.beginPath();c.moveTo(SHOWERS.x-20,SHOWERS.y-8);c.lineTo(SHOWERS.x,SHOWERS.y-24);c.lineTo(SHOWERS.x+20,SHOWERS.y-8);c.closePath();c.fill();
-  label(c,"Showers",SHOWERS.x,SHOWERS.y+28,14,"#16211b");
+  c.fillStyle="#6e5a45";rr(c,SHOWERS.x-16,SHOWERS.y-10,32,22,4);c.fill();
+  c.fillStyle="#4d3f31";c.beginPath();c.moveTo(SHOWERS.x-20,SHOWERS.y-8);c.lineTo(SHOWERS.x,SHOWERS.y-24);c.lineTo(SHOWERS.x+20,SHOWERS.y-8);c.closePath();c.fill();
+  label(c,"SHOWERS",SHOWERS.x,SHOWERS.y+26,10,"#e9e4cc","rgba(0,0,0,.5)");
   c.save();c.translate(FALLENTREE.x,FALLENTREE.y);c.rotate(0.5);
-  c.fillStyle="#8a5a33";rr(c,-24,-6,48,12,6);c.fill();c.fillStyle="#c49a6c";c.beginPath();c.ellipse(24,0,4,6,0,0,7);c.fill();c.restore();
-  label(c,"Fallen tree",FALLENTREE.x,FALLENTREE.y+26,13,"#16211b");
+  c.fillStyle="#5b4430";rr(c,-24,-6,48,12,6);c.fill();c.fillStyle="#8a7050";c.beginPath();c.ellipse(24,0,4,6,0,0,7);c.fill();c.restore();
+  label(c,"FALLEN TREE",FALLENTREE.x,FALLENTREE.y+24,10,"#e9e4cc","rgba(0,0,0,.5)");
   // campsite tent
   const tx=CAMPSITE.x-56,ty=CAMPSITE.y-6;
-  c.fillStyle="#f59e0b";c.beginPath();c.moveTo(tx-22,ty+16);c.lineTo(tx,ty-18);c.lineTo(tx+22,ty+16);c.closePath();c.fill();
-  c.fillStyle="#a85f00";c.beginPath();c.moveTo(tx-6,ty+16);c.lineTo(tx,ty);c.lineTo(tx+6,ty+16);c.closePath();c.fill();
-  label(c,"Campsite",tx,ty+32,14,"#16211b");
-  label(c,"SWAMP",SWAMP.x,SWAMP.y-SWAMP.ry*0.75,16,"#1f5f55");
-  c.save();c.translate(300,866);c.rotate(0.55);label(c,"HIGHWAY",0,0,14,"#fff","rgba(60,66,72,.9)");c.restore();
+  c.fillStyle="#8c7a55";c.beginPath();c.moveTo(tx-22,ty+16);c.lineTo(tx,ty-18);c.lineTo(tx+22,ty+16);c.closePath();c.fill();
+  c.fillStyle="#4d4230";c.beginPath();c.moveTo(tx-6,ty+16);c.lineTo(tx,ty);c.lineTo(tx+6,ty+16);c.closePath();c.fill();
+  label(c,"CAMPSITE",tx,ty+30,10,"#e9e4cc","rgba(0,0,0,.5)");
+  label(c,"SWAMP",SWAMP.x,SWAMP.y-SWAMP.ry*0.75,11,"#d8e0cc","rgba(0,0,0,.45)");
+  c.save();c.translate(300,866);c.rotate(0.55);label(c,"HIGHWAY",0,0,10,"#cfcfc6","rgba(0,0,0,.3)");c.restore();
   // gate badges: big dark discs with the gate's letters
   for(const g of GATES){
     const lx=g.pos.x-g.dx*64,ly=g.pos.y-g.dy*64;
-    c.fillStyle="rgba(0,0,0,.25)";c.beginPath();c.arc(lx+2,ly+3,22,0,7);c.fill();
-    c.fillStyle="#132219";c.beginPath();c.arc(lx,ly,22,0,7);c.fill();
-    c.strokeStyle="#fff";c.lineWidth=3;c.stroke();
-    c.fillStyle="#fff";c.font=serifFont(g.label.length>1?17:20,true);c.textAlign="center";c.textBaseline="middle";c.fillText(g.label,lx,ly+1);
+    c.fillStyle="rgba(0,0,0,.3)";rr(c,lx-20+1,ly-16+2,40,32,4);c.fill();
+    c.fillStyle="rgba(18,24,22,.92)";rr(c,lx-20,ly-16,40,32,4);c.fill();
+    c.strokeStyle="rgba(240,236,214,.8)";c.lineWidth=1.5;c.stroke();
+    c.fillStyle="#f0ecd6";c.font=serifFont(g.label.length>1?15:17,true);c.textAlign="center";c.textBaseline="middle";c.fillText(g.label,lx,ly+1);
   }
   // simple north arrow
   const nx=1500,ny=90;
-  c.fillStyle="rgba(19,34,25,.85)";c.beginPath();c.arc(nx,ny,30,0,7);c.fill();
-  c.fillStyle="#fff";c.beginPath();c.moveTo(nx,ny-20);c.lineTo(nx+10,ny+8);c.lineTo(nx,ny+2);c.lineTo(nx-10,ny+8);c.closePath();c.fill();
+  c.fillStyle="rgba(18,24,22,.8)";c.beginPath();c.arc(nx,ny,26,0,7);c.fill();
+  c.fillStyle="#f0ecd6";c.beginPath();c.moveTo(nx,ny-20);c.lineTo(nx+10,ny+8);c.lineTo(nx,ny+2);c.lineTo(nx-10,ny+8);c.closePath();c.fill();
   c.font=serifFont(13,true);c.textAlign="center";c.fillText("N",nx,ny+19);
   c.textBaseline="alphabetic";
   MAPIMG=cv;
@@ -2529,15 +2607,15 @@ function buildMap(){
 function pill(c,txt,x,y,px,bg,fg){
   c.font=serifFont(px,true);c.textAlign="center";c.textBaseline="middle";
   const w=c.measureText(txt).width+px*1.1,h=px*1.75;
-  c.fillStyle="rgba(0,0,0,.22)";rr(c,x-w/2+1,y-h/2+2,w,h,h/2);c.fill();
-  c.fillStyle=bg;rr(c,x-w/2,y-h/2,w,h,h/2);c.fill();
+  c.fillStyle="rgba(0,0,0,.3)";rr(c,x-w/2+1,y-h/2+2,w,h,3);c.fill();
+  c.fillStyle=bg;rr(c,x-w/2,y-h/2,w,h,3);c.fill();
   c.fillStyle=fg;c.fillText(txt,x,y+px*0.05);c.textBaseline="alphabetic";
 }
 function render(dt){
   if(HEADLESS)return;
   const c=ui.ctx,v=ui.view,dpr=v.dpr||1;
   c.setTransform(dpr,0,0,dpr,0,0);
-  c.fillStyle="#5fa84d";c.fillRect(0,0,innerWidth,innerHeight);
+  c.fillStyle="#4c6840";c.fillRect(0,0,innerWidth,innerHeight);
   if(!MAPIMG)buildMap();
   c.setTransform(dpr*v.scale,0,0,dpr*v.scale,dpr*v.ox,dpr*v.oy);
   c.drawImage(MAPIMG,0,0);
@@ -2551,7 +2629,7 @@ function render(dt){
     const gs=G.gates[i];
     // caller noise arcs
     if(gs.noise>0){
-      c.strokeStyle="rgba(255,209,102,.9)";c.lineWidth=4;
+      c.strokeStyle="rgba(212,162,76,.8)";c.lineWidth=2.5;
       for(let k=0;k<3;k++){
         const r=12+((now*36+k*17)%52);
         c.globalAlpha=1-r/60;
@@ -2561,16 +2639,17 @@ function render(dt){
     }
     // whistle freeze / cooldown
     if(G.freeze&&G.freeze.gate===i){
-      pill(c,"WHISTLE — PLAY OFF",g.pos.x,g.pos.y-46,13,"#e0412f","#fff");
+      pill(c,"WHISTLE — PLAY OFF",g.pos.x,g.pos.y-46,12,"#cf4b3c","#fff");
     }else if(gs.cooldown>0){
-      pill(c,"back on in "+Math.ceil(gs.cooldown)+"s",g.pos.x,g.pos.y-44,11,"rgba(19,34,25,.85)","#fff");
+      pill(c,"PLAY RESUMES "+Math.ceil(gs.cooldown)+"s",g.pos.x,g.pos.y-44,10,"rgba(18,24,22,.88)","#f0ecd6");
     }
     // garrison badge
     let label=null,bg="#fff",fg="#16211b";
-    if(!viewerIsAtk){label="🛡 "+gs.def;if(gs.plugged){label="🔒 "+gs.def;bg="#16211b";fg="#fff"}}
+    bg="rgba(18,24,22,.88)";fg="#f0ecd6";
+    if(!viewerIsAtk){label=gs.def+(gs.plugged?" PLUGGED":"");if(gs.plugged){bg="#d4a24c";fg="#16120a"}}
     else{
       const age=(CFG.quarterLen-G.clock)-gs.lastSeenByAtk;
-      if(age<10){label="👁 "+(gs.atkSeenDef??"?")+(gs.atkSeenPlug?" 🔒":"");if(age>=5){bg="rgba(255,255,255,.75)";fg="#5b665f"}}
+      if(age<10){label=(gs.atkSeenDef??"?")+(gs.atkSeenPlug?" PLUGGED":"");if(age>=5){fg="#97a39c"}}
       else label="?";
     }
     if(label!=null){const us=clamp(0.7/v.scale,1,2.2);
@@ -2578,12 +2657,12 @@ function render(dt){
     // open-panel / hover / armed highlight
     if(ui.gp&&ui.gp.gi===i){
       const r=44+Math.sin(now*4)*4;
-      c.strokeStyle="#f59e0b";c.lineWidth=6;
+      c.strokeStyle="#d4a24c";c.lineWidth=3.5;
       c.beginPath();c.arc(g.pos.x,g.pos.y,r,0,7);c.stroke();
       c.lineWidth=2;c.setLineDash([6,5]);
       c.beginPath();c.moveTo(g.pos.x,g.pos.y);c.lineTo(g.roadEnd.x,g.roadEnd.y);c.stroke();c.setLineDash([]);
     }else if(G.hoverGate===i){
-      c.strokeStyle=G.armedOrder?"#f59e0b":"rgba(255,255,255,0.8)";c.lineWidth=4;
+      c.strokeStyle=G.armedOrder?"#d4a24c":"rgba(240,236,214,0.6)";c.lineWidth=2.5;
       c.beginPath();c.arc(g.pos.x,g.pos.y,40,0,7);c.stroke();
     }
   });
@@ -2603,9 +2682,9 @@ function render(dt){
     const al=clamp(1-age/CFG.ghostFade,0,1)*0.8;
     c.globalAlpha=al;
     const us=clamp(0.7/v.scale,1,2.2);
-    c.strokeStyle="#e0412f";c.lineWidth=3*us;c.setLineDash([6*us,4*us]);
+    c.strokeStyle="#cf4b3c";c.lineWidth=2*us;c.setLineDash([5*us,4*us]);
     c.beginPath();c.arc(gh.x,gh.y,16*us,0,7);c.stroke();c.setLineDash([]);
-    pill(c,(age<1.2?"❗ ":"")+gh.n+" seen",gh.x,gh.y-24*us,11*us,"#e0412f","#fff");
+    pill(c,gh.n+" SPOTTED",gh.x,gh.y-24*us,10*us,"#cf4b3c","#fff");
     c.globalAlpha=1;
   }
   // men
@@ -2617,16 +2696,15 @@ function render(dt){
     const r=Math.max(6.5,3.6/v.scale);
     c.globalAlpha=(m.state==="centerdead")?0.35:(m.state==="tempdead"?0.55:1);
     c.fillStyle="rgba(0,0,0,.28)";c.beginPath();c.arc(m.x+r*0.18,m.y+r*0.3,r,0,7);c.fill();
-    if(sel){c.fillStyle="#f59e0b";c.beginPath();c.arc(m.x,m.y,r+r*0.45,0,7);c.fill()}
+    if(sel){c.fillStyle="#d4a24c";c.beginPath();c.arc(m.x,m.y,r+r*0.45,0,7);c.fill()}
     c.fillStyle=A.color;c.beginPath();c.arc(m.x,m.y,r,0,7);c.fill();
-    c.strokeStyle="#fff";c.lineWidth=r*0.32;c.stroke();
-    c.fillStyle="rgba(255,255,255,.3)";c.beginPath();c.arc(m.x-r*0.3,m.y-r*0.32,r*0.38,0,7);c.fill();
+    c.strokeStyle="rgba(245,242,230,.95)";c.lineWidth=r*0.22;c.stroke();
     if(m.state==="tempdead"){ // out — hands on head
       c.strokeStyle="#fff";c.lineWidth=r*0.3;c.beginPath();
       c.moveTo(m.x-r*0.45,m.y-r*0.45);c.lineTo(m.x+r*0.45,m.y+r*0.45);c.moveTo(m.x+r*0.45,m.y-r*0.45);c.lineTo(m.x-r*0.45,m.y+r*0.45);c.stroke();
     }
     if(m.caller){
-      c.strokeStyle="#ffd166";c.lineWidth=r*0.35;
+      c.strokeStyle="rgba(212,162,76,.9)";c.lineWidth=r*0.25;
       const rr2=r+((now*22+m.id*7)%(r*2.5));
       c.globalAlpha=Math.max(0,1-(rr2-r)/(r*2.5));
       c.beginPath();c.arc(m.x,m.y,rr2,0,7);c.stroke();
@@ -2641,17 +2719,17 @@ function render(dt){
     if(alive.length<2)continue;
     const pc=partyCenter(p);
     const us=clamp(0.7/v.scale,1,2.2);
-    pill(c,(p.role==="charge"?"⚔ ":"📣 ")+alive.length,pc.x,pc.y-22*us,12*us,ARMIES[p.army].dark,"#fff");
+    pill(c,(p.role==="charge"?"ATTACK ":"NOISE ")+alive.length,pc.x,pc.y-22*us,10*us,ARMIES[p.army].dark,"#fff");
     if(p.state==="form"||p.state==="step")
-      pill(c,p.state==="form"?"READY, READY…":"ONE, TWO, STEP!",pc.x,pc.y+22*us,11*us,"#ffd166","#16211b");
+      pill(c,p.state==="form"?"READY, READY…":"ONE, TWO, STEP!",pc.x,pc.y+22*us,10*us,"#d4a24c","#16120a");
   }
   // rally marker & muster beacon (attacking)
   if(viewerIsAtk&&G.rally){
     const us=clamp(0.7/v.scale,1,2.2);
-    pill(c,"⚑ Your base",G.rally.x,G.rally.y-40,11*us,"rgba(19,34,25,.85)","#fff");
+    pill(c,"YOUR BASE",G.rally.x,G.rally.y-40,10*us,"rgba(18,24,22,.88)","#f0ecd6");
     if(G.phase==="play"&&G.tPlay<16){
       const r=26+((now*44)%50);
-      c.strokeStyle="#f59e0b";c.lineWidth=5;
+      c.strokeStyle="#d4a24c";c.lineWidth=3;
       c.globalAlpha=Math.max(0,1-(r-26)/50);
       c.beginPath();c.arc(G.rally.x,G.rally.y,r,0,7);c.stroke();
       c.globalAlpha=1;
