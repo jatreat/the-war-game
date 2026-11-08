@@ -7,80 +7,82 @@
 <title>The War Game — York's Crossing • Pine Island Camp</title>
 <style>
   :root{
-    --parch:#d8c495; --parch-dark:#c9b27e; --ink:#2b2317; --ink-soft:#4a3c26;
-    --grey:#7d7d76; --grey-dark:#55554f; --blue:#33559c; --blue-dark:#24407a;
-    --gold:#b98a2f; --red:#a03325; --green:#2f4a28;
+    --bg:#0f1a14; --card:#ffffff; --card2:#f3f5f2; --ink:#16211b; --ink-soft:#5b665f; --line:#dfe4de;
+    --grey:#5d6773; --grey-dark:#3b434d; --blue:#2563eb; --blue-dark:#1d48b8;
+    --gold:#f59e0b; --red:#e0412f; --green:#1f9d55; --field:#6fbf5a;
+    --r:16px; --shadow:0 10px 30px rgba(0,0,0,.28);
+    --font:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-  html,body{width:100%;height:100%;overflow:hidden;background:#1d1812}
-  body{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;color:var(--ink)}
-  .script{font-family:"Snell Roundhand","Apple Chancery","Segoe Script","Brush Script MT",cursive}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
+  body{font-family:var(--font);color:var(--ink)}
+  .script{font-family:var(--font)}
   #wrap{position:fixed;inset:0;display:flex;flex-direction:column}
   canvas#game{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
   input,textarea{-webkit-user-select:text;user-select:text}
+  button{font-family:var(--font)}
 
   /* ---------- top bar ---------- */
   #topbar{position:absolute;top:0;left:0;right:0;height:58px;z-index:20;display:flex;align-items:stretch;
-    background:linear-gradient(#efe2bd,#dcc794 70%,#c9b27e);border-bottom:3px double var(--ink);
-    box-shadow:0 3px 14px rgba(0,0,0,.45);font-size:15px;
+    background:#132219;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.35);font-size:15px;
     padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:content-box}
-  .tb-cell{display:flex;align-items:center;gap:8px;padding:0 14px;border-right:1px solid rgba(43,35,23,.35);white-space:nowrap}
-  .tb-flex{flex:1;justify-content:center;border-right:none}
-  .army-chip{display:flex;align-items:center;gap:7px;font-weight:700;letter-spacing:.5px}
-  .pennant{width:30px;height:19px;clip-path:polygon(0 0,100% 0,78% 50%,100% 100%,0 100%);border:1px solid var(--ink);
-    display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-family:Georgia,serif}
-  .pennant.g{background:var(--grey-dark)} .pennant.b{background:var(--blue-dark)}
-  .bigscore{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;text-align:center}
-  #q-label{font-weight:700} #phase-label{font-style:italic;color:var(--ink-soft)}
-  #clock{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px}
-  .tb-btn{cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:4px;padding:4px 10px;
-    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink)}
-  .tb-btn:hover{background:#f7ecc9}
-  .tb-btn.on{background:var(--ink);color:#efe2bd}
+  .tb-cell{display:flex;align-items:center;gap:8px;padding:0 12px;white-space:nowrap}
+  .tb-flex{flex:1;justify-content:center}
+  .army-chip{display:flex;align-items:center;gap:7px;font-weight:800;letter-spacing:.3px}
+  .pennant{width:14px;height:14px;border-radius:50%;border:2px solid #fff;display:inline-block;font-size:0}
+  .pennant.g{background:var(--grey)} .pennant.b{background:var(--blue)}
+  .army-chip .aname{font-size:12px;opacity:.8}
+  .bigscore{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;min-width:40px;text-align:center}
+  #q-label{font-weight:800;font-size:13px;opacity:.75;letter-spacing:.3px}
+  #phase-label{font-weight:700;font-size:14px;color:#ffd166}
+  #clock{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.1);padding:4px 10px;border-radius:10px}
+  .tb-btn{cursor:pointer;border:none;background:rgba(255,255,255,.12);border-radius:10px;padding:6px 11px;
+    font-size:14px;font-weight:800;color:#fff;min-height:34px}
+  .tb-btn:hover{background:rgba(255,255,255,.2)}
+  .tb-btn.on{background:var(--gold);color:#1b1300}
   #speed-ctl{display:flex;gap:4px}
 
   /* ---------- bottom bar ---------- */
   #botbar{position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:10px;
-    padding:8px 14px;background:linear-gradient(#dcc794,#c9b27e);border-top:3px double var(--ink);
-    box-shadow:0 -3px 14px rgba(0,0,0,.45);min-height:58px;flex-wrap:wrap;
+    padding:8px 14px;background:#132219;color:#fff;box-shadow:0 -2px 12px rgba(0,0,0,.35);min-height:58px;flex-wrap:wrap;
     padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom))}
-  #sel-info{font-size:14px;font-weight:700;min-width:210px}
-  #sel-sub{font-size:12px;font-weight:400;font-style:italic;color:var(--ink-soft)}
-  .act-btn{cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:5px;padding:7px 13px;
-    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 2px 0 rgba(43,35,23,.5)}
-  .act-btn:hover{background:#f7ecc9} .act-btn:active{transform:translateY(1px);box-shadow:none}
-  .act-btn.armed{background:var(--gold);color:#fff}
+  #sel-info{font-size:14px;font-weight:800;min-width:210px}
+  #sel-sub{font-size:12.5px;font-weight:600;color:#b8c7bd}
+  .act-btn{cursor:pointer;border:none;background:rgba(255,255,255,.12);border-radius:12px;padding:9px 14px;
+    font-size:14px;font-weight:800;color:#fff}
+  .act-btn:hover{background:rgba(255,255,255,.2)} .act-btn:active{transform:scale(.97)}
+  .act-btn.armed{background:var(--gold);color:#1b1300}
   .act-btn:disabled{opacity:.4;cursor:default}
-  .key-hint{font-size:10px;opacity:.65;font-weight:400}
-  #tipline{flex-basis:100%;font-size:12.5px;font-style:italic;color:var(--ink-soft);padding-top:2px}
+  .key-hint{font-size:10px;opacity:.6;font-weight:600}
+  #tipline{flex-basis:100%;font-size:13px;font-weight:600;color:#ffd166;padding-top:2px}
+  #tipline:empty{display:none}
 
-  /* ---------- umpire log ---------- */
+  /* ---------- play-by-play log ---------- */
   #log{position:absolute;right:10px;top:66px;width:300px;max-height:42vh;z-index:15;overflow-y:auto;
-    background:rgba(239,226,189,.93);border:2px solid var(--ink);border-radius:3px;padding:8px 10px;
-    font-size:12.5px;line-height:1.45;box-shadow:0 4px 16px rgba(0,0,0,.4)}
-  #log h4{font-size:13px;border-bottom:1px solid var(--ink);margin-bottom:4px;letter-spacing:1px;cursor:pointer}
+    background:rgba(255,255,255,.96);border-radius:var(--r);padding:10px 12px;
+    font-size:12.5px;line-height:1.45;box-shadow:var(--shadow)}
+  #log h4{font-size:11px;font-weight:900;letter-spacing:1.2px;color:var(--ink-soft);margin-bottom:6px;cursor:pointer}
   #log.collapsed #log-entries{display:none}
-  #log.collapsed h4{border-bottom:none;margin-bottom:0}
-  #log .ent{margin-bottom:3px;border-bottom:1px dotted rgba(43,35,23,.25);padding-bottom:2px}
-  #log .t{opacity:.55;font-variant-numeric:tabular-nums;margin-right:4px;font-size:11px}
-  #log .grey{color:var(--grey-dark);font-weight:700} #log .blue{color:var(--blue-dark);font-weight:700}
-  #log .ump{color:var(--red);font-weight:700} #log .flav{font-style:italic;opacity:.85}
+  #log.collapsed h4{margin-bottom:0}
+  #log .ent{margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+  #log .t{opacity:.5;font-variant-numeric:tabular-nums;margin-right:5px;font-size:11px;font-weight:700}
+  #log .grey{color:var(--grey-dark);font-weight:800} #log .blue{color:var(--blue-dark);font-weight:800}
+  #log .ump{color:var(--red);font-weight:800} #log .flav{opacity:.75}
   #log-toggle{position:absolute;right:10px;top:66px;z-index:16}
 
   /* ---------- banners ---------- */
   #banner{position:absolute;left:50%;top:16%;transform:translateX(-50%);z-index:24;pointer-events:none;
-    text-align:center;transition:opacity .35s;opacity:0}
+    text-align:center;transition:opacity .3s,transform .3s;opacity:0}
   #banner.show{opacity:1}
-  #banner .b-main{font-size:34px;font-weight:700;color:#f4e9c8;background:rgba(43,35,23,.88);
-    padding:10px 34px;border:2px solid #f4e9c8;border-radius:4px;letter-spacing:1px;
-    box-shadow:0 6px 24px rgba(0,0,0,.5)}
-  #banner .b-sub{font-size:17px;margin-top:6px;color:#f4e9c8;background:rgba(43,35,23,.75);
-    display:inline-block;padding:4px 16px;border-radius:3px}
+  #banner .b-main{font-size:32px;font-weight:900;color:#fff;background:#132219;display:inline-block;
+    padding:10px 30px;border-radius:999px;letter-spacing:.5px;box-shadow:var(--shadow)}
+  #banner .b-sub{font-size:16px;font-weight:700;margin-top:8px;color:#132219;background:#ffd166;
+    display:inline-block;padding:5px 16px;border-radius:999px}
 
   /* ---------- overlay screens ---------- */
   #overlay{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
-    background:rgba(20,16,10,.72)}
+    background:rgba(10,20,14,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
   #overlay.hidden{display:none}
   #overlay{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
   #overlay .sheet{max-height:calc(100% - 16px)}
@@ -89,96 +91,107 @@
   #gatepanel:not(.hidden){animation:panelIn .18s ease-out}
   @keyframes panelIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
   @media (prefers-reduced-motion:reduce){#overlay .sheet,#gatepanel:not(.hidden){animation:none}}
-  .sheet{background:var(--parch);border:4px double var(--ink);border-radius:6px;max-width:760px;width:92%;
-    max-height:92vh;overflow-y:auto;padding:30px 40px;box-shadow:0 14px 60px rgba(0,0,0,.7);
-    background-image:radial-gradient(ellipse at 30% 20%,rgba(255,250,225,.55),transparent 60%),
-      radial-gradient(ellipse at 80% 90%,rgba(120,90,40,.18),transparent 55%)}
-  .sheet h1{font-size:44px;text-align:center;letter-spacing:2px;margin-bottom:2px}
-  .sheet h2.script{font-size:30px;text-align:center;font-weight:400;margin-bottom:10px;color:var(--ink-soft)}
-  .sheet .rule-line{border:none;border-top:2px solid var(--ink);margin:12px auto;width:60%}
-  .sheet p{font-size:15.5px;line-height:1.55;margin-bottom:10px}
-  .sheet .fine{font-size:13px;font-style:italic;color:var(--ink-soft)}
-  .pick-row{display:flex;gap:18px;justify-content:center;margin:18px 0}
-  .army-card{flex:1;max-width:280px;border:2.5px solid var(--ink);border-radius:6px;padding:16px;cursor:pointer;
-    text-align:center;transition:transform .12s, box-shadow .12s;background:rgba(255,250,230,.35)}
-  .army-card:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.35)}
-  .army-card.sel{outline:4px solid var(--gold);background:rgba(255,246,205,.75)}
-  .army-card h3{font-size:24px;letter-spacing:1px}
-  .army-card .gen{font-size:14px;font-style:italic;margin:4px 0 8px}
-  .army-card .desc{font-size:12.5px;line-height:1.45;color:var(--ink-soft)}
-  .flagbox{width:64px;height:40px;margin:0 auto 8px;border:2px solid var(--ink);display:flex;align-items:center;
-    justify-content:center;color:#fff;font-weight:700;font-size:15px;font-family:Georgia,serif}
-  .diff-row{display:flex;gap:10px;justify-content:center;margin:6px 0 16px}
-  .diff-btn{border:2px solid var(--ink);background:rgba(255,250,230,.4);border-radius:5px;padding:8px 16px;
-    cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--ink)}
-  .diff-btn.sel{background:var(--ink);color:var(--parch)}
-  .go-btn{display:block;margin:14px auto 0;padding:13px 44px;font-size:21px;font-weight:700;letter-spacing:2px;
-    background:var(--ink);color:var(--parch);border:2px solid var(--ink);border-radius:6px;cursor:pointer;
-    font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.45)}
-  .go-btn:hover{background:#453a26}
-  .go-btn:active{transform:translateY(2px);box-shadow:none}
-  .score-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
-  .score-table th,.score-table td{border:1px solid var(--ink);padding:5px 10px;text-align:center}
-  .score-table th{background:rgba(43,35,23,.12)}
+  .sheet{background:var(--card);border-radius:24px;max-width:620px;width:92%;
+    max-height:92vh;overflow-y:auto;padding:28px 32px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .sheet h1{font-size:40px;font-weight:900;text-align:center;letter-spacing:-.5px;margin-bottom:2px}
+  .sheet h2.script{font-size:24px;font-weight:900;text-align:center;margin-bottom:8px;color:var(--ink)}
+  .sheet .rule-line{border:none;border-top:2px solid var(--line);margin:14px auto;width:100%}
+  .sheet p{font-size:15px;line-height:1.5;margin-bottom:10px}
+  .sheet .fine{font-size:13px;color:var(--ink-soft)}
+  .kicker{text-align:center;font-size:12px;font-weight:900;letter-spacing:2px;color:var(--green);text-transform:uppercase}
+  .pick-row{display:flex;gap:12px;justify-content:center;margin:16px 0}
+  .army-card{flex:1;max-width:270px;border-radius:18px;padding:14px;cursor:pointer;color:#fff;
+    text-align:center;transition:transform .12s, box-shadow .12s;opacity:.55;border:3px solid transparent}
+  #pick-G{background:linear-gradient(160deg,#6b7684,#3b434d)} #pick-B{background:linear-gradient(160deg,#3b82f6,#1d48b8)}
+  .army-card:hover{transform:translateY(-2px)}
+  .army-card.sel{opacity:1;border-color:var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .army-card h3{font-size:22px;font-weight:900;letter-spacing:.5px}
+  .army-card .gen{font-size:12.5px;font-weight:600;opacity:.85;margin:4px 0 0}
+  .army-card .desc{display:none}
+  .flagbox{display:none}
+  .diff-row{display:flex;gap:6px;justify-content:center;margin:6px 0 12px;background:var(--card2);padding:4px;border-radius:14px}
+  .diff-btn{flex:1;border:none;background:none;border-radius:11px;padding:9px 10px;
+    cursor:pointer;font-size:14px;font-weight:800;color:var(--ink-soft)}
+  .diff-btn.sel{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  .go-btn{display:block;margin:14px auto 0;padding:15px 48px;font-size:19px;font-weight:900;letter-spacing:.5px;
+    background:var(--green);color:#fff;border:none;border-radius:999px;cursor:pointer;
+    box-shadow:0 6px 0 #157040,0 10px 20px rgba(31,157,85,.35)}
+  .go-btn:hover{filter:brightness(1.05)}
+  .go-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #157040}
+  .score-table{width:100%;border-collapse:separate;border-spacing:0;margin:10px 0;font-size:15px;border-radius:14px;overflow:hidden;background:var(--card2)}
+  .score-table th,.score-table td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line)}
+  .score-table th{font-size:12px;letter-spacing:1px;color:var(--ink-soft)}
   .quote-block{font-style:italic;text-align:center;font-size:15px;margin:14px 20px;color:var(--ink-soft)}
   .quote-attr{font-size:12.5px;text-align:right;margin-right:40px;color:var(--ink-soft)}
-  #help-body h3{margin:10px 0 4px;font-size:17px;border-bottom:1px solid rgba(43,35,23,.4)}
+  #help-body h3{margin:14px 0 4px;font-size:17px;font-weight:900}
   #help-body p,#help-body li{font-size:14px;line-height:1.5}
   #help-body ul{margin-left:20px;margin-bottom:8px}
-  kbd{border:1px solid var(--ink);border-radius:3px;padding:0 5px;font-size:12px;background:rgba(255,250,230,.6);font-family:inherit}
-  .close-x{float:right;cursor:pointer;font-size:22px;font-weight:700;padding:0 6px;border:none;background:none;color:var(--ink)}
+  kbd{border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:12px;background:var(--card2);font-family:inherit}
+  .close-x{float:right;cursor:pointer;font-size:20px;font-weight:900;width:36px;height:36px;border:none;border-radius:50%;background:var(--card2);color:var(--ink)}
 
   /* ---------- generals & options on the title sheet ---------- */
-  .gen-in{font-family:inherit;font-size:14.5px;font-style:italic;font-weight:700;color:var(--ink);text-align:center;
-    width:100%;max-width:230px;padding:5px 6px;border:1.5px solid var(--ink);border-radius:4px;background:rgba(255,250,230,.8)}
-  .gen-line{display:flex;gap:6px;align-items:center;justify-content:center;margin:6px 0 2px}
-  .gen-lbl{font-size:11px;letter-spacing:1px;font-weight:700;color:var(--ink-soft)}
-  .dice{border:1.5px solid var(--ink);background:#efe2bd;border-radius:4px;font-size:17px;width:34px;height:32px;cursor:pointer;flex:none}
-  .opt-row{display:flex;flex-direction:column;gap:6px;align-items:center;margin:4px 0 6px;font-size:14px}
+  .gen-in{font-family:inherit;font-size:14px;font-weight:800;color:var(--ink);text-align:center;
+    width:100%;max-width:220px;padding:7px 8px;border:none;border-radius:10px;background:rgba(255,255,255,.92)}
+  .gen-line{display:flex;gap:6px;align-items:center;justify-content:center;margin:8px 0 2px}
+  .gen-lbl{font-size:11px;letter-spacing:1px;font-weight:800;color:var(--ink-soft)}
+  .dice{border:none;background:rgba(255,255,255,.92);border-radius:10px;font-size:17px;width:36px;height:34px;cursor:pointer;flex:none}
+  .opt-row{display:flex;flex-direction:column;gap:8px;align-items:center;margin:4px 0 6px;font-size:14px;font-weight:600}
   .opt-row label{cursor:pointer;display:flex;gap:8px;align-items:center}
-  .opt-row input{width:18px;height:18px;accent-color:#2b2317}
-  .guide li{margin-bottom:8px}
+  .opt-row input{width:20px;height:20px;accent-color:var(--green)}
+  .guide li{margin-bottom:10px}
+  details.more{margin:6px 0;text-align:center}
+  details.more summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--ink-soft);list-style:none}
+  details.more summary::-webkit-details-marker{display:none}
 
   /* ---------- gate buttons in the bottom bar ---------- */
-  #gate-chips{display:flex;gap:5px}
-  .gchip{min-width:50px;height:44px;border:1.5px solid var(--ink);border-radius:6px;background:#efe2bd;font-family:inherit;
-    font-weight:700;font-size:14px;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;
-    line-height:1.1;cursor:pointer;padding:0 4px;box-shadow:0 2px 0 rgba(43,35,23,.5)}
-  .gchip small{font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
-  .gchip.threat{border-color:var(--red);box-shadow:inset 0 0 0 2px rgba(160,51,37,.55),0 2px 0 rgba(43,35,23,.5)}
+  #gate-chips{display:flex;gap:6px}
+  .gchip{min-width:52px;height:48px;border:none;border-radius:14px;background:#fff;
+    font-weight:900;font-size:15px;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    line-height:1.1;cursor:pointer;padding:0 4px;box-shadow:0 3px 0 #b9c4bc}
+  .gchip small{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+  .gchip.threat{background:#ffe3df;box-shadow:0 3px 0 var(--red)}
   .gchip.threat small,.gchip.plug small{color:var(--red)}
-  .gchip.noise{border-style:dashed;border-color:#b06a20}
-  .gchip.open{background:var(--gold);color:#fff}.gchip.open small{color:#fff}
-  .gchip:active{transform:translateY(1px);box-shadow:none}
+  .gchip.noise{background:#fff4d6;box-shadow:0 3px 0 #e0a100}
+  .gchip.open{background:var(--gold);box-shadow:0 3px 0 #b77400}.gchip.open small{color:#1b1300}
+  .gchip:active{transform:translateY(2px);box-shadow:0 1px 0 #b9c4bc}
 
   /* ---------- gate command panel ---------- */
-  #gatepanel{position:absolute;left:50%;transform:translateX(-50%);z-index:26;width:min(470px,96vw);
-    background:var(--parch);border:3px double var(--ink);border-radius:7px;box-shadow:0 8px 32px rgba(0,0,0,.6);
-    padding:10px 14px 12px;font-size:14px;max-height:70vh;overflow-y:auto}
+  #gatepanel{position:absolute;left:50%;transform:translateX(-50%);z-index:26;width:min(440px,96vw);
+    background:var(--card);border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.45);
+    padding:14px 16px 16px;font-size:14px;max-height:70vh;overflow-y:auto}
   #gatepanel.hidden{display:none}
-  .gp-head{display:flex;align-items:baseline;gap:10px}
-  .gp-title{font-size:23px;font-weight:700;white-space:nowrap}
-  .gp-sub{font-size:12px;font-style:italic;color:var(--ink-soft);flex:1}
-  .gp-x{border:none;background:none;font-size:24px;font-weight:700;cursor:pointer;color:var(--ink);padding:0 4px;align-self:center}
-  .gp-paused{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.6px;margin-top:2px}
-  .gp-intel{margin:6px 0 4px;line-height:1.45}
+  .gp-head{display:flex;align-items:center;gap:10px}
+  .gp-badge{width:44px;height:44px;border-radius:50%;background:#132219;color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:16px;flex:none}
+  .gp-title{font-size:20px;font-weight:900;white-space:nowrap}
+  .gp-sub{font-size:12.5px;font-weight:600;color:var(--ink-soft);flex:1}
+  .gp-x{border:none;background:var(--card2);width:36px;height:36px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;color:var(--ink);align-self:center;flex:none}
+  .gp-paused{display:none!important}
+  .gp-intel{margin:10px 0 6px;line-height:1.4;background:var(--card2);border-radius:14px;padding:10px 12px;font-size:14.5px;font-weight:600}
+  .gp-intel b{font-weight:900}
   .gp-intel .warn{color:var(--red)}
-  .gp-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
-  .gp-lbl{font-weight:700}
-  .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:rgba(255,250,230,.6)}
-  .stepper button{width:44px;height:44px;font-size:24px;font-weight:700;border:none;background:#efe2bd;cursor:pointer;color:var(--ink);font-family:inherit}
-  .stepper button:active{background:#d9c690}
-  .stepper span{min-width:42px;text-align:center;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
-  .gp-hint{font-size:13px;font-style:italic;color:var(--ink-soft);flex:1 1 140px}
-  .gp-hint.good{color:#2f6a2a;font-weight:700;font-style:normal}.gp-hint.bad{color:var(--red);font-weight:700;font-style:normal}
-  .gp-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
-  .gp-btn{flex:1 1 auto;min-height:44px;cursor:pointer;border:1.5px solid var(--ink);background:#efe2bd;border-radius:6px;
-    padding:7px 10px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink);box-shadow:0 2px 0 rgba(43,35,23,.5)}
-  .gp-btn.primary{background:var(--ink);color:var(--parch);font-size:16px}
+  .gp-row{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+  .gp-lbl{font-weight:800}
+  .stepper{display:inline-flex;align-items:center;border-radius:14px;overflow:hidden;background:var(--card2)}
+  .stepper button{width:48px;height:48px;font-size:26px;font-weight:900;border:none;background:none;cursor:pointer;color:var(--ink)}
+  .stepper button:active{background:var(--line)}
+  .stepper span{min-width:44px;text-align:center;font-size:24px;font-weight:900;font-variant-numeric:tabular-nums}
+  .gp-hint{font-size:14px;font-weight:800;color:var(--ink-soft);flex:1 1 140px}
+  .gp-hint.good{color:var(--green)}.gp-hint.bad{color:var(--red)}
+  .gp-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .gp-btn{flex:1 1 0;min-height:52px;cursor:pointer;border:none;background:var(--card2);border-radius:14px;
+    padding:8px 10px;font-size:15px;font-weight:800;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.15}
+  .gp-btn small{font-size:11.5px;font-weight:600;color:var(--ink-soft)}
+  .gp-btn.primary{background:var(--green);color:#fff;font-size:17px;box-shadow:0 4px 0 #157040}
+  .gp-btn.primary small{color:rgba(255,255,255,.85)}
+  .gp-btn.primary.atk{background:var(--red);box-shadow:0 4px 0 #a92a1c}
   .gp-btn:disabled{opacity:.4;cursor:default}
-  .gp-btn:active{transform:translateY(1px);box-shadow:none}
-  .gp-chk{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
-  .gp-chk input{width:20px;height:20px;accent-color:#2b2317}
+  .gp-btn:active{transform:translateY(2px)}
+  .gp-chk{display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}
+  .gp-chk input{width:20px;height:20px;accent-color:var(--green)}
+  .gp-more{margin-top:10px}
+  .gp-more summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--ink-soft);text-align:center;list-style:none;padding:4px}
+  .gp-more summary::-webkit-details-marker{display:none}
   #log-last{display:none;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
   #log.collapsed #log-last{display:block}
   #log.docked{width:auto;max-height:none}
@@ -188,77 +201,74 @@
   @media (max-width:760px){
     #topbar{height:auto;flex-wrap:wrap;font-size:13px}
     .tb-cell{padding:0 7px}
-    .army-chip .pennant{display:none}
-    .army-chip .aname{font-size:12px}
+    .army-chip .aname{font-size:11px}
     .bigscore{font-size:22px;min-width:30px}
-    #tb-mid{order:10;flex-basis:100%;border-top:1px solid rgba(43,35,23,.3);padding:2px 8px 3px;flex-direction:row!important;gap:8px!important}
+    #tb-mid{order:10;flex-basis:100%;padding:3px 8px 5px;flex-direction:row!important;gap:8px!important;background:rgba(255,255,255,.05)}
     #q-label{font-size:12px;white-space:nowrap}
-    #phase-label{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #clock{font-size:20px}
-    .tb-btns{margin-left:auto;gap:4px;padding:5px 6px}
-    .tb-btn{padding:5px 8px;font-size:14px;min-width:34px;min-height:34px}
+    #phase-label{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #clock{font-size:19px}
+    .tb-btns{margin-left:auto;gap:4px;padding:6px 6px}
+    .tb-btn{padding:5px 8px;font-size:14px;min-width:36px;min-height:36px}
     .lbl-long{display:none}.lbl-short{display:inline}
-    #botbar{padding:6px max(6px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:6px;min-height:0}
+    #botbar{padding:7px max(6px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:6px;min-height:0}
     #sel-info{min-width:0;flex-basis:100%;font-size:13px}
     #sel-info #sel-sub{display:inline;margin-left:6px}
     #gate-chips{flex-basis:100%;justify-content:space-between}
     .gchip{flex:1;min-width:0}
     #act-buttons{display:flex;gap:6px;flex-wrap:wrap;flex-basis:100%}
-    .act-btn{flex:1 1 auto;padding:8px 8px;font-size:13.5px}
+    .act-btn{flex:1 1 auto;padding:9px 8px;font-size:13.5px}
     .act-btn.adv,.key-hint{display:none}
-    #tipline{font-size:12px;padding-top:0}
+    #tipline{font-size:12.5px;padding-top:0}
     #log{width:auto;left:8px;right:8px;top:auto;font-size:12px}
-    #banner .b-main{font-size:22px;padding:8px 18px}
+    #banner .b-main{font-size:22px;padding:8px 20px}
     #banner .b-sub{font-size:13px}
     #banner{top:22%;width:94vw}
-    .sheet{padding:18px 16px;width:96%}
+    .sheet{padding:20px 16px;width:96%}
     .sheet h1{font-size:30px}
-    .sheet h2.script{font-size:23px}
+    .sheet h2.script{font-size:21px}
     .sheet p{font-size:14px}
-    .pick-row{flex-direction:column;gap:10px;margin:12px 0;align-items:stretch}
-    .army-card{max-width:none;padding:10px 12px}
-    .army-card h3{font-size:19px}
-    .army-card .desc{display:none}
-    .flagbox{width:48px;height:28px;font-size:12px;margin-bottom:4px}
-    .diff-row{flex-wrap:wrap}
-    .go-btn{padding:12px 30px;font-size:19px}
+    .pick-row{gap:8px;margin:12px 0}
+    .army-card{padding:12px 8px}
+    .army-card h3{font-size:17px}
+    .gen-in{font-size:13px}
+    .go-btn{padding:14px 34px;font-size:18px}
   }
   @media (max-width:420px){
     .tb-cell{padding:0 5px}
     .army-chip{gap:4px}
-    .army-chip .aname{font-size:11px;letter-spacing:0}
+    .army-chip .aname{display:none}
     .bigscore{font-size:20px;min-width:22px}
-    #clock{font-size:18px}
+    #clock{font-size:17px;padding:3px 7px}
     .tb-btns{gap:3px;padding:4px 4px}
-    .tb-btn{padding:3px 4px;min-width:30px;min-height:32px;font-size:13px}
+    .tb-btn{padding:3px 5px;min-width:32px;min-height:34px;font-size:13px}
+    .dice{width:32px}
   }
   /* phones held sideways: one slim bar on top, one on the bottom */
   @media (max-height:500px){
-    #topbar{height:40px;flex-wrap:nowrap;font-size:13px}
+    #topbar{height:42px;flex-wrap:nowrap;font-size:13px}
     .tb-cell{padding:0 7px}
-    .army-chip .pennant{display:none}
     .bigscore{font-size:20px;min-width:24px}
-    #tb-mid{order:0;flex-basis:auto;border-top:none;padding:0 6px;flex-direction:column!important;gap:0!important;min-width:0}
-    #q-label{font-size:12px} #phase-label{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
-    #clock{font-size:18px}
+    #tb-mid{order:0;flex-basis:auto;padding:0 6px;flex-direction:column!important;gap:0!important;min-width:0;background:none}
+    #q-label{font-size:11px} #phase-label{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+    #clock{font-size:17px}
     .tb-btn{padding:3px 7px;min-height:30px;font-size:13px}
     .lbl-long{display:none}.lbl-short{display:inline}
     #botbar{padding:4px max(6px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:6px;min-height:0;flex-wrap:nowrap}
     #sel-info,#tipline{display:none}
     #gate-chips{flex:1 1 auto}
-    .gchip{flex:1;min-width:0;height:40px}
+    .gchip{flex:1;min-width:0;height:42px}
     #act-buttons{display:flex;gap:5px;flex:none}
-    .act-btn{padding:6px 8px;font-size:13px}
+    .act-btn{padding:7px 9px;font-size:13px}
     .act-btn.adv,.key-hint{display:none}
     #log{font-size:11.5px}
-    #gatepanel{max-height:calc(100vh - 110px);padding:8px 12px}
-    .gp-intel{font-size:13px}
+    #gatepanel{max-height:calc(100vh - 100px);padding:10px 14px}
+    .gp-intel{font-size:13.5px;margin:6px 0 4px;padding:8px 10px}
+    .gp-btn{min-height:46px}
     #banner{top:18%}
     #banner .b-main{font-size:20px;padding:6px 16px} #banner .b-sub{font-size:12px}
     .sheet{padding:14px 18px;max-height:96vh}
-    .sheet h1{font-size:28px}
+    .sheet h1{font-size:26px}
     .pick-row{margin:8px 0}
-    .army-card .desc{display:none}
   }
   @media (pointer:coarse){ .act-btn.adv{display:none} .key-hint{display:none} .gp-classic{display:none!important} }
 </style>
@@ -268,8 +278,8 @@
   <canvas id="game"></canvas>
 
   <div id="topbar">
-    <div class="tb-cell army-chip"><span class="pennant g">PGA</span><span class="aname">GREY</span><span class="bigscore" id="score-g">0</span></div>
-    <div class="tb-cell army-chip"><span class="bigscore" id="score-b">0</span><span class="aname">BLUE</span><span class="pennant b">PBA</span></div>
+    <div class="tb-cell army-chip"><span class="pennant g"></span><span class="aname">GREY</span><span class="bigscore" id="score-g">0</span></div>
+    <div class="tb-cell army-chip"><span class="bigscore" id="score-b">0</span><span class="aname">BLUE</span><span class="pennant b"></span></div>
     <div class="tb-cell tb-flex" id="tb-mid" style="flex-direction:column;justify-content:center;gap:0">
       <div id="q-label">Day 1 — 1st Quarter</div>
       <div id="phase-label">Declaration of War</div>
@@ -283,7 +293,7 @@
     </div>
   </div>
 
-  <div id="log"><h4 id="log-head" title="tap to open or close">UMPIRE'S CLIPBOARD ▾</h4><div id="log-last"></div><div id="log-entries"></div></div>
+  <div id="log"><h4 id="log-head" title="tap to open or close">PLAY-BY-PLAY ▾</h4><div id="log-last"></div><div id="log-entries"></div></div>
 
   <div id="gatepanel" class="hidden"></div>
 
@@ -311,7 +321,7 @@ const HEADLESS = (typeof window !== "undefined" && window.HEADLESS) || false;
 
 /* ---------------- config ---------------- */
 const CFG = {
-  version: "1.3.1",
+  version: "1.4.0",
   worldW: 1600, worldH: 1200,
   armySize: 40,            // active players per army (announced by the Director)
   plugStrength: 8,         // defenders needed to plug a gate
@@ -626,10 +636,10 @@ function haptic(kind){
 
 /* ---------------- game state ---------------- */
 const ARMIES={
-  G:{key:"G",name:"GREY",adj:"Grey",color:"#6f6f68",dark:"#4b4b45",general:"",
+  G:{key:"G",name:"GREY",adj:"Grey",color:"#5d6773",dark:"#3b434d",general:"",
      flag:"PGA",callerNoise:"an air-raid siren cranks up",wagon:"a grey Ford pickup — WARWGN",
      cry:"We're going to stink those Blues into the woods!"},
-  B:{key:"B",name:"BLUE",adj:"Blue",color:"#3b5ea8",dark:"#27437e",general:"",
+  B:{key:"B",name:"BLUE",adj:"Blue",color:"#2563eb",dark:"#1d48b8",general:"",
      flag:"PBA",callerNoise:"a chorus of blue vuvuzelas drones",wagon:"the Blue war wagon, brass bell clanging",
      cry:"And they will know our name are the Blues when we lay our vengeance upon them!"},
 };
@@ -1111,8 +1121,8 @@ function startQuarter(){
   if(G.playerArmy===G.attacker)log(G.playerArmy==="G"?"grey":"blue",`${atk.general}: “${atk.cry}”`);
   else log(sideKind(G.playerArmy),`${ARMIES[G.playerArmy].general} holds the town.`);
   ui.hudDirty=true;ui.rebuildButtons();
-  setTip(playerAtk?"Scout a gate to count its defenders, post callers somewhere else, then charge where they're thin.":
-    "Garrisons go out at “Scouts out.” Watch for red-outlined gate buttons — that's where a party was sighted.");
+  setTip(playerAtk?"You're attacking: scout a gate, then attack with more men than its guards.":
+    "You're defending: your guards head to the gates. A red gate button means attackers were spotted there.");
 }
 function updatePhase(dt){
   const t=G.tPlay;
@@ -1647,7 +1657,7 @@ const ui={
     const lg=this.el("log");if(!lg)return;
     if(lg.classList.contains("docked"))c=false;
     lg.classList.toggle("collapsed",c);
-    this.el("log-head").textContent=c?"UMPIRE'S CLIPBOARD ▸":"UMPIRE'S CLIPBOARD ▾";
+    this.el("log-head").textContent=c?"PLAY-BY-PLAY ▸":"PLAY-BY-PLAY ▾";
     this.logDirty=true;
   },
   resize(){
@@ -1661,18 +1671,19 @@ const ui={
     // beside the map on wide screens and phones held sideways, under it on tall phones
     const lg=this.el("log"),spareW=vp.w-FOCUS.w*fit-10,spareH=vp.h-FOCUS.h*fit-10;
     const dock=st=>{lg.classList.add("docked");lg.classList.remove("collapsed");
-      Object.assign(lg.style,Object.assign({bottom:"auto",maxHeight:"none"},st));this.el("log-head").textContent="UMPIRE'S CLIPBOARD"};
+      Object.assign(lg.style,Object.assign({bottom:"auto",maxHeight:"none"},st));this.el("log-head").textContent="PLAY-BY-PLAY"};
     if(spareW>=230){
       const lw=Math.min(spareW,360);
       vp.w-=lw;fit=Math.min((vp.w-8)/FOCUS.w,(vp.h-8)/FOCUS.h);
       dock({top:(vp.y+6)+"px",height:(vp.h-12)+"px",left:"auto",right:"6px",width:(lw-12)+"px"});
-    }else if(spareH>110){
+    }else if(spareH>110&&!this.narrow){
       const lh=Math.min(spareH,this.narrow?300:380);
       vp.h-=lh;
       dock({top:(vp.y+vp.h+2)+"px",height:(lh-6)+"px",left:"6px",right:"6px",width:"auto"});
     }else{
       if(lg.classList.contains("docked")){lg.classList.remove("docked");this.setLogCollapsed(this.narrow)}
-      Object.assign(lg.style,{top:(top+6)+"px",height:"",left:"",right:"",bottom:"",width:"",maxHeight:""});
+      if(this.narrow)Object.assign(lg.style,{top:"auto",bottom:(bot+6)+"px",height:"",left:"",right:"",width:"",maxHeight:"38vh"});
+      else Object.assign(lg.style,{top:(top+6)+"px",height:"",left:"",right:"",bottom:"",width:"",maxHeight:""});
     }
     this.vp=vp;this.fit=fit;
     const gpEl=this.el("gatepanel");
@@ -1681,6 +1692,11 @@ const ui={
     this.applyCam();
   },
   maxZoom(){return Math.max(2.2,1.25/(this.fit||1))},
+  homeCam(){ // the whole field on wide screens; on tall phones, zoom so the town and its six gates fill the width
+    const vp=this.vp;let z=1;
+    if(vp&&vp.h>vp.w*1.05)z=clamp((vp.w-8)/900/this.fit,1,this.maxZoom());
+    this.cam={z,cx:z>1?790:FOCUS.x+FOCUS.w/2,cy:z>1?610:FOCUS.y+FOCUS.h/2};this.applyCam();
+  },
   applyCam(){
     if(HEADLESS||!this.vp)return;
     const W=CFG.worldW,H=CFG.worldH,vp=this.vp,cam=this.cam;
@@ -1738,17 +1754,17 @@ const ui={
   openGate(gi){
     if(HEADLESS||!G||G.phase!=="play"||G.over)return;
     const atk=G.playerArmy===G.attacker,g=GATES[gi];
-    const sel=commandable();
     let n;
     if(atk)n=recommendCharge(gi).n;
     else{const cur=garrisonOf(gi).length,s=gateSighting(gi,G.playerArmy);
       n=s&&s.age<10?clamp(Math.max(cur,s.n+1),1,CFG.plugStrength+4):cur}
     this.gp={gi,atk,n,sprint:false};haptic("select");
     G.hold=!!SETTINGS.pauseOrders;
-    const head=`<div class="gp-head"><span class="gp-title">${g.id} Gate</span>
-        <span class="gp-sub">${g.hasBlue?"Blue flag area on this road — challenges there count triple.":"No blue flag area on this road."}</span>
+    const head=`<div class="gp-head"><span class="gp-badge">${g.id}</span>
+        <div style="flex:1;min-width:0"><div class="gp-title">${g.id} Gate</div>
+        <div class="gp-sub">${atk?"You're attacking":"You're defending"}${g.hasBlue?" • blue flags here: getting caught on the road costs triple":""}</div></div>
         <button class="gp-x" id="gp-close" aria-label="Close">✕</button></div>
-      <div class="gp-paused" id="gp-paused">⏸ THE CLOCK IS STOPPED WHILE YOU GIVE ORDERS</div>
+      <div class="gp-paused" id="gp-paused"></div>
       <div class="gp-intel" id="gp-intel"></div>`;
     const stepper=lbl=>`<div class="gp-row"><span class="gp-lbl">${lbl}</span>
         <span class="stepper"><button id="gp-minus" aria-label="fewer">−</button><span id="gp-n"></span><button id="gp-plus" aria-label="more">+</button></span>
@@ -1756,19 +1772,21 @@ const ui={
     const selRow=`<div class="gp-btns gp-classic" id="gp-selrow"><button class="gp-btn" id="gp-sel"></button></div>`;
     let body;
     if(atk){
-      body=head+stepper("Charge with")+
-        `<div class="gp-btns"><button class="gp-btn primary" id="gp-go"></button></div>
-         <div class="gp-btns"><button class="gp-btn" id="gp-callers">📯 Post 2 callers</button>
-           <button class="gp-btn" id="gp-scout">👁 Send a scout</button>
-           <button class="gp-btn" id="gp-recall">↩ Pull back</button></div>`+selRow;
+      body=head+stepper("Men to send")+
+        `<div class="gp-btns"><button class="gp-btn primary atk" id="gp-go"></button></div>
+         <div class="gp-btns"><button class="gp-btn" id="gp-scout">👁 Scout it<small>count the guards</small></button>
+           <button class="gp-btn" id="gp-callers">📣 Fake it<small>2 men make noise here</small></button></div>
+         <details class="gp-more"><summary>More ▾</summary>
+           <div class="gp-btns"><button class="gp-btn" id="gp-recall">↩ Pull my men back from ${g.id}</button></div>`+selRow+`</details>`;
     }else{
-      body=head+stepper("Hold with")+
-        `<div class="gp-row" style="margin-top:0"><label class="gp-chk"><input type="checkbox" id="gp-sprint"> Run there (sprint — they tire)</label></div>
-         <div class="gp-btns"><button class="gp-btn primary" id="gp-go"></button>
-           <button class="gp-btn" id="gp-plug">⊕ Plug it (${CFG.plugStrength})</button></div>
-         <div class="gp-btns"><button class="gp-btn" id="gp-lock">🔒 Lockdown all six</button>
-           <button class="gp-btn" id="gp-aide"></button>
-           <button class="gp-btn gp-classic" id="gp-selgar">Select garrison</button></div>`+selRow;
+      body=head+stepper("Guards here")+
+        `<div class="gp-btns"><button class="gp-btn primary" id="gp-go"></button>
+           <button class="gp-btn" id="gp-plug">🔒 Plug it<small>${CFG.plugStrength} guards stop any attack</small></button></div>
+         <details class="gp-more"><summary>More ▾</summary>
+           <div class="gp-row" style="justify-content:center"><label class="gp-chk"><input type="checkbox" id="gp-sprint"> Make them run (they tire)</label></div>
+           <div class="gp-btns"><button class="gp-btn" id="gp-lock">🔒 Lockdown<small>freeze every gate as is</small></button>
+             <button class="gp-btn" id="gp-aide"></button></div>
+           <div class="gp-btns gp-classic"><button class="gp-btn" id="gp-selgar">Select these guards</button></div>`+selRow+`</details>`;
     }
     const panel=this.el("gatepanel");
     panel.innerHTML=body;panel.classList.remove("hidden");
@@ -1778,21 +1796,21 @@ const ui={
     E("gp-plus").onclick=()=>{this.gp.n++;haptic("select");this.refreshGate()};
     if(atk){
       E("gp-go").onclick=()=>{const k=cmdCharge(gi,this.gp.n);
-        done(k?`${k} men head for the ${g.id} road. They form up, then step in together on “one, two, STEP!”`:"No free men to send.")};
-      E("gp-callers").onclick=()=>{const k=cmdCallers(gi,2);done(k?`Callers posted by the ${g.id} road. Make them think it's coming here.`:"No free men to post.")};
-      E("gp-scout").onclick=()=>{const k=cmdScout(gi);done(k?`A scout is on his way to watch the ${g.id} Gate. The count will show on its button.`:"No free men to scout.")};
-      E("gp-recall").onclick=()=>{const k=cmdRecall(gi);done(k?`${k} men pull back from ${g.id} to the rally point.`:`Nobody of yours is working the ${g.id} road.`)};
+        done(k?`${k} men head for ${g.id}. They'll line up and step in together.`:"No free men to send.")};
+      E("gp-callers").onclick=()=>{const k=cmdCallers(gi,2);done(k?`2 men are making noise at ${g.id} so they think you're coming there.`:"No free men to send.")};
+      E("gp-scout").onclick=()=>{const k=cmdScout(gi);done(k?`A scout is heading to ${g.id}. The guard count will show on the ${g.id} button.`:"No free men to scout.")};
+      E("gp-recall").onclick=()=>{const k=cmdRecall(gi);done(k?`${k} men pull back from ${g.id}.`:`None of your men are at ${g.id}.`)};
     }else{
       E("gp-sprint").onchange=e=>{this.gp.sprint=e.target.checked};
       E("gp-go").onclick=()=>{const r=cmdSetGarrison(gi,this.gp.n,this.gp.sprint);
-        done(r.moved>0?`${r.moved} men ${this.gp.sprint?"sprint":"walk"} to ${g.id}.`+(r.short?` Couldn't find ${r.short} more without stripping another gate below its minimum.`:""):
-          r.moved<0?`${-r.moved} men leave ${g.id} for ${GATES[r.to].id}.`:`${g.id} already has ${this.gp.n}.`)};
+        done(r.moved>0?`${r.moved} guards ${this.gp.sprint?"run":"walk"} to ${g.id}.`+(r.short?` Couldn't find ${r.short} more without leaving another gate too thin.`:""):
+          r.moved<0?`${-r.moved} guards leave ${g.id} for ${GATES[r.to].id}.`:`${g.id} already has ${this.gp.n}.`)};
       E("gp-plug").onclick=()=>{this.gp.n=Math.max(this.gp.n,CFG.plugStrength);const r=cmdSetGarrison(gi,this.gp.n,this.gp.sprint);
-        done(`Plugging ${g.id}: ${Math.max(0,r.moved)} men on the way.`+(r.short?` ${r.short} short — every other gate is at its minimum.`:""))};
+        done(`Plugging ${g.id}: ${Math.max(0,r.moved)} guards on the way.`+(r.short?` ${r.short} short — every other gate is already thin.`:""))};
       E("gp-lock").onclick=()=>{doLockdown();done()};
       E("gp-aide").onclick=()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);this.refreshGate();
-        setTip(G.aide?"Aide-de-camp on: he shuffles your squadrons, but leaves any gate you set by hand alone for 25 seconds.":"Aide-de-camp off — the defense is all yours.")};
-      E("gp-selgar").onclick=()=>{G.selection=garrisonOf(gi);done(`${g.id} garrison selected (${G.selection.length} men).`)};
+        setTip(G.aide?"Helper on: it moves your guards around, but leaves a gate you just set alone for 25 seconds.":"Helper off — the defense is all yours.")};
+      E("gp-selgar").onclick=()=>{G.selection=garrisonOf(gi);done(`${g.id} guards selected (${G.selection.length}).`)};
     }
     E("gp-sel").onclick=()=>{const s=commandable();if(!s.length)return;
       if(atk){orderCharge(s,gi);log(sideKind(G.playerArmy),`Party of ${s.length} moves on the ${g.id} Gate.`)}
@@ -1810,7 +1828,6 @@ const ui={
     if(HEADLESS||!this.gp||!G)return;
     if(G.phase!=="play"||G.over){this.closeGate();return}
     const {gi,atk}=this.gp,g=GATES[gi],E=id=>this.el(id);
-    E("gp-paused").style.display=G.hold?"block":"none";
     const sel=commandable();
     E("gp-selrow").style.display=sel.length?"flex":"none";
     E("gp-sel").textContent=`Send my ${sel.length} selected men here`;
@@ -1819,35 +1836,35 @@ const ui={
       const r=recommendCharge(gi),k=r.k;
       this.gp.n=clamp(this.gp.n,1,Math.max(1,r.pool));
       const n=this.gp.n;
-      intel=k.known?`Your eyes on it: <b>${k.n}</b> defender${k.n===1?"":"s"} in the gate${k.plug?` — <b class="warn">PLUGGED</b>`:""} <i>(just seen)</i>.`:
-        k.stale?`Last seen ${Math.round(k.age)}s ago with <b>${k.n}</b>${k.plug?" (plugged)":""}. They may have moved.`:
-        `Nobody has eyes on this gate yet. Send a scout, or go in blind.`;
+      intel=k.known?`👁 <b>${k.n}</b> guard${k.n===1?"":"s"} in this gate right now${k.plug?` — <b class="warn">PLUGGED, can't be beaten</b>`:""}.`:
+        k.stale?`👁 <b>${k.n}</b> guard${k.n===1?"":"s"}${k.plug?" (plugged)":""}, seen ${Math.round(k.age)}s ago. They may have moved.`:
+        `❓ You don't know how many guards are here. <b>Scout it</b> first, or take a chance.`;
       const going=partiesAt(gi,G.playerArmy,"charge").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
       const calling=partiesAt(gi,G.playerArmy,"callers").reduce((s,p)=>s+p.men.filter(aliveMan).length,0);
-      intel+=`<br>Free to send: <b>${r.pool}</b> (${r.elig} can still score)`+
-        (going?` • ⚔ ${going} already heading here`:"")+(calling?` • 📯 ${calling} calling`:"");
-      if(k.n!=null&&k.plug){hint=`Plugged — any number is repulsed.`;hcls="bad"}
+      intel+=`<br><span style="color:var(--ink-soft)">You have <b>${r.pool}</b> men free.</span>`+
+        (going?` ⚔ ${going} already on the way.`:"")+(calling?` 📣 ${calling} making noise.`:"");
+      if(k.n!=null&&k.plug){hint=`Plugged — pick another gate`;hcls="bad"}
       else if(k.n!=null){
-        if(n>k.n){hint=`✓ ${n} beats ${k.n}${k.known?"":" (if it's still "+k.n+")"}`;hcls="good"}
-        else if(n===k.n){hint=`Equal numbers = repulse`;hcls="bad"}
-        else{hint=`They'd catch you: challenge for ${k.n-n}`;hcls="bad"}
-      }else hint=`${CFG.plugStrength}+ inside plugs a gate`;
-      E("gp-go").textContent=`⚔ Charge with ${n}`;E("gp-go").disabled=!r.pool;
+        if(n>k.n){hint=`✓ ${n} beats ${k.n}`;hcls="good"}
+        else if(n===k.n){hint=`Tie = bounced out. Send ${k.n+1}+`;hcls="bad"}
+        else{hint=`Too few. Send ${k.n+1}+`;hcls="bad"}
+      }else hint=`Beat the guards' number to score`;
+      E("gp-go").innerHTML=`⚔ Attack ${g.id} with ${n}<small>every man who gets in scores</small>`;E("gp-go").disabled=!r.pool;
       const hp=helperPool(gi).length;
       E("gp-callers").disabled=!hp;E("gp-scout").disabled=!hp;
     }else{
       const here=menInGateArea(gi).length,gar=garrisonOf(gi),enroute=gar.filter(m=>m.path).length;
       this.gp.n=clamp(this.gp.n,0,CFG.armySize);
       const n=this.gp.n,s=gateSighting(gi,G.playerArmy),gs=G.gates[gi];
-      intel=`In the gate: <b>${here}</b>${gs.plugged?` <b class="warn">PLUGGED</b>`:""} • assigned here: <b>${gar.length}</b>${enroute?` (${enroute} on the way)`:""}<br>`+
-        (s&&s.age<12?`<b class="warn">Party of ${s.n} sighted near this gate</b> <i>(${Math.round(s.age)}s ago)</i>.`:
-         gs.noise>0?`Callers are making a racket out on this road — could be a feint.`:`Quiet out there.`);
+      intel=`🛡 <b>${here}</b> guarding now${gs.plugged?` — <b>plugged</b>`:""}${enroute?` (${enroute} more on the way)`:""}.<br>`+
+        (s&&s.age<12?`<b class="warn">❗ ${s.n} attackers spotted near ${g.id}</b> (${Math.round(s.age)}s ago). Have more guards than that.`:
+         gs.noise>0?`📣 Noise out on this road — might be a trick.`:`<span style="color:var(--ink-soft)">Quiet out there.</span>`);
       const spare=GATES.reduce((t,_,i)=>i===gi?t:t+Math.max(0,garrisonOf(i).length-floorFor(i)),0);
-      intel+=`<br>Spare men at other gates: <b>${spare}</b>`;
-      hint=n>=CFG.plugStrength?`Plugged — repulses any number`:(n===0?`Empty — anyone walks in`:`A party of ${n+1}+ would score here`);
-      hcls=n>=CFG.plugStrength?"good":"";
-      E("gp-go").textContent=n===gar.length?`⚑ Keep ${n} here`:`⚑ Hold with ${n}`;
-      E("gp-aide").textContent=`🤝 Aide: ${G.aide?"ON":"off"}`;
+      intel+=`<br><span style="color:var(--ink-soft)">${spare} spare guards at other gates.</span>`;
+      hint=n>=CFG.plugStrength?`Plugged — stops any attack`:(n===0?`Empty — anyone walks in`:`Stops up to ${n} attackers`);
+      hcls=n>=CFG.plugStrength?"good":(n===0?"bad":"");
+      E("gp-go").innerHTML=n===gar.length?`🛡 Keep ${n} here`:`🛡 Set ${g.id} to ${n}<small>nearest spare guards walk over</small>`;
+      E("gp-aide").innerHTML=`🤝 Helper: ${G.aide?"ON":"off"}<small>moves guards for you</small>`;
     }
     E("gp-intel").innerHTML=intel;
     E("gp-n").textContent=this.gp.n;
@@ -1884,7 +1901,7 @@ const ui={
     const atk=G.playerArmy===G.attacker;
     if(!s.length){
       el.innerHTML=`${atk?"You are ATTACKING":"You are DEFENDING"}<div id="sel-sub">${this.coarse?
-        (atk?"Tap a gate to scout, fake, or charge it.":"Tap a gate to reinforce or plug it."):
+        (atk?"Tap a gate to scout, fake or attack it.":"Tap a gate to add guards or plug it."):
         (atk?"Click a gate for orders — or drag to select men and right-click to send them.":
              "Click a gate for orders — or drag to select defenders, keys 1–6 grab a garrison.")}</div>`;return}
     const elig=s.filter(eligibleToScore).length;
@@ -1916,9 +1933,9 @@ const ui={
       mk("🏃 Sprint to gate","S",()=>armOrder("sprint"),"sprint",true);
       mk("🔒 Lockdown","L",()=>doLockdown());
       mk("↧ Move","M",()=>armOrder("move"),"move",true);
-      const aideBtn=mk(`🤝 Aide: ${G.aide?"ON":"off"}`,"",()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);
-        aideBtn.innerHTML=`🤝 Aide: ${G.aide?"ON":"off"}`;
-        setTip(G.aide?"Aide-de-camp on: he shuffles your squadrons, but leaves any gate you set by hand alone for 25 seconds.":"Aide-de-camp off — the defense is all yours.")});
+      const aideBtn=mk(`🤝 Helper: ${G.aide?"ON":"off"}`,"",()=>{G.aide=!G.aide;SETTINGS.aide=G.aide;STORE.set("aide",G.aide);
+        aideBtn.innerHTML=`🤝 Helper: ${G.aide?"ON":"off"}`;
+        setTip(G.aide?"Helper on: it moves your guards around, but leaves a gate you just set alone for 25 seconds.":"Helper off — the defense is all yours.")});
     }
     this.buildChips();
     this.syncSelInfo();
@@ -1955,51 +1972,47 @@ const ui={
   showTitle(){
     if(HEADLESS)return;
     this.overlay(`
+      <div class="kicker">Pine Island Camp</div>
       <h1>THE WAR GAME</h1>
-      <h2 class="script">York's Crossing — the 115th Year</h2>
-      <p style="text-align:center" class="fine">Pine Island Camp • est. 1912 • Starks &amp; Mercer → Mercer → Wing's Mills → Dunn's Corners → Fogg's Forks → York's Crossing</p>
-      <hr class="rule-line">
-      <p style="text-align:center">An invisible town. Six gates. Two armies bound by blood and history.<br>
-      No contact, no mercy — only running, scheming, and the Spirit of the Game.</p>
-      <div class="pick-row">
+      <p style="text-align:center" class="fine">Six gates. Two armies. Sneak enough men into a gate to score — or hold the town.</p>
+      <h2 class="script" style="margin-top:14px">Pick your army</h2>
+      <div class="pick-row" style="margin-top:6px">
         <div class="army-card" id="pick-G">
-          <div class="flagbox" style="background:#55554f">PGA</div>
-          <h3>THE GREY ARMY</h3>
+          <h3>GREY</h3>
           <div class="gen-line"><input class="gen-in" id="gen-G" maxlength="30" list="gens-G" autocomplete="off" aria-label="Grey general's name" value="${esc(ARMIES.G.general)}">
-            <button class="dice" id="dice-G" title="Another past general" aria-label="Another past general">🎲</button></div>
-          <div class="gen">the war wagon • the air-raid siren</div>
-          <div class="desc">“Greys love a winner! Greys will not tolerate a loser!” Property of the Grey Army — skulls, ash, and berserker joy.</div>
+            <button class="dice" id="dice-G" title="Another real Grey general" aria-label="Another real Grey general">🎲</button></div>
+          <div class="gen">your general</div>
         </div>
         <div class="army-card" id="pick-B">
-          <div class="flagbox" style="background:#24407a">PBA</div>
-          <h3>THE BLUE ARMY</h3>
+          <h3>BLUE</h3>
           <div class="gen-line"><input class="gen-in" id="gen-B" maxlength="30" list="gens-B" autocomplete="off" aria-label="Blue general's name" value="${esc(ARMIES.B.general)}">
-            <button class="dice" id="dice-B" title="Another past general" aria-label="Another past general">🎲</button></div>
-          <div class="gen">the brass bell • the vuvuzelas</div>
-          <div class="desc">Navy blazers and a family crest. More wins on the wall, a curse to break, and wicked genius in reserve.</div>
+            <button class="dice" id="dice-B" title="Another real Blue general" aria-label="Another real Blue general">🎲</button></div>
+          <div class="gen">their general</div>
         </div>
       </div>
       <datalist id="gens-G">${PAST_GENERALS.G.map(g=>`<option value="Gen. ${esc(g[0])}">${esc(g[1])}</option>`).join("")}</datalist>
       <datalist id="gens-B">${PAST_GENERALS.B.map(g=>`<option value="Gen. ${esc(g[0])}">${esc(g[1])}</option>`).join("")}</datalist>
-      <p class="fine" style="text-align:center;margin-top:-6px">Pick the army you'll lead. 🎲 draws a real War Game general from camp history — or type any name you like.</p>
+      <p class="fine" style="text-align:center;margin-top:-4px">🎲 picks a real general from camp history, or type any name.</p>
+      <h2 class="script" style="font-size:17px;margin-top:12px">How tough is the other army?</h2>
       <div class="diff-row">
-        <button class="diff-btn" data-d="0">Camper AI</button>
-        <button class="diff-btn" data-d="1">Counselor AI</button>
-        <button class="diff-btn" data-d="2">General AI</button>
+        <button class="diff-btn" data-d="0">Easy</button>
+        <button class="diff-btn" data-d="1">Medium</button>
+        <button class="diff-btn" data-d="2">Hard</button>
       </div>
-      <div class="opt-row">
-        <label><input type="checkbox" id="opt-pause" ${SETTINGS.pauseOrders?"checked":""}> Stop the clock while I give orders</label>
-        <label><input type="checkbox" id="opt-aide" ${SETTINGS.aide?"checked":""}> Aide-de-camp helps run my defense</label>
-      </div>
-      <p class="fine" style="text-align:center">Two days, four quarters — you attack twice and defend twice. Most points after the final whistle wins.<br>
-      Attack: outnumber the defenders and step into a weak gate, in unison. Defend: plug, shuffle squadrons, don't be fooled.</p>
-      <button class="go-btn" id="btn-declare">DECLARE WAR</button>
-      <p class="fine" style="text-align:center;margin-top:10px"><a href="#" id="lnk-guide" style="color:inherit">How to play in one minute</a>
+      <button class="go-btn" id="btn-declare">START</button>
+      <details class="more" style="margin-top:14px"><summary>Options ▾</summary>
+        <div class="opt-row" style="margin-top:8px">
+          <label><input type="checkbox" id="opt-pause" ${SETTINGS.pauseOrders?"checked":""}> Pause the clock while I give orders</label>
+          <label><input type="checkbox" id="opt-aide" ${SETTINGS.aide?"checked":""}> Let a helper move my defenders</label>
+        </div></details>
+      <p class="fine" style="text-align:center;margin-top:6px"><a href="#" id="lnk-guide" style="color:inherit;font-weight:800">How to play</a>
         &nbsp;•&nbsp; <a href="#" id="lnk-about" style="color:inherit">About</a></p>
     `);
+    const genSub=()=>{this.el("pick-G").querySelector(".gen").textContent=army==="G"?"your general":"their general";
+      this.el("pick-B").querySelector(".gen").textContent=army==="B"?"your general":"their general"};
     let army=STORE.get("army","G"),diff=STORE.get("diff",1);
     if(army!=="G"&&army!=="B")army="G";
-    const pickArmy=a=>{army=a;this.el("pick-G").classList.toggle("sel",a==="G");this.el("pick-B").classList.toggle("sel",a==="B")};
+    const pickArmy=a=>{army=a;this.el("pick-G").classList.toggle("sel",a==="G");this.el("pick-B").classList.toggle("sel",a==="B");genSub()};
     const pickDiff=d=>{diff=d;document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("sel",+x.dataset.d===d))};
     pickArmy(army);pickDiff(diff);
     this.el("pick-G").onclick=()=>pickArmy("G");
@@ -2025,7 +2038,7 @@ const ui={
       const go=()=>{
         newMatch({playerArmy:army,difficulty:diff});
         this.hideOverlay();
-        this.cam={z:1,cx:FOCUS.x+FOCUS.w/2,cy:FOCUS.y+FOCUS.h/2};this.applyCam();
+        this.homeCam();
         declarationOfWar();
       };
       if(!STORE.get("guideSeen",false)){STORE.set("guideSeen",true);this.showGuide(go)}else go();
@@ -2053,16 +2066,17 @@ const ui={
     if(HEADLESS)return;
     const t=this.coarse;
     this.overlay(`
-      <h2 class="script" style="font-size:32px;text-align:center">How to Command</h2>
-      <hr class="rule-line">
-      <ol class="guide" style="margin-left:22px;font-size:15px;line-height:1.5">
-        <li><b>${t?"Tap":"Click"} a gate</b> — on the map, or the six gate buttons along the bottom. A panel shows what your army knows about it and the orders you can give. You choose the job and the number; the nearest free men go.</li>
-        <li><b>Attacking:</b> find a weak gate. Send a scout to count heads, post callers to make noise somewhere else, then charge with <i>more</i> men than are inside. Equal numbers is a repulse; ${CFG.plugStrength} inside plugs the gate.</li>
-        <li><b>Defending:</b> your garrisons walk to their gates at “Scouts out.” When a party is sighted, move men there — but ${CFG.armySize} men can only plug five of six gates. Turn on the <b>Aide-de-camp</b> if you'd like help.</li>
-        <li>${SETTINGS.pauseOrders?"The clock stops while an order panel is open, so take your time.":"The clock keeps running while you give orders."} You can change that on the title screen.</li>
-        <li>${t?"Pinch to zoom, drag to look around, double-tap to zoom in or out.":"Scroll to zoom; drag with the middle button (or arrow keys) to pan. Classic controls still work: drag to select, right-click to send, hotkeys in the Rules."}</li>
+      <div class="kicker">How to play</div>
+      <h2 class="script" style="font-size:26px">Get more points than the other army</h2>
+      <p class="fine" style="text-align:center">Four rounds. You attack in two and defend in two. Each round lasts 4 minutes.</p>
+      <ol class="guide" style="margin:14px 0 0 22px;font-size:15px;line-height:1.45">
+        <li><b>${t?"Tap":"Click"} a gate</b> (the dark circles on the map, or the six buttons at the bottom). A panel shows your choices.</li>
+        <li><b>Attacking:</b> 👁 <b>Scout</b> a gate to count its guards. ⚔ <b>Attack</b> with <i>more</i> men than that, and every man who gets in scores a point. A tie gets bounced out. 📣 <b>Fake</b> sends two men to make noise somewhere else.</li>
+        <li><b>Defending:</b> keep enough 🛡 <b>guards</b> at each gate. ${CFG.plugStrength} guards <b>plug</b> a gate and stop any attack, but you only have ${CFG.armySize} men, so one gate is always weak. When attackers are spotted (red ❗), move guards there.</li>
+        <li>Don't get caught out on a road with fewer men than the other side. That gives them points.</li>
+        <li>${t?"Pinch to zoom and drag to look around.":"Scroll to zoom and drag to look around."} ${SETTINGS.pauseOrders?"The clock pauses while a gate panel is open.":""}</li>
       </ol>
-      <button class="go-btn" id="btn-guide-go">TO THE WOODS</button>
+      <button class="go-btn" id="btn-guide-go">GOT IT</button>
     `);
     this.el("btn-guide-go").onclick=()=>{SND.poke();if(then)then();else this.hideOverlay()};
   },
@@ -2385,227 +2399,145 @@ function onKey(e){
   if(k==="escape"){G.armedOrder=null;ui.syncArmed();setTip("")}
 }
 
-/* ---------------- vintage map rendering ---------------- */
+/* ---------------- board-game map rendering ---------------- */
 let MAPIMG=null;
-function scriptFont(px){return `${px}px "Snell Roundhand","Apple Chancery","Segoe Script","Brush Script MT",cursive`}
-function serifFont(px,bold){return `${bold?"bold ":""}${px}px "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif`}
-function drawPine(c,x,y,s,col){
-  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=1;
-  c.beginPath();c.moveTo(x,y+s*0.5);c.lineTo(x,y+s*0.9);c.stroke(); // trunk
-  for(let k=0;k<3;k++){
-    const w=s*(0.55-k*0.13),ty=y+s*0.45-k*s*0.32;
-    c.beginPath();c.moveTo(x-w,ty);c.lineTo(x,ty-s*0.42);c.lineTo(x+w,ty);c.closePath();c.fill();
-  }
+const UIFONT='ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+function scriptFont(px){return `800 ${px}px ${UIFONT}`}
+function serifFont(px,bold){return `${bold?900:700} ${px}px ${UIFONT}`}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function label(c,txt,x,y,px,col,halo){
+  c.font=scriptFont(px);c.textAlign="center";c.textBaseline="middle";
+  c.lineJoin="round";c.strokeStyle=halo||"rgba(255,255,255,.9)";c.lineWidth=px*0.32;c.strokeText(txt,x,y);
+  c.fillStyle=col||"#16211b";c.fillText(txt,x,y);
 }
-function drawTuft(c,x,y,s,col){
-  c.strokeStyle=col;c.lineWidth=1.1;
-  for(let k=-2;k<=2;k++){c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+k*s*0.3,y-s*0.7,x+k*s*0.5,y-s);c.stroke()}
-}
+function strokePath(c,pts,smooth){c.beginPath();
+  for(let i=0;i<pts.length;i++){const p=pts[i];
+    if(!i)c.moveTo(p.x,p.y);else if(smooth)c.quadraticCurveTo(pts[i-1].x,pts[i-1].y,(pts[i-1].x+p.x)/2,(pts[i-1].y+p.y)/2);else c.lineTo(p.x,p.y)}
+  if(smooth){const l=pts[pts.length-1];c.lineTo(l.x,l.y)}c.stroke()}
 function buildMap(){
   const W=CFG.worldW,H=CFG.worldH;
   const cv=document.createElement("canvas");cv.width=W;cv.height=H;
   const c=cv.getContext("2d");
   const R=mulberry32(20180719);
-  // parchment
-  c.fillStyle="#d8c495";c.fillRect(0,0,W,H);
-  for(let i=0;i<90;i++){
-    const x=R()*W,y=R()*H,r=40+R()*180;
-    const g=c.createRadialGradient(x,y,0,x,y,r);
-    const dark=R()<0.5;
-    g.addColorStop(0,dark?"rgba(148,120,70,0.10)":"rgba(248,238,205,0.12)");
-    g.addColorStop(1,"rgba(0,0,0,0)");
-    c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
-  }
-  for(let i=0;i<2600;i++){c.fillStyle=`rgba(90,70,40,${0.02+R()*0.05})`;
-    c.fillRect(R()*W,R()*H,1.3,1.3)}
-  // edge vignette
-  const vg=c.createRadialGradient(W/2,H/2,H*0.42,W/2,H/2,H*0.85);
-  vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(94,70,35,0.30)");
-  c.fillStyle=vg;c.fillRect(0,0,W,H);
-  // border frame + era names, like the anniversary map
-  c.strokeStyle="#2b2317";c.lineWidth=3;c.strokeRect(14,14,W-28,H-28);
-  c.lineWidth=1;c.strokeRect(22,22,W-44,H-44);
-  c.fillStyle="#2b2317";
-  c.font=scriptFont(30);c.textAlign="center";c.textBaseline="middle";
-  c.fillText("Mercer: 1916–1939   ❧   Wing's Mills: 1940–1948",W/2,44);
-  c.fillText("Fogg's Forks: 1961–1969   ❧   York's Crossing: 1970–Present",W/2,H-42);
-  c.save();c.translate(44,H/2);c.rotate(-Math.PI/2);
-  c.fillText("Starks and Mercer: 1912–1915",0,0);c.restore();
-  c.save();c.translate(W-44,H/2);c.rotate(Math.PI/2);
-  c.fillText("Dunn's Corners: 1948–1960",0,0);c.restore();
-  // highway (old road with cross-ticks)
-  c.strokeStyle="#6b5a3a";c.lineWidth=2;
-  c.beginPath();HIGHWAY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
-  for(let i=0;i<HIGHWAY.length-1;i++){
-    const a=HIGHWAY[i],b=HIGHWAY[i+1],L=dist(a,b),n=Math.floor(L/16);
-    for(let k=0;k<n;k++){
-      const t=k/n,x=lerp(a.x,b.x,t),y=lerp(a.y,b.y,t);
-      const dx=(b.x-a.x)/L,dy=(b.y-a.y)/L;
-      c.beginPath();c.moveTo(x-dy*6,y+dx*6);c.lineTo(x+dy*6,y-dx*6);c.stroke();
-    }
-  }
-  c.font=serifFont(15,true);c.fillStyle="#5a4a2e";
-  c.save();c.translate(300,858);c.rotate(0.55);c.fillText("H I G H W A Y",0,0);c.restore();
+  // grass, with soft mowing-stripe mottling
+  const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#86cc6a");bg.addColorStop(1,"#6cb957");
+  c.fillStyle=bg;c.fillRect(0,0,W,H);
+  for(let i=0;i<60;i++){const x=R()*W,y=R()*H,r=60+R()*160;
+    const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,R()<.5?"rgba(255,255,255,.07)":"rgba(30,80,20,.07)");g.addColorStop(1,"rgba(0,0,0,0)");
+    c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)}
+  c.lineCap="round";c.lineJoin="round";
+  // the town: a lighter lawn inside the line
+  c.fillStyle="rgba(214,240,190,.55)";
+  c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.fill();
+  // highway
+  c.strokeStyle="#5f666d";c.lineWidth=34;strokePath(c,HIGHWAY);
+  c.strokeStyle="#7b838b";c.lineWidth=28;strokePath(c,HIGHWAY);
+  c.strokeStyle="#ffd166";c.lineWidth=2.5;c.setLineDash([16,14]);strokePath(c,HIGHWAY);c.setLineDash([]);
   // streams
-  c.strokeStyle="#4a70a8";c.lineWidth=2.6;c.lineCap="round";
-  for(const s of STREAMS){c.beginPath();
-    for(let i=0;i<s.length;i++){const p=s[i];i?c.quadraticCurveTo(s[i-1].x,s[i-1].y,(s[i-1].x+p.x)/2,(s[i-1].y+p.y)/2):c.moveTo(p.x,p.y)}
-    c.stroke()}
-  // swamp
-  for(let i=0;i<170;i++){
-    const a=R()*Math.PI*2,r=Math.sqrt(R());
+  for(const s of STREAMS){c.strokeStyle="#2f86d6";c.lineWidth=13;strokePath(c,s,true);
+    c.strokeStyle="#6fc0f5";c.lineWidth=7;strokePath(c,s,true)}
+  // swamp: shallow ponds and reeds
+  for(let i=0;i<14;i++){const a=R()*Math.PI*2,r=Math.sqrt(R())*0.7;
+    const x=SWAMP.x+Math.cos(a)*SWAMP.rx*r,y=SWAMP.y+Math.sin(a)*SWAMP.ry*r,rw=26+R()*34,rh=16+R()*22;
+    c.fillStyle="#3e9c8f";c.beginPath();c.ellipse(x,y+3,rw,rh,R(),0,7);c.fill();
+    c.fillStyle="#62bfb0";c.beginPath();c.ellipse(x,y,rw,rh,0,0,7);c.fill()}
+  for(let i=0;i<120;i++){const a=R()*Math.PI*2,r=Math.sqrt(R());
     const x=SWAMP.x+Math.cos(a)*SWAMP.rx*r,y=SWAMP.y+Math.sin(a)*SWAMP.ry*r;
-    drawTuft(c,x,y,5+R()*5,"rgba(58,94,50,0.85)");
-  }
-  c.font=serifFont(17,true);c.fillStyle="#3a5e32";c.textAlign="center";
-  c.fillText("S W A M P",SWAMP.x,SWAMP.y-8);
-  // forests
-  for(const f of FORESTS){
-    const area=f.rx*f.ry,n=Math.floor(area/380);
-    const FR=mulberry32(f.seed|0);
-    for(let i=0;i<n;i++){
-      const a=FR()*Math.PI*2,r=Math.sqrt(FR());
-      const x=f.x+Math.cos(a)*f.rx*r,y=f.y+Math.sin(a)*f.ry*r;
-      if(distToPoly({x,y},HIGHWAY)<18)continue;
-      let onRd=false;for(const g of GATES){if(dist({x,y},ptOnSeg({x,y},g.pos,g.roadEnd))<20){onRd=true;break}}
-      if(onRd)continue;
-      drawPine(c,x,y,7+FR()*7,FR()<0.85?"#2f4a28":"#3d5c33");
-    }
-  }
-  // town line (dashed loop)
-  c.strokeStyle="#2f4a28";c.lineWidth=2.2;c.setLineDash([9,7]);
-  c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
-  c.setLineDash([]);
-  c.font=scriptFont(19);c.fillStyle="#2f4a28";c.fillText("town line",660,352);
-  // interior defensive routes (dashed, faint)
-  c.strokeStyle="rgba(47,74,40,0.5)";c.lineWidth=1.4;c.setLineDash([5,6]);
+    c.strokeStyle="#2f6b2a";c.lineWidth=2;c.beginPath();c.moveTo(x,y);c.lineTo(x+(R()-.5)*4,y-7-R()*6);c.stroke()}
+  // interior paths between gates
+  c.strokeStyle="rgba(255,255,255,.35)";c.lineWidth=5;c.setLineDash([2,12]);
   c.beginPath();
-  GATES.forEach((g,i)=>{
-    const n=GATES[(i+1)%GATES.length];
+  GATES.forEach((g,i)=>{const n=GATES[(i+1)%GATES.length];
     let mx=(g.gateIn.x+n.gateIn.x)/2,my=(g.gateIn.y+n.gateIn.y)/2;
     const d=Math.hypot(mx-CENTER.x,my-CENTER.y)||1,need=CENTER.r+45;
     if(d<need){mx=CENTER.x+(mx-CENTER.x)/d*need;my=CENTER.y+(my-CENTER.y)/d*need}
-    if(i===0)c.moveTo(g.gateIn.x,g.gateIn.y);
-    c.quadraticCurveTo(mx,my,n.gateIn.x,n.gateIn.y);
-  });
+    if(i===0)c.moveTo(g.gateIn.x,g.gateIn.y);c.quadraticCurveTo(mx,my,n.gateIn.x,n.gateIn.y)});
   c.stroke();c.setLineDash([]);
-  // roads
+  // gate roads: sandy dirt with an edge
+  for(const g of GATES){const a={x:g.gateIn.x-g.dx*30,y:g.gateIn.y-g.dy*30};
+    c.strokeStyle="#c79a55";c.lineWidth=40;strokePath(c,[a,g.roadEnd]);
+    c.strokeStyle="#ecd197";c.lineWidth=33;strokePath(c,[a,g.roadEnd])}
+  // forests: chunky canopy blobs with a drop shadow
+  const trees=[];
+  for(const f of FORESTS){const n=Math.floor(f.rx*f.ry/700),FR=mulberry32(f.seed|0);
+    for(let i=0;i<n;i++){const a=FR()*Math.PI*2,r=Math.sqrt(FR());
+      const x=f.x+Math.cos(a)*f.rx*r,y=f.y+Math.sin(a)*f.ry*r;
+      if(distToPoly({x,y},HIGHWAY)<30)continue;
+      let onRd=false;for(const g of GATES){if(dist({x,y},ptOnSeg({x,y},g.pos,g.roadEnd))<34){onRd=true;break}}
+      if(onRd||dist({x,y},CENTER)<CENTER.r+20)continue;
+      trees.push({x,y,r:11+FR()*9,t:FR()})}}
+  trees.sort((p,q)=>p.y-q.y);
+  for(const t of trees){c.fillStyle="rgba(20,60,20,.28)";c.beginPath();c.ellipse(t.x+4,t.y+6,t.r,t.r*0.8,0,0,7);c.fill()}
+  for(const t of trees){
+    c.fillStyle=t.t<.5?"#2f7d32":(t.t<.85?"#3a8f3b":"#2a6d2f");c.beginPath();c.arc(t.x,t.y,t.r,0,7);c.fill();
+    c.fillStyle="rgba(255,255,255,.14)";c.beginPath();c.arc(t.x-t.r*0.3,t.y-t.r*0.35,t.r*0.5,0,7);c.fill()}
+  // town line: bold white chalk
+  c.strokeStyle="rgba(0,0,0,.18)";c.lineWidth=8;c.setLineDash([18,12]);
+  c.save();c.translate(0,2);c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();c.restore();
+  c.strokeStyle="#ffffff";c.lineWidth=6;
+  c.beginPath();TOWN_POLY.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();c.setLineDash([]);
+  // flag areas tinted on each road, then the gates
   for(const g of GATES){
-    const p=g.perp;
-    c.strokeStyle="#8a7448";c.lineWidth=1.8;
-    for(const s of[-1,1]){
-      c.beginPath();
-      c.moveTo(g.gateIn.x-g.dx*30+p.x*9*s,g.gateIn.y-g.dy*30+p.y*9*s);
-      c.lineTo(g.roadEnd.x+p.x*9*s,g.roadEnd.y+p.y*9*s);c.stroke();
-    }
-    c.fillStyle="rgba(196,170,120,0.7)";
     c.save();c.translate(g.pos.x,g.pos.y);c.rotate(Math.atan2(g.dy,g.dx));
-    c.fillRect(-56,-9,321,18);c.restore();
-  }
-  // gates & flags
-  for(const g of GATES){
+    c.fillStyle="rgba(224,65,47,.30)";rr(c,6,-16,89,32,6);c.fill();
+    if(g.hasBlue){c.fillStyle="rgba(37,99,235,.30)";rr(c,99,-16,86,32,6);c.fill()}
+    c.restore();
     const rect=gateRect(g);
-    c.strokeStyle="#f7f2e4";c.lineWidth=2.4;
-    c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
-    c.strokeStyle="rgba(43,35,23,0.65)";c.lineWidth=0.8;
-    c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
-    for(const p of rect){c.fillStyle="#f7f2e4";c.beginPath();c.arc(p.x,p.y,3,0,7);c.fill();
-      c.strokeStyle="#2b2317";c.lineWidth=0.7;c.stroke()}
-    // red flags
-    for(const s of[-1,1]){
-      const x=g.redFlag.x+g.perp.x*30*s,y=g.redFlag.y+g.perp.y*30*s;
-      c.fillStyle="#a03325";c.beginPath();c.arc(x,y,3.6,0,7);c.fill();
-      c.strokeStyle="#2b2317";c.lineWidth=0.7;c.stroke();
-    }
-    if(g.hasBlue)for(const s of[-1,1]){
-      const x=g.blueFlag.x+g.perp.x*33*s,y=g.blueFlag.y+g.perp.y*33*s;
-      c.fillStyle="#33559c";c.beginPath();c.arc(x,y,3.6,0,7);c.fill();
-      c.strokeStyle="#2b2317";c.lineWidth=0.7;c.stroke();
-    }
-    // label
-    c.font=scriptFont(26);c.fillStyle="#2b2317";c.textAlign="center";
-    const lx=g.pos.x-g.dx*52+g.perp.x*30,ly=g.pos.y-g.dy*52+g.perp.y*30;
-    c.fillText(g.label,lx,ly+8);
+    c.strokeStyle="#ffffff";c.lineWidth=4;c.beginPath();rect.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.stroke();
+    for(const p of rect){c.fillStyle="#fff";c.beginPath();c.arc(p.x,p.y,5,0,7);c.fill();c.strokeStyle="#16211b";c.lineWidth=1.5;c.stroke()}
+    const flag=(x,y,col)=>{c.fillStyle=col;c.beginPath();c.arc(x,y,6,0,7);c.fill();c.strokeStyle="#fff";c.lineWidth=2;c.stroke()};
+    for(const sd of[-1,1]){flag(g.redFlag.x+g.perp.x*21*sd,g.redFlag.y+g.perp.y*21*sd,"#e0412f");
+      if(g.hasBlue)flag(g.blueFlag.x+g.perp.x*21*sd,g.blueFlag.y+g.perp.y*21*sd,"#2563eb")}
   }
   // center of town
-  c.fillStyle="rgba(222,203,150,0.9)";
-  c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r,0,7);c.fill();
-  c.strokeStyle="rgba(43,35,23,0.5)";c.lineWidth=1;c.setLineDash([4,4]);c.stroke();c.setLineDash([]);
-  c.font=scriptFont(17);c.fillStyle="#4a3c26";
-  c.fillText("center of town",CENTER.x,CENTER.y-CENTER.r-8);
+  c.fillStyle="#f3e2b3";c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r,0,7);c.fill();
+  c.strokeStyle="#fff";c.lineWidth=5;c.stroke();
+  c.strokeStyle="rgba(0,0,0,.12)";c.lineWidth=2;c.beginPath();c.arc(CENTER.x,CENTER.y,CENTER.r-10,0,7);c.stroke();
+  label(c,"CENTER",CENTER.x,CENTER.y,15,"#7a5a1d");
   // landmarks
-  c.font=scriptFont(16);c.fillStyle="#4a3c26";
-  c.fillText("showers",SHOWERS.x,SHOWERS.y+22);
-  c.strokeStyle="#4a3c26";c.lineWidth=1.5;
-  c.strokeRect(SHOWERS.x-10,SHOWERS.y-8,20,12);
-  c.beginPath();c.moveTo(SHOWERS.x-13,SHOWERS.y-8);c.lineTo(SHOWERS.x,SHOWERS.y-16);c.lineTo(SHOWERS.x+13,SHOWERS.y-8);c.stroke();
-  c.fillText("fallen tree",FALLENTREE.x,FALLENTREE.y+20);
+  c.fillStyle="#b5653a";rr(c,SHOWERS.x-16,SHOWERS.y-10,32,22,4);c.fill();
+  c.fillStyle="#8a4526";c.beginPath();c.moveTo(SHOWERS.x-20,SHOWERS.y-8);c.lineTo(SHOWERS.x,SHOWERS.y-24);c.lineTo(SHOWERS.x+20,SHOWERS.y-8);c.closePath();c.fill();
+  label(c,"Showers",SHOWERS.x,SHOWERS.y+28,14,"#16211b");
   c.save();c.translate(FALLENTREE.x,FALLENTREE.y);c.rotate(0.5);
-  c.strokeStyle="#5a4a2e";c.lineWidth=4;c.beginPath();c.moveTo(-16,0);c.lineTo(16,0);c.stroke();
-  c.lineWidth=1.5;c.beginPath();c.moveTo(10,0);c.lineTo(15,-6);c.moveTo(4,0);c.lineTo(8,7);c.stroke();c.restore();
-  // campsite arrow
-  c.save();c.translate(CAMPSITE.x-40,CAMPSITE.y+10);c.rotate(-0.5);
-  c.font=scriptFont(17);c.fillText("To the campsite",40,26);
-  c.strokeStyle="#4a3c26";c.lineWidth=2;
-  c.beginPath();c.moveTo(30,8);c.lineTo(-28,26);c.stroke();
-  c.beginPath();c.moveTo(-28,26);c.lineTo(-16,18);c.moveTo(-28,26);c.lineTo(-15,30);c.stroke();
-  c.restore();
-  // compass rose
-  const cx=1380,cy=1065;
-  c.strokeStyle="#2b2317";c.fillStyle="#2b2317";c.lineWidth=1.4;
-  c.beginPath();c.arc(cx,cy,26,0,7);c.stroke();
-  c.beginPath();c.arc(cx,cy,4,0,7);c.fill();
-  for(let k=0;k<4;k++){
-    const a=k*Math.PI/2-Math.PI/2;
-    c.beginPath();c.moveTo(cx+Math.cos(a)*38,cy+Math.sin(a)*38);
-    c.lineTo(cx+Math.cos(a+2.6)*10,cy+Math.sin(a+2.6)*10);
-    c.lineTo(cx+Math.cos(a-2.6)*10,cy+Math.sin(a-2.6)*10);c.closePath();
-    k===0?c.fill():c.stroke();
+  c.fillStyle="#8a5a33";rr(c,-24,-6,48,12,6);c.fill();c.fillStyle="#c49a6c";c.beginPath();c.ellipse(24,0,4,6,0,0,7);c.fill();c.restore();
+  label(c,"Fallen tree",FALLENTREE.x,FALLENTREE.y+26,13,"#16211b");
+  // campsite tent
+  const tx=CAMPSITE.x-56,ty=CAMPSITE.y-6;
+  c.fillStyle="#f59e0b";c.beginPath();c.moveTo(tx-22,ty+16);c.lineTo(tx,ty-18);c.lineTo(tx+22,ty+16);c.closePath();c.fill();
+  c.fillStyle="#a85f00";c.beginPath();c.moveTo(tx-6,ty+16);c.lineTo(tx,ty);c.lineTo(tx+6,ty+16);c.closePath();c.fill();
+  label(c,"Campsite",tx,ty+32,14,"#16211b");
+  label(c,"SWAMP",SWAMP.x,SWAMP.y-SWAMP.ry*0.75,16,"#1f5f55");
+  c.save();c.translate(300,866);c.rotate(0.55);label(c,"HIGHWAY",0,0,14,"#fff","rgba(60,66,72,.9)");c.restore();
+  // gate badges: big dark discs with the gate's letters
+  for(const g of GATES){
+    const lx=g.pos.x-g.dx*64,ly=g.pos.y-g.dy*64;
+    c.fillStyle="rgba(0,0,0,.25)";c.beginPath();c.arc(lx+2,ly+3,22,0,7);c.fill();
+    c.fillStyle="#132219";c.beginPath();c.arc(lx,ly,22,0,7);c.fill();
+    c.strokeStyle="#fff";c.lineWidth=3;c.stroke();
+    c.fillStyle="#fff";c.font=serifFont(g.label.length>1?17:20,true);c.textAlign="center";c.textBaseline="middle";c.fillText(g.label,lx,ly+1);
   }
-  c.font=serifFont(15,true);c.textAlign="center";
-  c.fillText("N",cx,cy-48);c.fillText("S",cx,cy+56);c.fillText("E",cx+52,cy+4);c.fillText("W",cx-52,cy+4);
-  // scale bar
-  c.strokeStyle="#2b2317";c.lineWidth=2;
-  c.beginPath();c.moveTo(700,1128);c.lineTo(800,1128);c.stroke();
-  c.beginPath();c.moveTo(700,1122);c.lineTo(700,1134);c.moveTo(800,1122);c.lineTo(800,1134);c.stroke();
-  c.font=serifFont(13,false);c.fillText("250 feet",750,1114);
-  // legend
-  c.strokeStyle="#2b2317";c.lineWidth=1.5;c.fillStyle="rgba(232,215,168,0.92)";
-  c.fillRect(1252,1120,300,56);c.strokeRect(1252,1120,300,56);
-  c.fillStyle="#6f6f68";c.fillRect(1266,1132,26,10);c.strokeStyle="#2b2317";c.lineWidth=0.8;c.strokeRect(1266,1132,26,10);
-  c.fillStyle="#3b5ea8";c.fillRect(1266,1152,26,10);c.strokeRect(1266,1152,26,10);
-  c.fillStyle="#2b2317";c.font=serifFont(13,false);c.textAlign="left";
-  c.fillText("Grey Army Troops",1300,1141);c.fillText("Blue Army Troops",1300,1161);
-  // cartouche
-  const bx=1128,by=64,bw=424,bh=210;
-  c.fillStyle="rgba(236,220,175,0.95)";c.fillRect(bx,by,bw,bh);
-  c.strokeStyle="#2b2317";c.lineWidth=2.5;c.strokeRect(bx,by,bw,bh);
-  c.lineWidth=1;c.strokeRect(bx+6,by+6,bw-12,bh-12);
-  c.textAlign="center";c.fillStyle="#2b2317";
-  c.font=scriptFont(26);c.fillText("Map of York's Crossing",bx+bw/2,by+38);
-  c.font=scriptFont(20);c.fillText("being the field of the",bx+bw/2,by+66);
-  c.font=serifFont(30,true);c.fillText("WAR GAME",bx+bw/2,by+100);
-  c.font=scriptFont(20);c.fillText("Pine Island Camp • 1912 – 2026",bx+bw/2,by+130);
-  // pennants
-  for(const[i,[col,txt]]of[["#55554f","PGA"],["#24407a","PBA"]].entries()){
-    const px=bx+bw/2-64+i*74,py=by+146;
-    c.fillStyle=col;
-    c.beginPath();c.moveTo(px,py);c.lineTo(px+54,py);c.lineTo(px+42,py+13);c.lineTo(px+54,py+26);c.lineTo(px,py+26);c.closePath();c.fill();
-    c.strokeStyle="#2b2317";c.lineWidth=1;c.stroke();
-    c.fillStyle="#f7f2e4";c.font=serifFont(12,true);c.fillText(txt,px+22,py+18);
-    c.beginPath();c.moveTo(px,py);c.lineTo(px,py+34);c.stroke();
-  }
-  c.font=scriptFont(16);c.fillStyle="#4a3c26";
-  c.fillText("Pine Insula Semper Vincit",bx+bw/2,by+196);
+  // simple north arrow
+  const nx=1500,ny=90;
+  c.fillStyle="rgba(19,34,25,.85)";c.beginPath();c.arc(nx,ny,30,0,7);c.fill();
+  c.fillStyle="#fff";c.beginPath();c.moveTo(nx,ny-20);c.lineTo(nx+10,ny+8);c.lineTo(nx,ny+2);c.lineTo(nx-10,ny+8);c.closePath();c.fill();
+  c.font=serifFont(13,true);c.textAlign="center";c.fillText("N",nx,ny+19);
+  c.textBaseline="alphabetic";
   MAPIMG=cv;
 }
 
 /* ---------------- dynamic rendering ---------------- */
+function pill(c,txt,x,y,px,bg,fg){
+  c.font=serifFont(px,true);c.textAlign="center";c.textBaseline="middle";
+  const w=c.measureText(txt).width+px*1.1,h=px*1.75;
+  c.fillStyle="rgba(0,0,0,.22)";rr(c,x-w/2+1,y-h/2+2,w,h,h/2);c.fill();
+  c.fillStyle=bg;rr(c,x-w/2,y-h/2,w,h,h/2);c.fill();
+  c.fillStyle=fg;c.fillText(txt,x,y+px*0.05);c.textBaseline="alphabetic";
+}
 function render(dt){
   if(HEADLESS)return;
   const c=ui.ctx,v=ui.view,dpr=v.dpr||1;
   c.setTransform(dpr,0,0,dpr,0,0);
-  c.fillStyle="#1d1812";c.fillRect(0,0,innerWidth,innerHeight);
+  c.fillStyle="#5fa84d";c.fillRect(0,0,innerWidth,innerHeight);
   if(!MAPIMG)buildMap();
   c.setTransform(dpr*v.scale,0,0,dpr*v.scale,dpr*v.ox,dpr*v.oy);
   c.drawImage(MAPIMG,0,0);
@@ -2619,8 +2551,7 @@ function render(dt){
     const gs=G.gates[i];
     // caller noise arcs
     if(gs.noise>0){
-      const col=G.attacker==="G"?"rgba(190,120,40,0.65)":"rgba(60,100,190,0.65)";
-      c.strokeStyle=col;c.lineWidth=1.6;
+      c.strokeStyle="rgba(255,209,102,.9)";c.lineWidth=4;
       for(let k=0;k<3;k++){
         const r=12+((now*36+k*17)%52);
         c.globalAlpha=1-r/60;
@@ -2630,40 +2561,29 @@ function render(dt){
     }
     // whistle freeze / cooldown
     if(G.freeze&&G.freeze.gate===i){
-      c.fillStyle="rgba(160,51,37,0.92)";c.font=serifFont(15,true);c.textAlign="center";
-      c.fillText("⟟ PLAY IS OFF",g.pos.x,g.pos.y-42);
+      pill(c,"WHISTLE — PLAY OFF",g.pos.x,g.pos.y-46,13,"#e0412f","#fff");
     }else if(gs.cooldown>0){
-      c.fillStyle="rgba(90,74,46,0.85)";c.font=serifFont(11,true);c.textAlign="center";
-      c.fillText("play resumes "+Math.ceil(gs.cooldown)+"s",g.pos.x,g.pos.y-40);
+      pill(c,"back on in "+Math.ceil(gs.cooldown)+"s",g.pos.x,g.pos.y-44,11,"rgba(19,34,25,.85)","#fff");
     }
     // garrison badge
-    let label=null,style="#2b2317";
-    if(!viewerIsAtk){label=gs.def+(gs.plugged?" ⊕":"");if(gs.plugged)style="#a03325"}
+    let label=null,bg="#fff",fg="#16211b";
+    if(!viewerIsAtk){label="🛡 "+gs.def;if(gs.plugged){label="🔒 "+gs.def;bg="#16211b";fg="#fff"}}
     else{
       const age=(CFG.quarterLen-G.clock)-gs.lastSeenByAtk;
-      if(age<10){label=(gs.atkSeenDef??"?")+(gs.atkSeenPlug?" ⊕":"");style=age<5?"#2b2317":"#6b5a3a"}
+      if(age<10){label="👁 "+(gs.atkSeenDef??"?")+(gs.atkSeenPlug?" 🔒":"");if(age>=5){bg="rgba(255,255,255,.75)";fg="#5b665f"}}
       else label="?";
     }
-    if(label!=null){
-      const bxp=g.pos.x+g.perp.x*44-14,byp=g.pos.y+g.perp.y*44-9;
-      c.fillStyle="rgba(240,228,190,0.92)";c.fillRect(bxp,byp,30,17);
-      c.strokeStyle="#2b2317";c.lineWidth=0.8;c.strokeRect(bxp,byp,30,17);
-      c.fillStyle=style;c.font=serifFont(11.5,true);c.textAlign="center";
-      c.fillText(label,bxp+15,byp+12.5);
-    }
-    if(gs.plugged&&!viewerIsAtk){
-      c.fillStyle="#a03325";c.font=serifFont(10,true);
-      c.fillText("PLUGGED",g.pos.x-g.dx*76-g.perp.x*10,g.pos.y-g.dy*76-g.perp.y*10);
-    }
+    if(label!=null){const us=clamp(0.7/v.scale,1,2.2);
+      pill(c,label,g.pos.x+g.perp.x*58,g.pos.y+g.perp.y*58,12*us,bg,fg)}
     // open-panel / hover / armed highlight
     if(ui.gp&&ui.gp.gi===i){
-      const r=42+Math.sin(now*4)*4;
-      c.strokeStyle="#b98a2f";c.lineWidth=4;
+      const r=44+Math.sin(now*4)*4;
+      c.strokeStyle="#f59e0b";c.lineWidth=6;
       c.beginPath();c.arc(g.pos.x,g.pos.y,r,0,7);c.stroke();
       c.lineWidth=2;c.setLineDash([6,5]);
       c.beginPath();c.moveTo(g.pos.x,g.pos.y);c.lineTo(g.roadEnd.x,g.roadEnd.y);c.stroke();c.setLineDash([]);
     }else if(G.hoverGate===i){
-      c.strokeStyle=G.armedOrder?"#b98a2f":"rgba(185,138,47,0.6)";c.lineWidth=2.5;
+      c.strokeStyle=G.armedOrder?"#f59e0b":"rgba(255,255,255,0.8)";c.lineWidth=4;
       c.beginPath();c.arc(g.pos.x,g.pos.y,40,0,7);c.stroke();
     }
   });
@@ -2682,11 +2602,10 @@ function render(dt){
     const age=(CFG.quarterLen-G.clock)-gh.t;
     const al=clamp(1-age/CFG.ghostFade,0,1)*0.8;
     c.globalAlpha=al;
-    c.strokeStyle=ARMIES[enemy].dark;c.lineWidth=1.6;
-    c.strokeRect(gh.x-13,gh.y-8,26,16);
-    c.font=serifFont(12,true);c.fillStyle=ARMIES[enemy].dark;c.textAlign="center";
-    c.fillText(gh.n,gh.x,gh.y+4.5);
-    c.font=serifFont(9,false);c.fillText(age<1.2?"sighted!":"last seen",gh.x,gh.y+20);
+    const us=clamp(0.7/v.scale,1,2.2);
+    c.strokeStyle="#e0412f";c.lineWidth=3*us;c.setLineDash([6*us,4*us]);
+    c.beginPath();c.arc(gh.x,gh.y,16*us,0,7);c.stroke();c.setLineDash([]);
+    pill(c,(age<1.2?"❗ ":"")+gh.n+" seen",gh.x,gh.y-24*us,11*us,"#e0412f","#fff");
     c.globalAlpha=1;
   }
   // men
@@ -2695,22 +2614,22 @@ function render(dt){
     if(!own&&!enemyVisible(m))continue;
     const A=ARMIES[m.army];
     const sel=own&&G.selection.includes(m);
-    const uS=clamp(0.85/v.scale,1,2.4);
-    let w=10*uS,h=6*uS;
-    if(m.plugKneel){w=8*uS;h=8*uS}
-    c.globalAlpha=(m.state==="centerdead")?0.4:(m.state==="tempdead"?0.65:1);
-    if(sel){c.strokeStyle="#b98a2f";c.lineWidth=2;c.strokeRect(m.x-w/2-2,m.y-h/2-2,w+4,h+4)}
-    c.fillStyle=A.color;c.fillRect(m.x-w/2,m.y-h/2,w,h);
-    c.strokeStyle=A.dark;c.lineWidth=1;c.strokeRect(m.x-w/2,m.y-h/2,w,h);
-    if(m.state==="tempdead"){ // hands on head
-      c.fillStyle="#f7f2e4";c.beginPath();c.arc(m.x,m.y-h/2-3,2.2,0,7);c.fill();
-      c.strokeStyle="#2b2317";c.lineWidth=0.6;c.stroke();
+    const r=Math.max(6.5,3.6/v.scale);
+    c.globalAlpha=(m.state==="centerdead")?0.35:(m.state==="tempdead"?0.55:1);
+    c.fillStyle="rgba(0,0,0,.28)";c.beginPath();c.arc(m.x+r*0.18,m.y+r*0.3,r,0,7);c.fill();
+    if(sel){c.fillStyle="#f59e0b";c.beginPath();c.arc(m.x,m.y,r+r*0.45,0,7);c.fill()}
+    c.fillStyle=A.color;c.beginPath();c.arc(m.x,m.y,r,0,7);c.fill();
+    c.strokeStyle="#fff";c.lineWidth=r*0.32;c.stroke();
+    c.fillStyle="rgba(255,255,255,.3)";c.beginPath();c.arc(m.x-r*0.3,m.y-r*0.32,r*0.38,0,7);c.fill();
+    if(m.state==="tempdead"){ // out — hands on head
+      c.strokeStyle="#fff";c.lineWidth=r*0.3;c.beginPath();
+      c.moveTo(m.x-r*0.45,m.y-r*0.45);c.lineTo(m.x+r*0.45,m.y+r*0.45);c.moveTo(m.x+r*0.45,m.y-r*0.45);c.lineTo(m.x-r*0.45,m.y+r*0.45);c.stroke();
     }
     if(m.caller){
-      c.strokeStyle=m.army==="G"?"#b06a20":"#2f56b0";c.lineWidth=1.2;
-      const r=5+((now*22+m.id*7)%14);
-      c.globalAlpha=Math.max(0,1-r/20);
-      c.beginPath();c.arc(m.x,m.y-6,r,-2.6,-0.6);c.stroke();
+      c.strokeStyle="#ffd166";c.lineWidth=r*0.35;
+      const rr2=r+((now*22+m.id*7)%(r*2.5));
+      c.globalAlpha=Math.max(0,1-(rr2-r)/(r*2.5));
+      c.beginPath();c.arc(m.x,m.y,rr2,0,7);c.stroke();
       c.globalAlpha=1;
     }
     c.globalAlpha=1;
@@ -2721,35 +2640,26 @@ function render(dt){
     const alive=p.men.filter(m=>m.state!=="tempdead"&&m.state!=="centerdead");
     if(alive.length<2)continue;
     const pc=partyCenter(p);
-    c.fillStyle="rgba(240,228,190,0.92)";
-    c.fillRect(pc.x-16,pc.y-26,32,14);
-    c.strokeStyle="#2b2317";c.lineWidth=0.8;c.strokeRect(pc.x-16,pc.y-26,32,14);
-    c.fillStyle="#2b2317";c.font=serifFont(10,true);c.textAlign="center";
-    c.fillText((p.role==="charge"?"⚔ ":"📯 ")+alive.length,pc.x,pc.y-15.5);
-    if(p.state==="form"||p.state==="step"){
-      c.fillStyle="#a03325";c.font=serifFont(10,true);
-      c.fillText(p.state==="form"?"READY—READY—":"ONE, TWO, STEP!",pc.x,pc.y+18);
-    }
+    const us=clamp(0.7/v.scale,1,2.2);
+    pill(c,(p.role==="charge"?"⚔ ":"📣 ")+alive.length,pc.x,pc.y-22*us,12*us,ARMIES[p.army].dark,"#fff");
+    if(p.state==="form"||p.state==="step")
+      pill(c,p.state==="form"?"READY, READY…":"ONE, TWO, STEP!",pc.x,pc.y+22*us,11*us,"#ffd166","#16211b");
   }
   // rally marker & muster beacon (attacking)
   if(viewerIsAtk&&G.rally){
-    c.font=serifFont(11,true);c.fillStyle="#4a3c26";c.textAlign="center";
-    c.fillText("⚑ rally / war wagon",G.rally.x,G.rally.y-38);
+    const us=clamp(0.7/v.scale,1,2.2);
+    pill(c,"⚑ Your base",G.rally.x,G.rally.y-40,11*us,"rgba(19,34,25,.85)","#fff");
     if(G.phase==="play"&&G.tPlay<16){
       const r=26+((now*44)%50);
-      c.strokeStyle="#b98a2f";c.lineWidth=3;
+      c.strokeStyle="#f59e0b";c.lineWidth=5;
       c.globalAlpha=Math.max(0,1-(r-26)/50);
       c.beginPath();c.arc(G.rally.x,G.rally.y,r,0,7);c.stroke();
       c.globalAlpha=1;
-      c.fillStyle="#8a2b1d";c.font=serifFont(16,true);
-      c.fillText("YOUR ARMY MUSTERS HERE",G.rally.x,G.rally.y-58);
-      c.font=serifFont(12,true);
-      c.fillText(ui.coarse?"tap a gate to send men":"click a gate to send men",G.rally.x,G.rally.y+58);
     }
   }
   // drag rectangle
   if(dragStart&&dragCur){
-    c.strokeStyle="#b98a2f";c.lineWidth=1.5;c.setLineDash([6,4]);
+    c.strokeStyle="#f59e0b";c.lineWidth=2.5;c.setLineDash([6,4]);
     c.strokeRect(Math.min(dragStart.x,dragCur.x),Math.min(dragStart.y,dragCur.y),
       Math.abs(dragCur.x-dragStart.x),Math.abs(dragCur.y-dragStart.y));
     c.setLineDash([]);
