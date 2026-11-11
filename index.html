@@ -297,6 +297,12 @@
   #banner .b-main{background:rgba(14,19,17,.92);border:1px solid #3a4640;border-radius:6px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:26px}
   #banner .b-sub{background:none;color:#e9eeeb;font-weight:500;font-style:italic;text-shadow:0 1px 3px rgba(0,0,0,.9)}
   #overlay{background:rgba(6,9,8,.72)}
+  .plaque{margin:12px auto;max-width:340px;padding:10px 14px 12px;border:3px solid #1f3a6e;border-radius:3px;text-align:left;
+    background:linear-gradient(92deg,#c98f3d,#d9a24a 22%,#cf9742 47%,#dcaa55 71%,#c88c3a);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 0 22px rgba(120,70,10,.35);
+    color:#15120c;font-family:"Marker Felt","Chalkboard SE","Bradley Hand","Segoe Print",system-ui,sans-serif;font-weight:700;font-size:19px;line-height:1.22;letter-spacing:.3px}
+  .plaque .pl-head{font-family:Georgia,"Times New Roman",serif;font-weight:900;font-size:22px;letter-spacing:1px;color:#1f3a6e;text-align:center;margin-bottom:4px}
+  .plaque .pl-row{white-space:nowrap}
+  .plaque.small{font-size:15px;max-width:290px}
   #overlay.scene{background-color:#0b0f0d;background-size:cover;background-position:42% center}
   @media (orientation:portrait) and (max-width:700px){
     #overlay.scene{align-items:flex-end}
@@ -414,6 +420,13 @@ final:"data:image/webp;base64,UklGRirwAQBXRUJQVlA4IB7wAQCwhwadASpABokDPrFSoU0nJK
 };
 let TERRAIN=null;
 if(!HEADLESS&&ART.map){const im=new Image();im.onload=()=>{TERRAIN=im;MAPIMG=null};im.src=ART.map}
+
+/* The real final scores, as lettered on the War Game board in the dining hall: [year, winner, winner's points, loser's points]. */
+const REAL_SCORES=[[2012,"B",187,172],[2013,"B",157,155],[2014,"B",203,196],[2015,"B",206,167],[2016,"B",185,166],
+  [2017,"B",182,170],[2018,"B",225,223],[2019,"G",221,194],[2021,"G",190,188],[2022,"B",195,185],[2023,"G",204,196],
+  [2024,"B",177,150],[2025,"B",150,137],[2026,"B",156,154]];
+function plaqueLine(yr,w,ws,ls){const n=a=>a==="G"?"GREY":"BLUE",l=w==="G"?"B":"G";
+  return `<div class="pl-row">${String(yr).slice(-2)}&nbsp; ${n(w)}-${ws} ${n(l)}-${ls}</div>`}
 
 /* ---------------- config ---------------- */
 const CFG = {
@@ -2153,6 +2166,8 @@ const ui={
       every scoring point, challenge, repulse and plugged gate is ruled the way the umpires would rule it.</p>
       <p>The generals you can choose are real Grey and Blue generals, drawn from <i>The Pine Needle</i> and camp lore.
       The War Game itself belongs to Pine Island Camp and its campers; this is a tribute by one of its Grey generals.</p>
+      <details class="more"><summary>The real record, 2012–2026 ▾</summary>
+        <div class="plaque small"><div class="pl-head">WAR GAME</div>${REAL_SCORES.map(r=>plaqueLine(...r)).join("")}</div></details>
       <p class="fine">The scenery and aerial map are illustrations made for this game, not photographs of York's Crossing.</p>
       <h3 style="margin:12px 0 4px;font-size:17px">Privacy</h3>
       <p>This game collects nothing. No accounts, no ads, no tracking, no network connection. Your generals' names and settings
@@ -2221,7 +2236,8 @@ const ui={
       The head umpire peers down through tortoiseshell glasses at his clipboard…</p>
       <hr class="rule-line">
       <h1 style="font-size:38px">${winner?ARMIES[winner].name+" VICTORY":"A TIE — UNHEARD OF"}</h1>
-      <p style="text-align:center;font-size:24px;font-weight:700">GREY ${g} — BLUE ${b}</p>
+      <div class="plaque"><div class="pl-head">WAR GAME</div>${
+        winner?plaqueLine(new Date().getFullYear(),winner,Math.max(g,b),Math.min(g,b)):`<div class="pl-row">${String(new Date().getFullYear()).slice(-2)}&nbsp; GREY-${g} BLUE-${b}</div>`}</div>
       <p style="text-align:center" class="fine">${esc(ARMIES.G.general)} (Grey) vs. ${esc(ARMIES.B.general)} (Blue)</p>
       <table class="score-table"><tr><th>Quarter</th><th></th><th>GREY</th><th>BLUE</th></tr>${rows}</table>
       <p style="text-align:center">${winner?(youWin?
